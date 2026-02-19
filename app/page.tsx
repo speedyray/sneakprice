@@ -32,7 +32,7 @@ export default function SneakPriceLanding() {
           className="text-5xl md:text-7xl font-extrabold leading-tight max-w-4xl"
         >
           Turn Your <span className="text-green-400">Sneakers</span> Into
-          <br /> Real Instant Market Value.
+          <br />Instant Market Value.
         </motion.h1>
 
         <motion.p
