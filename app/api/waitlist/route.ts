@@ -27,3 +27,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
+console.log("URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
