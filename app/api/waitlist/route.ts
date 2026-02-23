@@ -1,31 +1,64 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
+import { getMaxAge } from "next/dist/server/image-optimizer";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function POST(request: Request) {
+const resend = new Resend(process.env.RESEND_API_KEY!);
+
+export async function POST(req: Request) {
   try {
-    const { email } = await request.json();
+    const { email } = await req.json();
 
     if (!email) {
-      return NextResponse.json({ error: "Email required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email required" },
+        { status: 400 }
+      );
     }
 
     const { error } = await supabase
       .from("waitlist")
       .insert([{ email }]);
 
+    // Handle duplicate email
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      if (error.code === "23505") {
+        return NextResponse.json(
+          { message: "Already on waitlist" },
+          { status: 400 }
+        );
+      }
+      throw error;
     }
 
-    return NextResponse.json({ message: "Joined waitlist 🎉" });
-  } catch (err) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    // 🔥 SEND CONFIRMATION EMAIL
+    await resend.emails.send({
+      from: "SneakPrice <onboarding@resend.dev>",
+      to: "zoomzoom@gmx.com",
+      subject: "You're on the SneakPrice Waitlist 👟",
+      html: `
+        <div style="font-family: Arial; padding: 20px;">
+          <h2>Welcome to SneakPrice 👟</h2>
+          <p>You’re officially on the early access list.</p>
+          <p>When we launch resale pricing, you’ll be the first to know.</p>
+          <br/>
+          <p>– SneakPrice Team</p>
+        </div>
+      `,
+    });
+
+    return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
-
-console.log("URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
