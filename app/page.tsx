@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function SneakPriceLanding() {
   const [email, setEmail] = useState("");
@@ -51,9 +52,11 @@ export default function SneakPriceLanding() {
           transition={{ delay: 0.4, duration: 0.8 }}
           className="mt-10 flex flex-col sm:flex-row gap-4"
         >
-          <button className="bg-green-500 hover:bg-green-400 text-black font-semibold px-8 py-4 rounded-2xl shadow-2xl text-lg transition-all duration-300 hover:scale-105">
-            Scan a Sneaker
-          </button>
+         <Link href="/scan">
+             <button className="bg-green-500 hover:bg-green-400 text-black font-semibold px-8 py-4 rounded-2xl shadow-2xl text-lg transition-all duration-300 hover:scale-105">
+                Scan a Sneaker
+            </button>
+        </Link>
           <button className="border border-zinc-700 hover:border-white px-8 py-4 rounded-2xl text-lg transition-all duration-300 hover:scale-105">
             Join Early Access
           </button>

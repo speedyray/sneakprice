@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { createClient } from "@supabase/supabase-js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(request: Request) {
   try {
@@ -22,23 +28,15 @@ export async function POST(request: Request) {
         {
           role: "system",
           content: `
-You are a sneaker authentication and identification expert.
-
-Identify the sneaker in the image.
-
-Return ONLY valid JSON in this format:
-
+You are a sneaker identification expert.
+Return ONLY valid JSON:
 {
   "brand": "",
   "model": "",
   "colorway": "",
-  "release_year": "",
   "confidence": 0
 }
-
 Confidence must be 0-100.
-If unsure, still give best guess but lower confidence.
-No extra text.
           `,
         },
         {
@@ -47,9 +45,7 @@ No extra text.
             { type: "text", text: "Identify this sneaker." },
             {
               type: "image_url",
-              image_url: {
-                url: image,
-              },
+              image_url: { url: image },
             },
           ],
         },
@@ -57,9 +53,22 @@ No extra text.
       max_tokens: 300,
     });
 
-    const result = response.choices[0].message.content;
+    const parsed = JSON.parse(
+      response.choices[0].message.content!
+    );
 
-    return NextResponse.json(JSON.parse(result!));
+    // 🔥 SAVE TO SUPABASE
+    await supabase.from("scans").insert([
+      {
+        brand: parsed.brand,
+        model: parsed.model,
+        colorway: parsed.colorway,
+        confidence: parsed.confidence,
+      },
+    ]);
+
+    return NextResponse.json(parsed);
+
   } catch (error) {
     console.error(error);
     return NextResponse.json(
