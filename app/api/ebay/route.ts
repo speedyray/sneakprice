@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server";
 import { getEbayAccessToken } from "@/lib/ebay";
-
 import { prisma } from "@/lib/prisma";
 
+function median(arr: number[]) {
+  if (arr.length === 0) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
 
+  return sorted.length % 2 !== 0
+    ? sorted[mid]
+    : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function average(arr: number[]) {
+  if (arr.length === 0) return 0;
+  return arr.reduce((sum, p) => sum + p, 0) / arr.length;
+}
 
 export async function POST(req: Request) {
   const { query } = await req.json();
@@ -13,96 +25,137 @@ export async function POST(req: Request) {
       ? "https://api.ebay.com"
       : "https://api.sandbox.ebay.com";
 
-  console.log("Base URL:", base);
-
   const token = await getEbayAccessToken();
 
-  console.log("Token exists:", !!token);
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+  };
 
-  const res = await fetch(
+  /* =========================
+     1️⃣ ACTIVE LISTINGS
+  ========================== */
+
+  const activeRes = await fetch(
     `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
-     query
-     )}&limit=20&filter=buyingOptions:{FIXED_PRICE},conditionIds:{1000}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
-      },
-    }
+      query
+    )}&limit=30&filter=buyingOptions:{FIXED_PRICE}`,
+    { headers }
   );
 
-  const data = await res.json();
+  const activeData = await activeRes.json();
+  const activeItems = activeData.itemSummaries || [];
 
-  const items = data.itemSummaries || [];
+  const activePrices = activeItems
+    .map((item: any) => parseFloat(item.price?.value))
+    .filter((p: number) => !isNaN(p));
 
-const prices = items
-  .map((item: any) => parseFloat(item.price?.value))
-  .filter((p: number) => !isNaN(p));
+  let activeStats = null;
 
-  const totalListings = items.length;
+  if (activePrices.length > 0) {
+    activePrices.sort((a: number, b: number) => a - b);
 
-if (prices.length === 0) {
-  return NextResponse.json({
-    totalListings: 0,
-    message: "No fixed-price new listings found",
-  });
-}
+    const trimPercent = 0.15;
+    const trimCount = Math.floor(activePrices.length * trimPercent);
 
-prices.sort((a: number, b: number) => a - b);
+    const trimmed = activePrices.slice(
+      trimCount,
+      activePrices.length - trimCount
+    );
 
-const trimPercent = 0.15;
-const trimCount = Math.floor(prices.length * trimPercent);
-
-const trimmedPrices = prices.slice(
-  trimCount,
-  prices.length - trimCount
-);
-
-const lowest = trimmedPrices[0];
-const highest = trimmedPrices[trimmedPrices.length - 1];
-
-const average =
-  trimmedPrices.reduce((sum: number, p: number) => sum + p, 0) /
-  trimmedPrices.length;
-
-const median =
-  trimmedPrices.length % 2 === 0
-    ? (trimmedPrices[trimmedPrices.length / 2 - 1] +
-        trimmedPrices[trimmedPrices.length / 2]) /
-      2
-    : trimmedPrices[Math.floor(trimmedPrices.length / 2)];
+    const lowest = trimmed[0];
+    const highest = trimmed[trimmed.length - 1];
+    const avg = average(trimmed);
+    const med = median(trimmed);
 
     const spread = highest - lowest;
-    const volatility = spread / average;
+    const volatility = spread / avg;
 
-     let marketLabel = "Active Market";
-
+    let marketLabel = "Active Market";
     if (volatility > 0.5) marketLabel = "High Volatility";
     if (volatility < 0.2) marketLabel = "Stable Blue-Chip";
 
+    activeStats = {
+      medianPrice: med,
+      averagePrice: avg,
+      lowestPrice: lowest,
+      highestPrice: highest,
+      totalListings: activePrices.length,
+      volatility,
+      marketLabel,
+    };
+  }
+
+  /* =========================
+     2️⃣ SOLD LISTINGS
+  ========================== */
+
+  const soldRes = await fetch(
+    `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
+      query
+    )}&limit=50&filter=soldItems:{true}`,
+    { headers }
+  );
+
+  const soldData = await soldRes.json();
+  const soldItems = soldData.itemSummaries || [];
+
+  const newPrices: number[] = [];
+  const usedPrices: number[] = [];
+
+  soldItems.forEach((item: any) => {
+    const price = parseFloat(item.price?.value);
+    const condition = item.condition?.toLowerCase();
+
+    if (!price || isNaN(price)) return;
+
+    if (condition?.includes("new")) {
+      newPrices.push(price);
+    } else {
+      usedPrices.push(price);
+    }
+  });
+
+  const allSold = [...newPrices, ...usedPrices];
+
+  let soldStats = null;
+
+  if (allSold.length > 0) {
+    soldStats = {
+      totalSold: allSold.length,
+      overallMedian: median(allSold),
+      newCount: newPrices.length,
+      newMedian: newPrices.length ? median(newPrices) : null,
+      usedCount: usedPrices.length,
+      usedMedian: usedPrices.length ? median(usedPrices) : null,
+    };
+  }
+
+  /* =========================
+     3️⃣ SAVE TO DATABASE
+  ========================== */
+
+  if (activeStats) {
     await prisma.sneakerScan.create({
-  data: {
-    query,
-    medianPrice: median,
-    averagePrice: average,
-    lowestPrice: lowest,
-    highestPrice: highest,
-    volatility,
-    marketLabel,
-    totalListings,
-  },
-});
+      data: {
+        query,
+        medianPrice: activeStats.medianPrice,
+        averagePrice: activeStats.averagePrice,
+        lowestPrice: activeStats.lowestPrice,
+        highestPrice: activeStats.highestPrice,
+        volatility: activeStats.volatility,
+        marketLabel: activeStats.marketLabel,
+        totalListings: activeStats.totalListings,
+      },
+    });
+  }
 
+  /* =========================
+     4️⃣ FINAL RESPONSE
+  ========================== */
 
-return NextResponse.json({
-  medianPrice: median,
-  averagePrice: average,
-  lowestPrice: lowest,
-  highestPrice: highest,
-  totalListings,
-  volatility,
-  marketLabel,
-});
-};
-
-
+  return NextResponse.json({
+    activeMarket: activeStats,
+    soldMarket: soldStats,
+  });
+}
