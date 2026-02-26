@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getEbayAccessToken } from "@/lib/ebay";
-import { prisma } from "@/lib/prisma";
+
+
 
 function median(arr: number[]) {
   if (arr.length === 0) return 0;
@@ -132,23 +133,10 @@ export async function POST(req: Request) {
   }
 
   /* =========================
-     3️⃣ SAVE TO DATABASE
+     3️⃣ SAVE TO DATABASE REMOVED
   ========================== */
 
-  if (activeStats) {
-    await prisma.sneakerScan.create({
-      data: {
-        query,
-        medianPrice: activeStats.medianPrice,
-        averagePrice: activeStats.averagePrice,
-        lowestPrice: activeStats.lowestPrice,
-        highestPrice: activeStats.highestPrice,
-        volatility: activeStats.volatility,
-        marketLabel: activeStats.marketLabel,
-        totalListings: activeStats.totalListings,
-      },
-    });
-  }
+  
 
   /* =========================
      4️⃣ FINAL RESPONSE
