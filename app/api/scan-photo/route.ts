@@ -1,0 +1,53 @@
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+export async function POST(req: Request) {
+  try {
+    const formData = await req.formData();
+    const file = formData.get("image") as File;
+
+    if (!file) {
+      return NextResponse.json({ error: "No image uploaded" }, { status: 400 });
+    }
+
+    const bytes = await file.arrayBuffer();
+    const base64 = Buffer.from(bytes).toString("base64");
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a sneaker identification expert. Identify the exact sneaker model name in the image. Return only the sneaker name.",
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Identify this sneaker model.",
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${file.type};base64,${base64}`,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const sneakerName = response.choices[0].message.content?.trim();
+
+    return NextResponse.json({ sneakerName });
+  } catch (err) {
+    console.error("Scan error:", err);
+    return NextResponse.json({ error: "Scan failed" }, { status: 500 });
+  }
+}
