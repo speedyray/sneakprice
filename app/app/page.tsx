@@ -1,5 +1,7 @@
 "use client";
 
+import imageCompression from "browser-image-compression";
+
 import { useState } from "react";
 import {
   BarChart,
@@ -62,6 +64,7 @@ export default function AppPage() {
       setError("Camera access denied or unavailable.");
     }
   };
+  
 
   const handleAnalyze = async () => {
     if (!query && !image) {
@@ -76,15 +79,22 @@ export default function AppPage() {
     try {
       let searchQuery = query;
 
-      // 🖼 If image uploaded → identify first
-      if (image) {
-        const formData = new FormData();
-        formData.append("image", image);
+     if (image) {
+  // 🔥 COMPRESS IMAGE BEFORE UPLOAD
+  const compressedImage = await imageCompression(image, {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1024,
+    useWebWorker: true,
+  });
 
-        const scanRes = await fetch("/api/scan-photo", {
-          method: "POST",
-          body: formData,
-        });
+  const formData = new FormData();
+  formData.append("image", compressedImage);
+
+  const scanRes = await fetch("/api/scan-photo", {
+    method: "POST",
+    body: formData,
+  });
+
 
         const scanData = await scanRes.json();
 
