@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import sharp from "sharp";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -15,7 +16,15 @@ export async function POST(req: Request) {
     }
 
     const bytes = await file.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString("base64");
+const buffer = Buffer.from(bytes);
+
+// Resize + compress
+const compressedBuffer = await sharp(buffer)
+  .resize({ width: 800 }) // max width 800px
+  .jpeg({ quality: 70 })
+  .toBuffer();
+
+const base64 = compressedBuffer.toString("base64");
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
