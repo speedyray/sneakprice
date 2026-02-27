@@ -2,6 +2,7 @@
 
 import imageCompression from "browser-image-compression";
 
+
 import { useState } from "react";
 import {
   BarChart,
@@ -67,6 +68,7 @@ export default function AppPage() {
   
 
   const handleAnalyze = async () => {
+     if (loading) return;
     if (!query && !image) {
       setError("Upload a photo or type a sneaker name.");
       return;
@@ -208,11 +210,20 @@ if (
           className="border px-4 py-3 rounded-xl w-full"
         />
         <button
-          onClick={handleAnalyze}
-          className="bg-black text-white px-6 rounded-xl"
-        >
-          {loading ? "Analyzing..." : "Scan Sneaker"}
-        </button>
+  onClick={handleAnalyze}
+  disabled={loading}
+  className="bg-black text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {loading ? (
+    <>
+      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      Analyzing...
+    </>
+  ) : (
+    "Scan Sneaker"
+  )}
+</button>
+
       </div>
 
       {/* ERROR */}

@@ -16,15 +16,15 @@ export async function POST(req: Request) {
     }
 
     const bytes = await file.arrayBuffer();
-const buffer = Buffer.from(bytes);
+    const buffer = Buffer.from(bytes);
 
-// Resize + compress
-const compressedBuffer = await sharp(buffer)
+  // Resize + compress
+   const compressedBuffer = await sharp(buffer)
   .resize({ width: 800 }) // max width 800px
   .jpeg({ quality: 70 })
   .toBuffer();
 
-const base64 = compressedBuffer.toString("base64");
+ const base64 = compressedBuffer.toString("base64");
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
