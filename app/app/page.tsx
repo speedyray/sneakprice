@@ -3,6 +3,7 @@
 import imageCompression from "browser-image-compression";
 
 
+
 import { useState } from "react";
 import {
   BarChart,
@@ -22,6 +23,7 @@ export default function AppPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastScanTime, setLastScanTime] = useState<number | null>(null);
 
   const handleFile = (file: File) => {
     setImage(file);
@@ -68,6 +70,13 @@ export default function AppPage() {
   
 
   const handleAnalyze = async () => {
+    const now = Date.now();
+
+if (lastScanTime && now - lastScanTime < 3000) {
+  setError("Please wait a few seconds before scanning again.");
+  return;
+}
+
   if (!query && !image) {
     setError("Upload a photo or type a sneaker name.");
     return;
@@ -134,6 +143,8 @@ export default function AppPage() {
   }
 
   setLoading(false);
+  setLastScanTime(now);
+
 };
 
 
