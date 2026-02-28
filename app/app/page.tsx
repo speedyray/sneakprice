@@ -15,6 +15,29 @@ import {
 } from "recharts";
 
 
+const detectBrand = (name: string) => {
+  const lower = name.toLowerCase();
+
+  if (lower.includes("yeezy") || lower.includes("adidas")) {
+    return "adidas";
+  }
+
+  if (
+    lower.includes("nike") ||
+    lower.includes("air jordan") ||
+    lower.includes("jordan")
+  ) {
+    return "nike";
+  }
+
+  return null;
+};
+
+const brandLogos: Record<string, string> = {
+  adidas: "/adidas.svg",
+  nike: "/nike.svg",
+};
+
 
 export default function AppPage() {
   const [query, setQuery] = useState("");
@@ -229,21 +252,42 @@ if (
       {/* SEARCH */}
       <div className="flex gap-3">
 
-     <div className="border px-4 py-3 rounded-xl w-full bg-gray-100 min-h-[52px] flex items-center">
-  {loading ? (
-    <span className="text-gray-500 animate-pulse">
-      Detecting sneaker...
-    </span>
-  ) : query ? (
-    <span className="font-semibold text-gray-900">
-      {query}
-    </span>
-  ) : (
-    <span className="text-gray-400">
-      Sneaker name will appear after scanning
-    </span>
-  )}
-</div>
+     {(() => {
+  const brand = query ? detectBrand(query) : null;
+
+  return (
+    <div className="border px-4 py-3 rounded-xl w-full bg-gray-100 min-h-[52px] flex items-center justify-between">
+      {loading ? (
+        <span className="text-gray-500 animate-pulse">
+          Detecting sneaker...
+        </span>
+      ) : query ? (
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-gray-900">
+            {query}
+          </span>
+
+          {brand && (
+            <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border shadow-sm">
+              <img
+                src={brandLogos[brand]}
+                alt={brand}
+                className="h-4 w-auto"
+              />
+              <span className="text-sm font-medium capitalize">
+                {brand}
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <span className="text-gray-400">
+          Sneaker name will appear after scanning
+        </span>
+      )}
+    </div>
+  );
+})()}
 
 
         <button
