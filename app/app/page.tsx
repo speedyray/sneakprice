@@ -228,17 +228,14 @@ if (
 
       {/* SEARCH */}
       <div className="flex gap-3">
-        <input
-  value={query}
-  onChange={(e) => {
-    setQuery(e.target.value);
-    setImage(null);      // remove photo if user types
-    setPreview(null);    // remove preview
-    setResults(null);    // clear old results
-  }}
-  placeholder="Or type sneaker name..."
-  className="border px-4 py-3 rounded-xl w-full"
-/>
+      <div className="border px-4 py-3 rounded-xl w-full bg-gray-50">
+  {query ? (
+    <span className="font-medium">{query}</span>
+  ) : (
+    <span className="text-gray-400">Detected sneaker name will appear here...</span>
+  )}
+</div>
+
 
         <button
   onClick={handleAnalyze}
