@@ -68,63 +68,74 @@ export default function AppPage() {
   
 
   const handleAnalyze = async () => {
-     if (loading) return;
-    if (!query && !image) {
-      setError("Upload a photo or type a sneaker name.");
-      return;
-    }
+  if (!query && !image) {
+    setError("Upload a photo or type a sneaker name.");
+    return;
+  }
 
-    setLoading(true);
-    setResults(null);
-    setError(null);
+  if (loading) return;
 
-    try {
-      let searchQuery = query;
+  setLoading(true);
+  setResults(null);
+  setError(null);
 
-     if (image) {
-  // 🔥 COMPRESS IMAGE BEFORE UPLOAD
-  const compressedImage = await imageCompression(image, {
-    maxSizeMB: 1,
-    maxWidthOrHeight: 1024,
-    useWebWorker: true,
-  });
+  try {
+    let searchQuery = query;
 
-  const formData = new FormData();
-  formData.append("image", compressedImage);
-
-  const scanRes = await fetch("/api/scan-photo", {
-    method: "POST",
-    body: formData,
-  });
-
-
-        const scanData = await scanRes.json();
-
-        if (!scanData.sneakerName) {
-          throw new Error("AI could not identify sneaker.");
-        }
-
-        searchQuery = scanData.sneakerName;
-        setQuery(searchQuery);
-      }
-
-      // 🔎 Call eBay API
-      const ebayRes = await fetch("/api/ebay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: searchQuery }),
+    if (image) {
+      const compressedImage = await imageCompression(image, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
       });
 
-      const ebayData = await ebayRes.json();
-      setResults(ebayData);
+      const formData = new FormData();
+      formData.append("image", compressedImage);
 
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong. Please try again.");
-    }
+      const scanRes = await fetch("/api/scan-photo", {
+        method: "POST",
+        body: formData,
+      });
 
-    setLoading(false);
-  };
+      const scanData = await scanRes.json();
+
+      const sneakerName = scanData.sneakerName?.trim();
+
+      if (
+        !sneakerName ||
+        sneakerName.length < 5 ||
+        sneakerName.toLowerCase().includes("don't know") ||
+        sneakerName.toLowerCase().includes("not sure") ||
+        sneakerName.toLowerCase().includes("cannot") ||
+        sneakerName.toLowerCase().includes("no sneaker")
+      ) {
+        setError("This doesn't appear to be a sneaker. Please upload a clear sneaker photo.");
+        setLoading(false);
+        return;
+      }
+
+      searchQuery = sneakerName;
+      setQuery(searchQuery);
+    } // ✅ THIS CLOSING BRACE IS IMPORTANT
+
+    // 🔎 Call eBay API
+    const ebayRes = await fetch("/api/ebay", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: searchQuery }),
+    });
+
+    const ebayData = await ebayRes.json();
+    setResults(ebayData);
+
+  } catch (err) {
+    console.error(err);
+    setError("Something went wrong. Please try again.");
+  }
+
+  setLoading(false);
+};
+
 
   const activeMedian = results?.activeMarket?.medianPrice;
  const soldMedian = results?.soldMarket?.overallMedian;
@@ -228,10 +239,11 @@ if (
 
       {/* ERROR */}
       {error && (
-        <div className="bg-red-100 text-red-600 p-4 rounded-xl">
-          {error}
-        </div>
-      )}
+  <div className="mt-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-start gap-2">
+    <div className="text-red-500 font-bold">⚠</div>
+    <div className="text-sm">{error}</div>
+  </div>
+  )}
 
       {/* ACTIVE MARKET */}
       {results?.activeMarket && (
