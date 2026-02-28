@@ -26,11 +26,14 @@ export default function AppPage() {
   const [lastScanTime, setLastScanTime] = useState<number | null>(null);
 
   const handleFile = (file: File) => {
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
-    setResults(null);
-    setError(null);
-  };
+  setImage(file);
+  setPreview(URL.createObjectURL(file));
+  setResults(null);
+  setError(null);
+
+  // 🔥 CLEAR previous sneaker name
+  setQuery("");
+};
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -226,11 +229,17 @@ if (
       {/* SEARCH */}
       <div className="flex gap-3">
         <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Or type sneaker name..."
-          className="border px-4 py-3 rounded-xl w-full"
-        />
+  value={query}
+  onChange={(e) => {
+    setQuery(e.target.value);
+    setImage(null);      // remove photo if user types
+    setPreview(null);    // remove preview
+    setResults(null);    // clear old results
+  }}
+  placeholder="Or type sneaker name..."
+  className="border px-4 py-3 rounded-xl w-full"
+/>
+
         <button
   onClick={handleAnalyze}
   disabled={loading}
