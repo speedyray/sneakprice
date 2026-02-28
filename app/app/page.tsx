@@ -25,15 +25,15 @@ export default function AppPage() {
   const [error, setError] = useState<string | null>(null);
   const [lastScanTime, setLastScanTime] = useState<number | null>(null);
 
+ 
   const handleFile = (file: File) => {
   setImage(file);
   setPreview(URL.createObjectURL(file));
   setResults(null);
   setError(null);
-
-  // 🔥 CLEAR previous sneaker name
-  setQuery("");
+  setQuery(""); // clear previous detected name
 };
+
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -228,11 +228,20 @@ if (
 
       {/* SEARCH */}
       <div className="flex gap-3">
-      <div className="border px-4 py-3 rounded-xl w-full bg-gray-50">
-  {query ? (
-    <span className="font-medium">{query}</span>
+
+     <div className="border px-4 py-3 rounded-xl w-full bg-gray-100 min-h-[52px] flex items-center">
+  {loading ? (
+    <span className="text-gray-500 animate-pulse">
+      Detecting sneaker...
+    </span>
+  ) : query ? (
+    <span className="font-semibold text-gray-900">
+      {query}
+    </span>
   ) : (
-    <span className="text-gray-400">Detected sneaker name will appear here...</span>
+    <span className="text-gray-400">
+      Sneaker name will appear after scanning
+    </span>
   )}
 </div>
 
