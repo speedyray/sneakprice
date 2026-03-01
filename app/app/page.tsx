@@ -18,12 +18,16 @@ import {
 const detectBrand = (name: string) => {
   const lower = name.toLowerCase();
 
-  // 🔥 Air Jordan (check FIRST so it doesn't get caught as Nike)
-  if (lower.includes("air jordan") || lower.includes("jordan 1") || lower.includes("jordan 4") || lower.includes("jordan")) {
+  // Yeezy FIRST
+  if (lower.includes("yeezy")) {
+    return "yeezy";
+  }
+
+  if (lower.includes("air jordan") || lower.includes("jordan")) {
     return "jordan";
   }
 
-  if (lower.includes("yeezy") || lower.includes("adidas")) {
+  if (lower.includes("adidas")) {
     return "adidas";
   }
 
@@ -36,6 +40,7 @@ const detectBrand = (name: string) => {
 
 
 const brandLogos: Record<string, string> = {
+  yeezy: "/yeezy.svg",
   adidas: "/adidas.svg",
   nike: "/nike.svg",
   jordan: "/jordan.svg",
