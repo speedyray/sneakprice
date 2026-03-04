@@ -6,9 +6,15 @@ export default function Landing() {
 
       {/* HERO */}
       <h1 className="text-6xl font-extrabold mb-6 leading-tight">
-        Know What Your <span className="text-green-500">Sneakers</span> <br />
-        Are Really Worth — In Seconds.
+        Make Money from your <span className="text-green-500">Sneakers</span> <br />
       </h1>
+
+      <h2 className="text-3xl font-extrabold mb-3 leading-tight">
+        Instantly know their real market value using  <span className="text-green-300">verified resale data</span> <br />
+        
+      </h2>
+
+      
 
       <p className="text-gray-400 text-lg max-w-2xl mb-10">
         Scan any sneaker and get real resale market value based on verified sold
