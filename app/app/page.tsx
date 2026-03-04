@@ -140,6 +140,11 @@ if (lastScanTime && now - lastScanTime < 3000) {
         body: formData,
       });
 
+      if (scanRes.status === 403) {
+  setError("Sneaker scanning is coming soon.");
+  return;
+}
+
       const scanData = await scanRes.json();
 
       const sneakerName = scanData.sneakerName?.trim();
