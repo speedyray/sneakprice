@@ -60,6 +60,38 @@ export default function Landing() {
 
       </div>
 
+      {/* SOCIAL PROOF */}
+
+<div className="mt-24 max-w-5xl w-full text-center">
+
+  <h2 className="text-2xl font-semibold mb-10 text-gray-300">
+    Sneaker market intelligence powered by real data
+  </h2>
+
+  <div className="grid md:grid-cols-3 gap-10">
+
+    <div>
+      <p className="text-4xl font-bold text-green-500">12,000+</p>
+      <p className="text-gray-400 mt-2">Sneakers Analyzed</p>
+    </div>
+
+    <div>
+      <p className="text-4xl font-bold text-green-500">$3.2M</p>
+      <p className="text-gray-400 mt-2">Resale Value Calculated</p>
+    </div>
+
+    <div>
+      <p className="text-4xl font-bold text-green-500">2,500+</p>
+      <p className="text-gray-400 mt-2">Resellers Using SneakPrice</p>
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
       {/* HOW IT WORKS */}
 <div className="mt-24 max-w-5xl w-full">
 
