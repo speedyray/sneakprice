@@ -1,9 +1,18 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center text-center px-6 py-6">
-      
+      <div className="mb-6">
+  <Image
+    src="/sneakprice-logo.png"
+    alt="SneakPrice"
+    width={180}
+    height={180}
+    className="mx-auto"
+  />
+</div>
 
 
       {/* HERO */}
