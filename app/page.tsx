@@ -2,7 +2,9 @@ import Link from "next/link";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center text-center px-6">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center text-center px-6 py-6">
+      
+
 
       {/* HERO */}
       <h1 className="text-6xl font-extrabold mb-6 leading-tight">
