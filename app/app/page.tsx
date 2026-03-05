@@ -1,6 +1,7 @@
 "use client";
 
 import imageCompression from "browser-image-compression";
+import Link from "next/link";
 
 
 
@@ -227,31 +228,43 @@ if (
 }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-8">
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-lg space-y-8">
 
-      <h1 className="text-3xl font-bold">
-        SneakPrice Market Valuation
-      </h1>
+      <div className="flex items-center justify-between">
+  <h1 className="text-3xl font-bold">
+    SneakPrice Market Valuation
+  </h1>
 
+  <Link
+    href="/"
+    className="text-gray-500 hover:text-black text-xl font-bold px-3 py-1 rounded-lg hover:bg-gray-200 transition"
+  >
+    ✕
+  </Link>
+</div>
+      
       {/* PHOTO SECTION */}
-      <div className="flex gap-4">
-        <label className="bg-black text-white px-5 py-3 rounded-xl cursor-pointer">
-          Upload Photo
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleUpload}
-          />
-        </label>
+<div className="flex gap-4 justify-center">
 
-        <button
-          onClick={takePhoto}
-          className="bg-blue-600 text-white px-5 py-3 rounded-xl"
-        >
-          Take Photo
-        </button>
-      </div>
+<label className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl cursor-pointer font-medium transition shadow-md">
+  Upload Photo
+  <input
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={handleUpload}
+  />
+</label>
+
+<button
+  onClick={takePhoto}
+  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition shadow-md"
+>
+  Take Photo
+</button>
+
+</div>
 
       {/* IMAGE PREVIEW */}
       {preview && (
@@ -303,10 +316,10 @@ if (
 })()}
 
 
-        <button
+  <button
   onClick={handleAnalyze}
   disabled={loading}
-  className="bg-black text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+  className="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
 >
   {loading ? (
     <>
@@ -500,6 +513,7 @@ if (
     </ResponsiveContainer>
   </div>
    )}
+   </div>
 </div>
   );
 }
