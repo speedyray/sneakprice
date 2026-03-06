@@ -297,13 +297,23 @@ export default function Landing() {
 <footer className="mt-24 border-t border-gray-800 pt-10 pb-6 text-center text-gray-500 text-sm w-full max-w-5xl">
 
   <div className="flex justify-center gap-6 mb-4">
-    <a href="#" className="hover:text-white">Privacy</a>
-    <a href="#" className="hover:text-white">Terms</a>
-    <a href="#" className="hover:text-white">Contact</a>
+
+    <Link href="/privacy" className="hover:text-white transition">
+      Privacy
+    </Link>
+
+    <Link href="/terms" className="hover:text-white transition">
+      Terms
+    </Link>
+
+    <Link href="/contact" className="hover:text-white transition">
+      Contact
+    </Link>
+
   </div>
 
   <p>
-    © {new Date().getFullYear()} SneakPrice. All rights reserved.
+    © {new Date().getFullYear()} SneakPrice — Sneaker Market Intelligence Platform. All rights reserved.
   </p>
 
 </footer>
