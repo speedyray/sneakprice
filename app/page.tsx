@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Twitter, Instagram, Youtube, Facebook } from "lucide-react";
 
 export default function Landing() {
   return (
@@ -337,6 +338,65 @@ export default function Landing() {
     </Link>
 
   </div>
+
+  {/* Social Links */}
+<div className="flex justify-center gap-6 mb-6">
+
+  <a
+    href="https://twitter.com/sneakprice"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-gray-400 hover:text-white transition"
+  >
+    <Twitter size={20} />
+  </a>
+
+  <a
+    href="https://instagram.com/sneakprice"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-gray-400 hover:text-white transition"
+  >
+    <Instagram size={20} />
+  </a>
+
+  <a
+    href="https://youtube.com/@sneakprice"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-gray-400 hover:text-white transition"
+  >
+    <Youtube size={20} />
+  </a>
+    <a
+    href="https://facebook.com/sneakprice"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-gray-400 hover:text-white transition transform hover:scale-110"
+  >
+    <Facebook size={22} />
+  </a>
+
+  {/* TikTok */}
+  <a
+    href="https://tiktok.com/@sneakprice"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-gray-400 hover:text-white transition transform hover:scale-110"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path d="M16.5 3c.3 1.7 1.7 3.1 3.5 3.3v3.2c-1.4 0-2.7-.4-3.8-1.1v6.3c0 3.5-2.8 6.3-6.3 6.3S3.6 18.2 3.6 14.7s2.8-6.3 6.3-6.3c.4 0 .8 0 1.2.1v3.3c-.4-.1-.8-.2-1.2-.2-1.7 0-3.1 1.4-3.1 3.1S8.2 18 9.9 18s3.1-1.4 3.1-3.1V3h3.5z"/>
+    </svg>
+  </a>
+
+</div>
+
 
   {/* Copyright */}
   <p>
