@@ -294,28 +294,53 @@ export default function Landing() {
 </div>
 {/* FOOTER */}
 
-<footer className="mt-24 border-t border-gray-800 pt-10 pb-6 text-center text-gray-500 text-sm w-full max-w-5xl">
+<footer className="mt-24 border-t border-gray-800 pt-12 pb-8 text-center text-gray-500 text-sm w-full max-w-5xl">
 
-  <div className="flex justify-center gap-6 mb-4 flex-wrap">
+  {/* Logo */}
+  <div className="flex justify-center mb-6">
+    <Image
+      src="/sneakprice-logo.png"
+      alt="SneakPrice"
+      width={60}
+      height={60}
+      className="opacity-90"
+    />
+  </div>
 
-  <Link href="/about" className="hover:text-white">About</Link>
+  {/* Links */}
+  <div className="flex justify-center gap-6 mb-6 flex-wrap">
 
-  <Link href="/faq" className="hover:text-white">FAQ</Link>
+    <Link href="/about" className="hover:text-white transition">
+      About
+    </Link>
 
-  <Link href="/press" className="hover:text-white">Press</Link>
+    <Link href="/faq" className="hover:text-white transition">
+      FAQ
+    </Link>
 
-  <span>•</span>
+    <Link href="/press" className="hover:text-white transition">
+      Press
+    </Link>
 
-  <Link href="/privacy" className="hover:text-white">Privacy</Link>
+    <span>•</span>
 
-  <Link href="/terms" className="hover:text-white">Terms</Link>
+    <Link href="/privacy" className="hover:text-white transition">
+      Privacy
+    </Link>
 
-  <Link href="/contact" className="hover:text-white">Contact</Link>
+    <Link href="/terms" className="hover:text-white transition">
+      Terms
+    </Link>
 
-</div>
+    <Link href="/contact" className="hover:text-white transition">
+      Contact
+    </Link>
 
+  </div>
+
+  {/* Copyright */}
   <p>
-    © {new Date().getFullYear()} SneakPrice — Sneaker Market Intelligence Platform. All rights reserved.
+    © {new Date().getFullYear()} SneakPrice — Sneaker Market Intelligence Platform
   </p>
 
 </footer>
