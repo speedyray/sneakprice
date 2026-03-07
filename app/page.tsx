@@ -12,31 +12,27 @@ import { useState, useEffect } from "react";
 export default function Landing() {
 
   const [deals, setDeals] = useState<any[]>([]);
-  const [refreshTimer, setRefreshTimer] = useState(30);
+  const [flash, setFlash] = useState(false);
+  
 
 useEffect(() => {
 
-  const loadDeals = () => {
-    fetch("/api/deals")
-      .then((res) => res.json())
-      .then((data) => setDeals(data));
+  const eventSource = new EventSource("/api/live-deals-stream");
+
+  eventSource.onmessage = (event) => {
+  const deal = JSON.parse(event.data);
+
+  setDeals([deal]);
+
+  setFlash(true);
+  setTimeout(() => setFlash(false), 800);
+};
+
+  eventSource.onerror = () => {
+    eventSource.close();
   };
 
-  loadDeals();
-
-  const dealInterval = setInterval(() => {
-    loadDeals();
-    setRefreshTimer(30);
-  }, 30000);
-
-  const countdown = setInterval(() => {
-    setRefreshTimer((t) => (t > 0 ? t - 1 : 0));
-  }, 1000);
-
-  return () => {
-    clearInterval(dealInterval);
-    clearInterval(countdown);
-  };
+  return () => eventSource.close();
 
 }, []);
 
@@ -100,15 +96,18 @@ useEffect(() => {
 🔥 Live Sneaker Deals
 </h2>
 
-<p className="text-gray-400 text-sm text-center mb-10">
-Updating in {refreshTimer}s
+<p className="text-green-400 text-sm text-center mb-10">
+● Live Market Feed
 </p>
 
 <div className="flex justify-center">
 
 {deals.length > 0 && (
-
-<div className="bg-white text-black p-10 rounded-2xl shadow-2xl w-full max-w-3xl mx-auto">
+<div
+  className={`bg-white text-black p-10 rounded-2xl shadow-2xl w-full max-w-3xl mx-auto transition-all duration-500 ${
+    flash ? "ring-4 ring-green-400 scale-105" : ""
+  }`}
+>
 
 <h3 className="font-bold text-lg mb-3">
 {deals[0].sneaker}
