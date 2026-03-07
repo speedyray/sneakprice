@@ -17,6 +17,12 @@ export async function GET() {
   "New Balance 990",
   "Nike Dunk Low Grey Fog",
   "Adidas ZX 500 RM",
+  "Adidas Galaxy 6",
+  "Adidas Samba Vegan",
+  "Air Jordan 1 Low",
+  "Nike Air Force 1 Low",
+  "Air Jordan 1 Retro High OG Chicago Off-White",
+  "Nike SuperRep 3",
 ];
 
 function generateDeal() {
