@@ -1,10 +1,47 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Twitter, Instagram, Youtube, Facebook } from "lucide-react";
+import { useState, useEffect } from "react";
+
+
+
+
 
 export default function Landing() {
+
+  const [deals, setDeals] = useState<any[]>([]);
+  const [refreshTimer, setRefreshTimer] = useState(30);
+
+useEffect(() => {
+
+  const loadDeals = () => {
+    fetch("/api/deals")
+      .then((res) => res.json())
+      .then((data) => setDeals(data));
+  };
+
+  loadDeals();
+
+  const dealInterval = setInterval(() => {
+    loadDeals();
+    setRefreshTimer(30);
+  }, 30000);
+
+  const countdown = setInterval(() => {
+    setRefreshTimer((t) => (t > 0 ? t - 1 : 0));
+  }, 1000);
+
+  return () => {
+    clearInterval(dealInterval);
+    clearInterval(countdown);
+  };
+
+}, []);
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center text-center px-6 py-6">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center text-center px-6 py-6">
       <div className="mb-6">
   <Image
     src="/sneakprice-logo.png"
@@ -24,7 +61,7 @@ export default function Landing() {
       <h2 className="text-3xl font-extrabold mb-3 leading-tight">
         Instantly know their real market value using  <span className="text-green-300">verified resale data</span> <br />
         
-      </h2>
+      </  h2>
 
       
 
@@ -32,6 +69,9 @@ export default function Landing() {
         Scan any sneaker and get real resale market value based on verified sold
         listings. No guessing. No hype. Just data.
       </p>
+
+      
+    
 
       {/* CTA BUTTONS */}
       <div className="flex gap-4">
@@ -47,36 +87,65 @@ export default function Landing() {
         </button>
       </div>
 
-      <p className="text-gray-500 text-sm mt-6 mb-16">
+     <p className="text-gray-500 text-sm mt-6 mb-10">
         Free 3 scans per day • No credit card required
       </p>
 
-      {/* PRODUCT PREVIEW CARD */}
-      <div className="bg-white text-black p-6 rounded-xl shadow-xl max-w-md w-full text-left">
+  
+      {/* LIVE DEALS */}
+    {/* LIVE DEALS */}
+<div className="mt-16 max-w-5xl w-full">
 
-        <h3 className="font-bold text-lg mb-3">
-          Air Jordan 4 Fire Red
-        </h3>
+<h2 className="text-3xl font-bold text-center mb-2">
+🔥 Live Sneaker Deals
+</h2>
 
-        <div className="space-y-1 text-sm">
-          <p>
-            <strong>Active Median:</strong> $310
-          </p>
+<p className="text-gray-400 text-sm text-center mb-10">
+Updating in {refreshTimer}s
+</p>
 
-          <p>
-            <strong>Sold Median:</strong> $287
-          </p>
+<div className="flex justify-center">
 
-          <p>
-            <strong>Market Signal:</strong> Slightly Overpriced
-          </p>
+{deals.length > 0 && (
 
-          <p className="text-green-600 font-semibold">
-            Arbitrage Opportunity: +$23
-          </p>
-        </div>
+<div className="bg-white text-black p-10 rounded-2xl shadow-2xl w-full max-w-3xl mx-auto">
 
-      </div>
+<h3 className="font-bold text-lg mb-3">
+{deals[0].sneaker}
+</h3>
+
+<p>
+<strong>Buy Price:</strong> ${deals[0].buy_price.toFixed(2)}
+</p>
+
+<p>
+<strong>Market Price:</strong> ${deals[0].market_price.toFixed(2)}
+</p>
+
+<p className="text-green-600 font-semibold">
+Profit: +${deals[0].profit.toFixed(2)}
+</p>
+
+<p>
+ROI: {deals[0].roi.toFixed(1)}%
+</p>
+
+</div>
+
+)}
+
+
+
+</div>
+</div>
+
+{/* PRODUCT PREVIEW CARD */}
+
+
+
+
+
+
 
       {/* SOCIAL PROOF */}
 

@@ -487,6 +487,37 @@ if (
         </div>
       )}
 
+      {/* DEAL RADAR */}
+
+{results?.deal && (
+  <div className="bg-green-50 border border-green-200 p-6 rounded-xl mt-6 space-y-2">
+
+    <h2 className="text-xl font-bold text-green-800">
+      🔥 Deal Radar
+    </h2>
+
+    <p>
+      Buy for <strong>${results.deal.buyPrice.toFixed(2)}</strong>
+    </p>
+
+    <p>
+      Market median: <strong>${results.deal.marketPrice.toFixed(2)}</strong>
+    </p>
+
+    <p>
+      Potential profit:{" "}
+      <strong className="text-green-700">
+        +${results.deal.profit.toFixed(2)}
+      </strong>
+    </p>
+
+    <p>
+      ROI: <strong>{results.deal.roi.toFixed(1)}%</strong>
+    </p>
+
+  </div>
+)}
+
       {/* 📊 MARKET COMPARISON CHART */}
       
 {chartData.length > 0 && (

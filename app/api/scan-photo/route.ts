@@ -9,12 +9,13 @@ const openai = new OpenAI({
 export async function POST(req: Request) {
   try {
 
-    if (process.env.SITE_LIVE !== "true") {
-      return NextResponse.json(
-        { error: "Scanning not available yet." },
-        { status: 403 }
-      );
-    }
+    if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Sneaker scanning is coming soon." },
+      { status: 403 }
+    );
+
+  }
     
     const formData = await req.formData();
     const file = formData.get("image") as File;

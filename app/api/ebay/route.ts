@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { getEbayAccessToken } from "@/lib/ebay";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 
 
@@ -142,8 +148,51 @@ export async function POST(req: Request) {
      4️⃣ FINAL RESPONSE
   ========================== */
 
-  return NextResponse.json({
-    activeMarket: activeStats,
-    soldMarket: soldStats,
-  });
+  let deal = null;
+
+if (
+  activeStats &&
+  soldStats &&
+  activeStats.lowestPrice &&
+  soldStats.overallMedian &&
+  activeStats.lowestPrice < soldStats.overallMedian
+) {
+  const spread = soldStats.overallMedian - activeStats.lowestPrice;
+  const percent = (spread / activeStats.lowestPrice) * 100;
+
+  if (spread > 25) {
+
+     
+
+  deal = {
+    buyPrice: activeStats.lowestPrice,
+    marketPrice: soldStats.overallMedian,
+    profit: spread,
+    roi: percent,
+  };
+
+  // 🔥 SAVE DEAL TO SUPABASE
+  try {
+    await supabase.from("deals").insert({
+      sneaker: query,
+      buy_price: activeStats.lowestPrice,
+      market_price: soldStats.overallMedian,
+      profit: spread,
+      roi: percent,
+      source: "ebay"
+    });
+  } catch (err) {
+    console.error("Deal insert failed:", err);
+  }
+
+  }
+}
+
+
+
+return NextResponse.json({
+  activeMarket: activeStats,
+  soldMarket: soldStats,
+  deal,
+});
 }
