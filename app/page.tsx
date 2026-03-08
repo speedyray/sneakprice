@@ -12,7 +12,8 @@ import { useState, useEffect } from "react";
 export default function Landing() {
 
   const [deals, setDeals] = useState<any[]>([]);
-  const [flash, setFlash] = useState(false);
+const [recentDeals, setRecentDeals] = useState<any[]>([]);
+const [flash, setFlash] = useState(false);
   
 
 useEffect(() => {
@@ -23,6 +24,8 @@ useEffect(() => {
   const deal = JSON.parse(event.data);
 
   setDeals([deal]);
+
+  setRecentDeals((prev) => [deal, ...prev].slice(0, 10));
 
   setFlash(true);
   setTimeout(() => setFlash(false), 800);
@@ -88,25 +91,41 @@ useEffect(() => {
       </p>
 
   
-      {/* LIVE DEALS */}
+      
     {/* LIVE DEALS */}
 <div className="mt-16 max-w-5xl w-full">
+
 
 <h2 className="text-3xl font-bold text-center mb-2">
 🔥 Live Sneaker Deals
 </h2>
 
-<p className="text-green-400 text-sm text-center mb-10">
+<p className="text-green-400 text-sm text-center mb-6">
 ● Live Market Feed
 </p>
+
+{/* LIVE DEAL TICKER */}
+<div className="overflow-hidden whitespace-nowrap border-y border-gray-800 py-3 mb-10">
+  <div className="animate-[scroll_20s_linear_infinite] inline-block">
+
+    {[...recentDeals, ...recentDeals].map((d, i) => (
+      <span key={i} className="mx-6 text-gray-300">
+        🔥 {d.sneaker} +${d.profit.toFixed(0)}
+      </span>
+    ))}
+
+  </div>
+</div>
+
+
 
 <div className="flex justify-center">
 
 {deals.length > 0 && (
+
 <div
-  className={`bg-white text-black p-10 rounded-2xl shadow-2xl w-full max-w-3xl mx-auto transition-all duration-500 ${
-    flash ? "ring-4 ring-green-400 scale-105" : ""
-  }`}
+  className={`bg-white text-black p-10 rounded-2xl shadow-2xl w-full max-w-3xl mx-auto transition-all duration-500
+  ${flash ? "border-4 border-green-400 scale-105 shadow-green-500/40" : "border border-gray-200"}`}
 >
 
 <h3 className="font-bold text-lg mb-3">
@@ -475,6 +494,6 @@ ROI: {deals[0].roi.toFixed(1)}%
 
 
 
-    </div>
+</div>
   );
 }
