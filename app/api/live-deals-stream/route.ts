@@ -1,15 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function GET() {
-
-  let interval: NodeJS.Timeout;
-
-  const stream = new ReadableStream({
-    start(controller) {
-
-      const sendDeal = () => {
-
-        const sneakers = [
+const sneakers = [
   "Nike Dunk Panda",
   "Air Jordan 4 Fire Red",
   "Yeezy Boost 350 V2",
@@ -25,25 +16,33 @@ export async function GET() {
   "Nike SuperRep 3",
 ];
 
-function generateDeal() {
+let index = 0;
 
-  const sneaker = sneakers[Math.floor(Math.random() * sneakers.length)];
+export async function GET() {
 
-  const buy = Math.floor(Math.random() * 120) + 40;
-  const market = buy + Math.floor(Math.random() * 80) + 20;
+  let interval: NodeJS.Timeout;
 
-  const profit = market - buy;
-  const roi = (profit / buy) * 100;
+  const stream = new ReadableStream({
+    start(controller) {
 
-  return {
-    sneaker,
-    buy_price: buy,
-    market_price: market,
-    profit,
-    roi
-  };
-}
-  const deal = generateDeal();
+      const sendDeal = () => {
+
+        const sneaker = sneakers[index];
+        index = (index + 1) % sneakers.length;
+
+        const buy = Math.floor(Math.random() * 120) + 40;
+        const market = buy + Math.floor(Math.random() * 80) + 20;
+
+        const profit = market - buy;
+        const roi = (profit / buy) * 100;
+
+        const deal = {
+          sneaker,
+          buy_price: buy,
+          market_price: market,
+          profit,
+          roi
+        };
 
         try {
           controller.enqueue(`data: ${JSON.stringify(deal)}\n\n`);
@@ -56,7 +55,7 @@ function generateDeal() {
       // send first deal immediately
       sendDeal();
 
-      // send every 10 seconds
+      // send every 3 seconds
       interval = setInterval(sendDeal, 3000);
 
     },
