@@ -124,10 +124,9 @@ useEffect(() => {
 {deals.length > 0 && (
 
 <div
-  className={`bg-white text-black p-10 rounded-2xl shadow-2xl w-full max-w-3xl mx-auto transition-all duration-500
-  ${flash ? "border-4 border-green-400 scale-105 shadow-green-500/40" : "border border-gray-200"}`}
+  className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 animate-pulse shadow-[0_0_20px_rgba(34,197,94,0.6)] transition-all"
 >
-
+  
 <h3 className="font-bold text-lg mb-3">
 {deals[0].sneaker}
 </h3>
