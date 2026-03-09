@@ -264,11 +264,13 @@ for profit using real resale market data.
 
   <div>
     <h3 className="text-xl font-semibold text-white mb-6">
-      Best Places to Buy Sneakers Cheap<br/>
+      Best Places to Buy Sneakers Cheap
+    </h3>
+
+    <p className="text-gray-400 text-sm mb-3">
       Successful resellers source sneakers below market value from outlets,
       local marketplaces, and clearance sales.
-    </h3>
-   
+    </p>
 
 
     <ul className="text-gray-300 text-sm space-y-4 text-left">
