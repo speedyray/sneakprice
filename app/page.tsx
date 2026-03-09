@@ -54,11 +54,11 @@ useEffect(() => {
 
       {/* HERO */}
       <h1 className="text-6xl font-extrabold mb-6 leading-tight">
-        Make Money from your <span className="text-green-500">Sneakers</span> <br />
+      Know  your <span className="text-green-500">Sneakers</span> <br/>real market value <br />
       </h1>
 
       <h2 className="text-3xl font-extrabold mb-3 leading-tight">
-        Instantly know their real market value using  <span className="text-green-300">verified resale data</span> <br />
+          using  <span className="text-green-300">verified resale data</span> <br />
         
       </  h2>
 
