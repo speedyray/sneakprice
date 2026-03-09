@@ -246,11 +246,149 @@ ROI: {deals[0].roi.toFixed(1)}%
 
 <div className="mt-24 max-w-4xl w-full">
 
-  <h2 className="text-3xl font-bold mb-10 text-center">
-    Sneaker Reseller Tips
-  </h2>
+<h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
+Sneaker Reseller Playbook
+</h2>
+
+<p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
+Learn where to buy sneakers below market value and how resellers flip them
+for profit using real resale market data.
+</p>
 
   <div className="space-y-6">
+
+ {/* BEST PLACES TO BUY */}
+
+<div className="bg-gray-900 p-6 rounded-xl flex gap-4 items-start">
+  <div className="text-2xl">🏬</div>
+
+  <div>
+    <h3 className="font-semibold mb-1">
+      Best Places to Buy Sneakers Cheap
+    </h3>
+
+    <p className="text-gray-400 text-sm mb-3">
+      Successful resellers source sneakers below market value from outlets,
+      local marketplaces, and clearance sales.
+    </p>
+
+
+    <ul className="text-gray-300 text-sm space-y-4 text-left">
+
+<li>
+<a href="https://www.nike.com/retail" target="_blank" className="hover:text-green-400 font-semibold transition">
+Nike Outlet Stores
+</a>
+<p className="text-gray-400 text-sm">
+Nike outlets frequently sell overstock and returned items at heavy discounts. Resellers can sometimes find popular Nike Dunk or Air Force models priced far below resale market value.
+</p>
+</li>
+
+<li>
+<a href="https://www.adidas.com/us/storefinder" target="_blank" className="hover:text-green-400 font-semibold transition">
+Adidas Outlet Clearance
+</a>
+<p className="text-gray-400 text-sm">
+Adidas outlet stores regularly offer clearance deals on models like Ultraboost, NMD, and Yeezy releases. These discounts can create strong resale margins when demand rises.
+</p>
+</li>
+
+<li>
+<a href="https://www.footlocker.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+Foot Locker Clearance Walls
+</a>
+<p className="text-gray-400 text-sm">
+Many Foot Locker locations maintain clearance sections where older inventory is discounted. Some limited releases occasionally appear here when stock is returned.
+</p>
+</li>
+
+<li>
+<a href="https://www.amazon.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+Amazon Sneaker Deals
+</a>
+<p className="text-gray-400 text-sm">
+Amazon often lists sneakers from third-party sellers who price items competitively to move inventory quickly. Smart resellers can spot underpriced listings compared to resale marketplaces.
+</p>
+</li>
+
+<li>
+<a href="https://www.ebay.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+eBay Auctions Ending Soon
+</a>
+<p className="text-gray-400 text-sm">
+eBay auctions sometimes end below market value when fewer bidders are present. Searching for auctions ending soon can reveal profitable sneaker flips.
+</p>
+</li>
+
+<li>
+<a href="https://www.facebook.com/marketplace" target="_blank" className="hover:text-green-400 font-semibold transition">
+Facebook Marketplace
+</a>
+<p className="text-gray-400 text-sm">
+Local sellers frequently list sneakers without checking resale value. This creates opportunities to buy pairs below market price and resell them online.
+</p>
+</li>
+
+<li>
+<a href="https://offerup.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+OfferUp Local Deals
+</a>
+<p className="text-gray-400 text-sm">
+OfferUp is another strong local marketplace where casual sellers post sneakers quickly. Many listings are negotiable, allowing resellers to secure profitable deals.
+</p>
+</li>
+
+<li>
+<a href="https://www.mercari.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+Mercari Sneaker Listings
+</a>
+<p className="text-gray-400 text-sm">
+Mercari sellers often price sneakers competitively for quick sales. Monitoring new listings can reveal pairs priced below typical resale values.
+</p>
+</li>
+
+<li>
+<a href="https://stockx.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+StockX Market Prices
+</a>
+<p className="text-gray-400 text-sm">
+StockX provides real-time resale market pricing based on actual buyer and seller transactions. Resellers often use StockX data to determine accurate market value.
+</p>
+</li>
+
+<li>
+<a href="https://www.goat.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+GOAT Sneaker Marketplace
+</a>
+<p className="text-gray-400 text-sm">
+GOAT is one of the most trusted sneaker resale platforms. It allows sellers to list both new and used sneakers to a global audience of collectors.
+</p>
+</li>
+
+<li>
+<a href="https://www.grailed.com/" target="_blank" className="hover:text-green-400 font-semibold transition">
+Grailed Sneaker Listings
+</a>
+<p className="text-gray-400 text-sm">
+Grailed specializes in fashion and streetwear items. Many sneaker enthusiasts sell rare or limited sneakers here, sometimes at negotiable prices.
+</p>
+</li>
+
+</ul>
+
+
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
 
     {/* TIP 1 */}
     <div className="bg-gray-900 p-6 rounded-xl flex gap-4 items-start">

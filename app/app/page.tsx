@@ -387,21 +387,112 @@ if (
     </p>
 
        {/* 💰 ARBITRAGE DETECTION */}
-     {arbitrageSpread !== null && arbitragePercent !== null && (
-     <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg space-y-1">
+    
+    {/* 💰 ARBITRAGE DETECTION */}
+{arbitrageSpread !== null && arbitragePercent !== null && (
+  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg space-y-3">
+
     <p className="font-semibold text-green-800">
       💰 Arbitrage Opportunity Detected
     </p>
+
     <p>
-      Buy at ${activeLowest?.toFixed(2)} → Market Sold Median $
-      {soldMedian?.toFixed(2)}
+      Buy at <strong>${activeLowest?.toFixed(2)}</strong> → Market Sold Median{" "}
+      <strong>${soldMedian?.toFixed(2)}</strong>
     </p>
+
     <p>
-      Potential Spread: ${arbitrageSpread.toFixed(2)} (
-      {arbitragePercent.toFixed(1)}%)
+      Potential Spread:{" "}
+      <strong>
+        ${arbitrageSpread.toFixed(2)} ({arbitragePercent.toFixed(1)}%)
+      </strong>
     </p>
+
+    {/* NEW SECTION */}
+    <div className="grid md:grid-cols-2 gap-4 pt-3 border-t">
+
+      <div>
+        <p className="font-semibold text-gray-700">Where to Buy</p>
+        <ul className="text-sm text-gray-600 space-y-1 mt-1">
+
+          <li>
+            <a
+              href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}`}
+              target="_blank"
+              className="hover:text-green-600"
+            >
+              • eBay Auctions
+            </a>
+          </li>
+
+          <li>
+            <a
+              href={`https://www.facebook.com/marketplace/search/?query=${encodeURIComponent(query)}`}
+              target="_blank"
+              className="hover:text-green-600"
+            >
+              • Facebook Marketplace
+            </a>
+          </li>
+
+          <li>
+            <a
+              href={`https://www.amazon.com/s?k=${encodeURIComponent(query)}`}
+              target="_blank"
+              className="hover:text-green-600"
+            >
+              • Amazon Deals
+            </a>
+          </li>
+
+        </ul>
+      </div>
+
+      <div>
+        <p className="font-semibold text-gray-700">Where to Sell</p>
+        <ul className="text-sm text-gray-600 space-y-1 mt-1">
+
+          <li>
+            <a
+              href={`https://stockx.com/search?s=${encodeURIComponent(query)}`}
+              target="_blank"
+              className="hover:text-green-600"
+            >
+              • StockX
+            </a>
+          </li>
+
+          <li>
+            <a
+              href={`https://www.goat.com/search?query=${encodeURIComponent(query)}`}
+              target="_blank"
+              className="hover:text-green-600"
+            >
+              • GOAT
+            </a>
+          </li>
+
+          <li>
+            <a
+              href={`https://www.mercari.com/search/?keyword=${encodeURIComponent(query)}`}
+              target="_blank"
+              className="hover:text-green-600"
+            >
+              • Mercari
+            </a>
+          </li>
+
+        </ul>
+      </div>
+
+    </div>
+
   </div>
 )}
+
+
+
+
 
 
     {/* 📊 DEMAND BADGE */}
