@@ -432,6 +432,101 @@ Grailed specializes in fashion and streetwear items. Many sneaker enthusiasts se
       </div>
     </div>
 
+
+
+    <div className="mt-24 max-w-5xl w-full">
+
+<h2 className="text-3xl font-bold text-center mb-8">
+Sneaker Reselling Guide
+</h2>
+
+<p className="text-gray-400 text-center max-w-3xl mx-auto mb-12">
+Learn how sneaker resellers find undervalued sneakers, buy them below market value,
+and flip them for profit using real resale marketplace data. SneakPrice analyzes
+sold listings and active market prices to help identify profitable sneaker
+arbitrage opportunities.
+</p>
+
+<div className="space-y-8 text-gray-300">
+
+<div>
+<h3 className="text-lg font-semibold text-green-400">
+Facebook Marketplace Sneaker Deals
+</h3>
+<p className="text-gray-400 text-sm">
+Facebook Marketplace is one of the best places to find cheap sneakers locally.
+Many casual sellers list shoes without checking resale prices on platforms
+like StockX or GOAT. Sneaker resellers often search Facebook Marketplace
+for undervalued listings and negotiate lower prices to create profitable
+resale opportunities.
+</p>
+</div>
+
+<div>
+<h3 className="text-lg font-semibold text-green-400">
+OfferUp Local Sneaker Deals
+</h3>
+<p className="text-gray-400 text-sm">
+OfferUp is another popular local marketplace where sellers post sneakers
+for quick sales. Because many sellers prioritize speed over price research,
+resellers can sometimes buy sneakers below market value and resell them
+online for profit.
+</p>
+</div>
+
+<div>
+<h3 className="text-lg font-semibold text-green-400">
+Mercari Sneaker Listings
+</h3>
+<p className="text-gray-400 text-sm">
+Mercari is a fast-growing resale platform where users frequently list
+sneakers at competitive prices. Monitoring new listings on Mercari can
+help sneaker resellers discover undervalued pairs before other buyers
+notice the deal.
+</p>
+</div>
+
+<div>
+<h3 className="text-lg font-semibold text-green-400">
+StockX Market Pricing
+</h3>
+<p className="text-gray-400 text-sm">
+StockX provides real-time resale pricing based on actual buyer and seller
+transactions. Sneaker resellers often use StockX data to determine the
+true market value of sneakers before buying them from local marketplaces
+or clearance sales.
+</p>
+</div>
+
+<div>
+<h3 className="text-lg font-semibold text-green-400">
+GOAT Sneaker Marketplace
+</h3>
+<p className="text-gray-400 text-sm">
+GOAT is one of the largest sneaker resale platforms in the world. Sellers
+can list both new and used sneakers to reach collectors globally. Resellers
+often compare GOAT prices with other marketplaces to find the best place
+to sell a sneaker for maximum profit.
+</p>
+</div>
+
+<div>
+<h3 className="text-lg font-semibold text-green-400">
+Grailed Sneaker Listings
+</h3>
+<p className="text-gray-400 text-sm">
+Grailed focuses on streetwear and fashion resale. Some rare or limited
+sneakers appear on Grailed at negotiable prices, making it another useful
+platform for sneaker arbitrage opportunities.
+</p>
+</div>
+
+</div>
+
+</div>
+
+
+
     {/* LIVE MARKET INSIGHTS */}
 
 <div className="mt-24 max-w-5xl w-full">
