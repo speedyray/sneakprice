@@ -6,14 +6,63 @@ import { Twitter, Instagram, Youtube, Facebook } from "lucide-react";
 import { useState, useEffect } from "react";
 
 
+const trendingTitles = [
+  "🔥 Trending Sneaker Scans",
+  "🔥 Most Scanned Sneakers",
+  "🔥 Sneaker Demand Signals",
+  "🔥 Hottest Sneakers Right Now",
+  "🔥 Real-Time Sneaker Trends",
+  "🔥 Sneaker Market Momentum"
+];
+
+
+
+const trendingSneakers = [
+  { name: "Yeezy Boost 350 V2", demand: "High Demand" },
+  { name: "Air Jordan 4", demand: "Trending" },
+  { name: "Nike Dunk Low", demand: "Moderate" },
+  { name: "New Balance 990", demand: "Growing" },
+  { name: "Jordan 1 Chicago", demand: "Hot" },
+  { name: "Jordan 4 Military Black", demand: "Trending" },
+  { name: "Nike Dunk Panda", demand: "High Demand" },
+  { name: "Yeezy 700 Wave Runner", demand: "Growing" },
+  { name: "Nike Air Force 1 Low", demand: "Moderate" },
+  { name: "Adidas Samba OG", demand: "Trending" },
+  { name: "New Balance 550", demand: "Growing" },
+  { name: "Jordan 3 White Cement", demand: "Hot" },
+  { name: "Nike Dunk Low Grey Fog", demand: "Trending" },
+  { name: "Adidas Campus 00s", demand: "Growing" },
+  { name: "Jordan 1 Retro High OG", demand: "High Demand" }
+];
+
+
+const marketInsightTitles = [
+  "Live Sneaker Market Insights",
+  "Real-Time Sneaker Market Data",
+  "Sneaker Market Intelligence",
+  "Live Sneaker Demand Signals",
+  "Sneaker Market Activity"
+];
+
+const arbitrageTitles = [
+  "📈 Highest Arbitrage Opportunities",
+  "💰 Top Sneaker Profit Spreads",
+  "🔥 Sneaker Arbitrage Signals",
+  "🚀 Best Sneaker Flip Opportunities",
+  "📊 Reseller Profit Opportunities"
+];
 
 
 
 export default function Landing() {
 
-  const [deals, setDeals] = useState<any[]>([]);
+const [deals, setDeals] = useState<any[]>([]);
 const [recentDeals, setRecentDeals] = useState<any[]>([]);
 const [flash, setFlash] = useState(false);
+const [trending, setTrending] = useState(trendingSneakers.slice(0,4));
+const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
+const [marketTitle, setMarketTitle] = useState(marketInsightTitles[0]);
+const [arbitrageTitle, setArbitrageTitle] = useState(arbitrageTitles[0])
   
 
 useEffect(() => {
@@ -25,7 +74,7 @@ useEffect(() => {
 
   setDeals([deal]);
 
-  setRecentDeals((prev) => [deal, ...prev].slice(0, 10));
+  setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
 
   setFlash(true);
   setTimeout(() => setFlash(false), 800);
@@ -38,6 +87,56 @@ useEffect(() => {
   return () => eventSource.close();
 
 }, []);
+
+useEffect(() => {
+
+  const interval = setInterval(() => {
+
+    const shuffled = [...trendingSneakers].sort(() => 0.5 - Math.random());
+    setTrending(shuffled.slice(0,4));
+
+  }, 5000);
+
+  return () => clearInterval(interval);
+
+}, []);
+
+useEffect(() => {
+
+  const interval = setInterval(() => {
+
+    const randomTitle =
+      trendingTitles[Math.floor(Math.random() * trendingTitles.length)];
+
+    setTrendingTitle(randomTitle);
+
+  }, 4000);
+
+  return () => clearInterval(interval);
+
+}, []);
+
+
+useEffect(() => {
+
+  const interval = setInterval(() => {
+
+    const newMarketTitle =
+      marketInsightTitles[Math.floor(Math.random() * marketInsightTitles.length)];
+
+    const newArbitrageTitle =
+      arbitrageTitles[Math.floor(Math.random() * arbitrageTitles.length)];
+
+    setMarketTitle(newMarketTitle);
+    setArbitrageTitle(newArbitrageTitle);
+
+  }, 6000);
+
+  return () => clearInterval(interval);
+
+}, []);
+
+
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center text-center px-6 py-6">
@@ -106,7 +205,7 @@ useEffect(() => {
 
 {/* LIVE DEAL TICKER */}
 <div className="overflow-hidden whitespace-nowrap border-y border-gray-800 py-3 mb-10">
-  <div className="animate-[scroll_20s_linear_infinite] inline-block">
+  <div className="animate-[scroll_35s_linear_infinite] inline-block">
 
     {[...recentDeals, ...recentDeals].map((d, i) => (
       <span key={i} className="mx-6 text-gray-300">
@@ -480,78 +579,89 @@ Grailed Sneaker Listings
 
 <div className="mt-24 max-w-5xl w-full">
 
-  <h2 className="text-3xl font-bold text-center mb-12">
-    Live Sneaker Market Insights
-  </h2>
+<h2 className="text-3xl font-bold text-center mb-12  transition-all duration-700 ease-in-out">
+  {marketTitle}
+</h2>
 
   <div className="grid md:grid-cols-2 gap-8">
 
     {/* TRENDING */}
     <div className="bg-gray-900 p-8 rounded-xl">
 
-      <h3 className="text-xl font-semibold mb-6">
-        🔥 Trending Sneaker Scans
+
+  
+      <h3 className="text-xl font-semibold mb-6 transition-all duration-700 ease-in-out">
+       {trendingTitle}
       </h3>
 
-      <ul className="space-y-3 text-gray-300">
+<div className="overflow-hidden h-[120px]">
+  <ul className="space-y-3 text-gray-300 animate-[scrollVertical_10s_linear_infinite]">
 
-        <li className="flex justify-between">
-          <span>Yeezy Boost 350 V2</span>
-          <span className="text-green-400">High Demand</span>
-        </li>
+{trending.map((sneaker, i) => (
 
-        <li className="flex justify-between">
-          <span>Air Jordan 4</span>
-          <span className="text-green-400">Trending</span>
-        </li>
+<li key={i} className="flex justify-between transition-all duration-500">
 
-        <li className="flex justify-between">
-          <span>Nike Dunk Low</span>
-          <span className="text-yellow-400">Moderate</span>
-        </li>
+<span>{sneaker.name}</span>
 
-        <li className="flex justify-between">
-          <span>New Balance 990</span>
-          <span className="text-yellow-400">Growing</span>
-        </li>
+<span className="text-green-400">
+{sneaker.demand}
+</span>
 
-      </ul>
+</li>
+
+))}
+
+
+</ul>
+
+</div>
+
 
     </div>
 
+{/* ARBITRAGE */}
+<div className="bg-gray-900 p-8 rounded-xl">
 
-    {/* ARBITRAGE */}
-    <div className="bg-gray-900 p-8 rounded-xl">
+<h3 className="text-xl font-semibold mb-6 transition-all duration-500">
+  {arbitrageTitle}
+</h3>
 
-      <h3 className="text-xl font-semibold mb-6">
-        📈 Highest Arbitrage Opportunities
-      </h3>
+  <div className="overflow-hidden h-[120px]">
 
-      <ul className="space-y-3 text-gray-300">
+    <ul className="space-y-3 text-gray-300 animate-[scrollVertical_10s_linear_infinite]">
 
-        <li className="flex justify-between">
-          <span>Air Jordan 1 Chicago</span>
-          <span className="text-green-400">+$64</span>
+      {[...[
+        { name: "Air Jordan 1 Chicago", profit: 64 },
+        { name: "Yeezy 700 Wave Runner", profit: 48 },
+        { name: "Nike Dunk Panda", profit: 32 },
+        { name: "Jordan 4 Military Black", profit: 29 }
+      ],
+      ...[
+        { name: "Air Jordan 1 Chicago", profit: 64 },
+        { name: "Yeezy 700 Wave Runner", profit: 48 },
+        { name: "Nike Dunk Panda", profit: 32 },
+        { name: "Jordan 4 Military Black", profit: 29 }
+      ]].map((item, i) => (
+
+        <li key={i} className="flex justify-between">
+
+          <span>{item.name}</span>
+
+          <span className="text-green-400">
+            +${item.profit}
+          </span>
+
         </li>
 
-        <li className="flex justify-between">
-          <span>Yeezy 700 Wave Runner</span>
-          <span className="text-green-400">+$48</span>
-        </li>
+      ))}
 
-        <li className="flex justify-between">
-          <span>Nike Dunk Panda</span>
-          <span className="text-green-400">+$32</span>
-        </li>
+    </ul>
 
-        <li className="flex justify-between">
-          <span>Jordan 4 Military Black</span>
-          <span className="text-green-400">+$29</span>
-        </li>
+  </div>
 
-      </ul>
+</div>
 
-    </div>
+
 
   </div>
 

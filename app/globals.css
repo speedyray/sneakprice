@@ -33,3 +33,13 @@ body {
 .animate-\[scroll_20s_linear_infinite\] {
   animation: scroll 20s linear infinite;
 }
+
+@keyframes scrollVertical {
+  0% {
+    transform: translateY(0%);
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
+}
