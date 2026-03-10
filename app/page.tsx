@@ -279,99 +279,78 @@ for profit using real resale market data.
 <a href="https://www.nike.com/retail" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 Nike Outlet Stores
 </a>
-<p className="text-gray-400">
-Nike outlets frequently sell overstock and returned items at heavy discounts. Resellers can sometimes find popular Nike Dunk or Air Force models priced far below resale market value.
-</p>
+
 </li>
 
 <li>
 <a href="https://www.adidas.com/us/storefinder" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 Adidas Outlet Clearance
 </a>
-<p className="text-gray-400">
-Adidas outlet stores regularly offer clearance deals on models like Ultraboost, NMD, and Yeezy releases. These discounts can create strong resale margins when demand rises.
-</p>
+
 </li>
 
 <li>
 <a href="https://www.footlocker.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 Foot Locker Clearance Walls
 </a>
-<p className="text-gray-400">
-Many Foot Locker locations maintain clearance sections where older inventory is discounted. Some limited releases occasionally appear here when stock is returned.
-</p>
+
 </li>
 
 <li>
 <a href="https://www.amazon.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 Amazon Sneaker Deals
 </a>
-<p className="text-gray-400">
-Amazon often lists sneakers from third-party sellers who price items competitively to move inventory quickly. Smart resellers can spot underpriced listings compared to resale marketplaces.
-</p>
+
 </li>
 
 <li>
 <a href="https://www.ebay.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 eBay Auctions Ending Soon
 </a>
-<p className="text-gray-400">
-eBay auctions sometimes end below market value when fewer bidders are present. Searching for auctions ending soon can reveal profitable sneaker flips.
-</p>
+
 </li>
 
 <li>
 <a href="https://www.facebook.com/marketplace" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 Facebook Marketplace
 </a>
-<p className="text-gray-400">
-Local sellers frequently list sneakers without checking resale value. This creates opportunities to buy pairs below market price and resell them online.
-</p>
+
 </li>
 
 <li>
 <a href="https://offerup.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 OfferUp Local Deals
 </a>
-<p className="text-gray-400">
-OfferUp is another strong local marketplace where casual sellers post sneakers quickly. Many listings are negotiable, allowing resellers to secure profitable deals.
-</p>
+
+
 </li>
 
 <li>
 <a href="https://www.mercari.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 Mercari Sneaker Listings
 </a>
-<p className="text-gray-400">
-Mercari sellers often price sneakers competitively for quick sales. Monitoring new listings can reveal pairs priced below typical resale values.
-</p>
+
 </li>
 
 <li>
 <a href="https://stockx.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 StockX Market Prices
 </a>
-<p className="text-gray-400">
-StockX provides real-time resale market pricing based on actual buyer and seller transactions. Resellers often use StockX data to determine accurate market value.
-</p>
+
 </li>
 
 <li>
 <a href="https://www.goat.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 GOAT Sneaker Marketplace
 </a>
-<p className="text-gray-400">
-GOAT is one of the most trusted sneaker resale platforms. It allows sellers to list both new and used sneakers to a global audience of collectors.
-</p>
+
 </li>
 
 <li>
 <a href="https://www.grailed.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
 Grailed Sneaker Listings
 </a>
-<p className="text-gray-400">
-Grailed specializes in fashion and streetwear items. Many sneaker enthusiasts sell rare or limited sneakers here, sometimes at negotiable prices.
-</p>
+
 </li>
 
 </ul>
@@ -453,72 +432,42 @@ arbitrage opportunities.
 <h3 className="text-lg font-semibold text-green-400">
 Facebook Marketplace Sneaker Deals
 </h3>
-<p className="text-gray-400 text-sm">
-Facebook Marketplace is one of the best places to find cheap sneakers locally.
-Many casual sellers list shoes without checking resale prices on platforms
-like StockX or GOAT. Sneaker resellers often search Facebook Marketplace
-for undervalued listings and negotiate lower prices to create profitable
-resale opportunities.
-</p>
+
 </div>
 
 <div>
 <h3 className="text-lg font-semibold text-green-400">
 OfferUp Local Sneaker Deals
 </h3>
-<p className="text-gray-400 text-sm">
-OfferUp is another popular local marketplace where sellers post sneakers
-for quick sales. Because many sellers prioritize speed over price research,
-resellers can sometimes buy sneakers below market value and resell them
-online for profit.
-</p>
+
 </div>
 
 <div>
 <h3 className="text-lg font-semibold text-green-400">
 Mercari Sneaker Listings
 </h3>
-<p className="text-gray-400 text-sm">
-Mercari is a fast-growing resale platform where users frequently list
-sneakers at competitive prices. Monitoring new listings on Mercari can
-help sneaker resellers discover undervalued pairs before other buyers
-notice the deal.
-</p>
+
 </div>
 
 <div>
 <h3 className="text-lg font-semibold text-green-400">
 StockX Market Pricing
 </h3>
-<p className="text-gray-400 text-sm">
-StockX provides real-time resale pricing based on actual buyer and seller
-transactions. Sneaker resellers often use StockX data to determine the
-true market value of sneakers before buying them from local marketplaces
-or clearance sales.
-</p>
+
 </div>
 
 <div>
 <h3 className="text-lg font-semibold text-green-400">
 GOAT Sneaker Marketplace
 </h3>
-<p className="text-gray-400 text-sm">
-GOAT is one of the largest sneaker resale platforms in the world. Sellers
-can list both new and used sneakers to reach collectors globally. Resellers
-often compare GOAT prices with other marketplaces to find the best place
-to sell a sneaker for maximum profit.
-</p>
+
 </div>
 
 <div>
 <h3 className="text-lg font-semibold text-green-400">
 Grailed Sneaker Listings
 </h3>
-<p className="text-gray-400 text-sm">
-Grailed focuses on streetwear and fashion resale. Some rare or limited
-sneakers appear on Grailed at negotiable prices, making it another useful
-platform for sneaker arbitrage opportunities.
-</p>
+
 </div>
 
 </div>
