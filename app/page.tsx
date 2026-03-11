@@ -73,7 +73,10 @@ useEffect(() => {
 
     const deal = JSON.parse(event.data);
 
-    setDeals([deal]);
+    setDeals((prev) => {
+      const updated = [deal, ...prev];
+      return updated.slice(0, 10);
+    });
 
     setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
 
@@ -168,9 +171,8 @@ useEffect(() => {
       </h1>
 
       <h2 className="text-3xl font-extrabold mb-3 leading-tight">
-          using  <span className="text-green-300">verified resale data</span> <br />
-        
-      </  h2>
+        using <span className="text-green-300">verified resale data</span> <br />
+      </h2>
 
       
 
@@ -232,33 +234,29 @@ useEffect(() => {
 <div className="flex justify-center">
 
 {deals.length > 0 && (
-
-<div
-  className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 animate-pulse shadow-[0_0_20px_rgba(34,197,94,0.6)] transition-all"
->
-  
-<h3 className="font-bold text-lg mb-3">
-{deals[0].sneaker}
-</h3>
-
-<p>
-<strong>Buy Price:</strong> ${deals[0].buy_price.toFixed(2)}
-</p>
-
-<p>
-<strong>Market Price:</strong> ${deals[0].market_price.toFixed(2)}
-</p>
-
-<p className="text-green-600 font-semibold">
-Profit: +${deals[0].profit.toFixed(2)}
-</p>
-
-<p>
-ROI: {deals[0].roi.toFixed(1)}%
-</p>
-
-</div>
-
+  <div className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)] overflow-hidden">
+    <div className="h-[140px] overflow-hidden">
+      <div className="animate-[scrollVertical_12s_linear_infinite] space-y-6">
+        {[...deals, ...deals].map((deal, i) => (
+          <div key={i} className="text-center">
+            <h3 className="font-bold text-lg mb-2">{deal.sneaker}</h3>
+            <p>
+              <strong>Buy Price:</strong> ${deal.buy_price.toFixed(2)}
+            </p>
+            <p>
+              <strong>Market Price:</strong> ${deal.market_price.toFixed(2)}
+            </p>
+            <p className="text-green-600 font-semibold">
+              Profit: +${deal.profit.toFixed(2)}
+            </p>
+            <p>
+              ROI: {deal.roi.toFixed(1)}%
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
 )}
 
 
