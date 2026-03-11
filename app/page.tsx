@@ -67,26 +67,37 @@ const [arbitrageTitle, setArbitrageTitle] = useState(arbitrageTitles[0])
 
 useEffect(() => {
 
-  const eventSource = new EventSource("/api/live-deals-stream");
+  let eventSource = new EventSource("/api/live-deals-stream");
 
   eventSource.onmessage = (event) => {
-  const deal = JSON.parse(event.data);
 
-  setDeals([deal]);
+    const deal = JSON.parse(event.data);
 
-  setRecentDeals((prev) => [deal, ...prev].slice(0, 30));
+    setDeals([deal]);
 
-  setFlash(true);
-  setTimeout(() => setFlash(false), 800);
-};
+    setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
+
+    setFlash(true);
+    setTimeout(() => setFlash(false), 800);
+
+  };
 
   eventSource.onerror = () => {
+
     eventSource.close();
+
+    // reconnect after 2 seconds
+    setTimeout(() => {
+      eventSource = new EventSource("/api/live-deals-stream");
+    }, 2000);
+
   };
 
   return () => eventSource.close();
 
 }, []);
+
+
 
 useEffect(() => {
 
