@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+
 const sneakers = [
 
   "Nike Dunk Panda",
@@ -38,6 +39,8 @@ const sneakers = [
   ];
 
 let index = 0;
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
 
@@ -90,8 +93,9 @@ export async function GET() {
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive"
+      "Cache-Control": "no-cache, no-transform",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no"
     }
   });
 }

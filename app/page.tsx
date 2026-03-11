@@ -74,7 +74,7 @@ useEffect(() => {
 
   setDeals([deal]);
 
-  setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
+  setRecentDeals((prev) => [deal, ...prev].slice(0, 30));
 
   setFlash(true);
   setTimeout(() => setFlash(false), 800);
