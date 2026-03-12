@@ -193,9 +193,12 @@ useEffect(() => {
           Scan My Sneakers
         </Link>
 
-        <button className="border border-gray-600 px-8 py-4 rounded-xl hover:bg-gray-800 transition">
-          Join Early Access
-        </button>
+        <Link
+  href="/login"
+  className="border border-gray-600 px-8 py-4 rounded-xl hover:bg-gray-800 transition"
+>
+  Login or Sign Up
+</Link>
       </div>
 
      <p className="text-gray-500 text-sm mt-6 mb-10">
