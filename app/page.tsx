@@ -234,31 +234,49 @@ useEffect(() => {
 <div className="flex justify-center">
 
 {deals.length > 0 && (
-  <div className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)] overflow-hidden">
+  <div className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)] overflow-hidden relative">
+
+    {/* TOP FADE */}
+    <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent z-10"></div>
+
+    {/* BOTTOM FADE */}
+    <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-10"></div>
+
     <div className="h-[140px] overflow-hidden">
+
       <div className="animate-[scrollVertical_12s_linear_infinite] space-y-6">
+
         {[...deals, ...deals].map((deal, i) => (
           <div key={i} className="text-center">
-            <h3 className="font-bold text-lg mb-2">{deal.sneaker}</h3>
+
+            <h3 className="font-bold text-lg mb-2">
+              {deal.sneaker}
+            </h3>
+
             <p>
               <strong>Buy Price:</strong> ${deal.buy_price.toFixed(2)}
             </p>
+
             <p>
               <strong>Market Price:</strong> ${deal.market_price.toFixed(2)}
             </p>
+
             <p className="text-green-600 font-semibold">
               Profit: +${deal.profit.toFixed(2)}
             </p>
+
             <p>
               ROI: {deal.roi.toFixed(1)}%
             </p>
+
           </div>
         ))}
+
       </div>
+
     </div>
   </div>
 )}
-
 
 
 </div>
