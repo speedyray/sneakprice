@@ -1,10 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export default function Nav() {
+
+  const pathname = usePathname();
+
   return (
     <nav className="w-full flex items-center justify-between px-6 py-4 bg-black text-white">
 
+      {/* LOGO */}
       <Link href="/" className="flex items-center gap-2">
         <Image
           src="/sneakprice-logo.png"
@@ -15,9 +22,33 @@ export default function Nav() {
         <span className="font-bold text-lg">SneakPrice</span>
       </Link>
 
-      <div className="flex gap-6">
-        <Link href="/">Home</Link>
-        <Link href="/app">Scan</Link>
+      <div className="flex gap-6 items-center">
+
+        {/* Show login button only on homepage */}
+        {pathname === "/" && (
+          <Link
+            href="/login"
+            className="bg-white text-black px-4 py-2 rounded-full font-semibold hover:opacity-90 transition"
+          >
+            Login or Sign Up
+          </Link>
+        )}
+
+        {/* Show Home button when NOT on homepage */}
+        {pathname !== "/" && (
+          <Link
+            href="/"
+            className="hover:text-green-400 transition"
+          >
+            Home
+          </Link>
+        )}
+
+        {/* Scan button */}
+        <Link href="/app" className="hover:text-green-400 transition">
+          Scan
+        </Link>
+
       </div>
 
     </nav>
