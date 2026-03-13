@@ -195,7 +195,7 @@ useEffect(() => {
 
         <Link
   href="/login"
-  className="border border-gray-600 px-8 py-4 rounded-xl hover:bg-gray-800 transition"
+  className="border border-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition"
 >
   Login or Sign Up
 </Link>
@@ -204,6 +204,16 @@ useEffect(() => {
      <p className="text-gray-500 text-sm mt-6 mb-10">
         Free 3 scans per day • No credit card required
       </p>
+
+ <div className="flex justify-center mb-6">
+    <Image
+      src="/jordan-yellow.png"
+      alt="SneakPrice"
+      width={160}
+      height={160}
+      className="opacity-90"
+    />
+  </div>
 
   
       
