@@ -1,7 +1,10 @@
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export default clerkMiddleware((auth, request: NextRequest) => {
+
+  // Keep your existing admin basic auth
   if (request.nextUrl.pathname.startsWith("/admin")) {
     const authHeader = request.headers.get("authorization");
 
@@ -27,4 +30,10 @@ export function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
+
+export const config = {
+  matcher: [
+    "/((?!_next|.*\\..*).*)",
+  ],
+};

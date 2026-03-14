@@ -3,15 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 
 export default function Nav() {
-
   const pathname = usePathname();
 
   return (
     <nav className="w-full flex items-center justify-between px-6 py-4 bg-black text-white">
 
-      {/* LOGO */}
       <Link href="/" className="flex items-center gap-2">
         <Image
           src="/sneakprice-logo.png"
@@ -24,7 +23,6 @@ export default function Nav() {
 
       <div className="flex gap-6 items-center">
 
-        {/* Show login button only on homepage */}
         {pathname === "/" && (
           <Link
             href="/login"
@@ -34,7 +32,6 @@ export default function Nav() {
           </Link>
         )}
 
-        {/* Show Home button when NOT on homepage */}
         {pathname !== "/" && (
           <Link
             href="/"
@@ -44,13 +41,13 @@ export default function Nav() {
           </Link>
         )}
 
-        {/* Scan button */}
         <Link href="/app" className="hover:text-green-400 transition">
           Scan
         </Link>
 
-      </div>
+        <UserButton />
 
+      </div>
     </nav>
   );
 }
