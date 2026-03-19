@@ -237,11 +237,11 @@ if (
   </h1>
 
   <Link
-  href="/"
-  className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-200 text-gray-500 hover:text-black transition"
->
-  ✕
-</Link>
+    href="/"
+    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-200 transition"
+  >
+    <span className="text-black text-2xl font-extrabold leading-none">✕</span>
+  </Link>
 </div>
       
       {/* PHOTO SECTION */}
