@@ -19,3 +19,61 @@ model SneakerScan {
   totalListings Int
   createdAt     DateTime @default(now())
 }
+
+model Sneaker {
+  id          Int                  @id @default(autoincrement())
+  brand       String
+  model       String
+  colorway    String
+  sku         String               @unique
+  imageUrl    String?
+  retailPrice Float?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  listings    MarketplaceListing[]
+}
+
+model MarketplaceListing {
+  id          Int             @id @default(autoincrement())
+  sellerName  String
+  sellerId    String?
+  size        String
+  condition   String
+  price       Float
+  status      ListingStatus   @default(ACTIVE)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  sneakerId   Int
+  sneaker     Sneaker         @relation(fields: [sneakerId], references: [id], onDelete: Cascade)
+  listingHolds ListingHold[]
+
+  @@index([status, createdAt])
+  @@index([sneakerId])
+}
+
+model ListingHold {
+  id          Int           @id @default(autoincrement())
+  listingId   Int
+  listing     MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerName   String
+  buyerId     String?
+  expiresAt   DateTime
+  status      HoldStatus     @default(ACTIVE)
+  createdAt   DateTime       @default(now())
+
+  @@index([listingId])
+  @@index([buyerId])
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  DRAFT
+  HELD
+}
+
+enum HoldStatus {
+  ACTIVE
+  RELEASED
+  COMPLETED
+}
