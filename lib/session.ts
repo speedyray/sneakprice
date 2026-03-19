@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
 
 export const SESSION_COOKIE_NAME = "SneakPriceUser";
 
@@ -8,25 +8,13 @@ export type SignedInUser = {
 };
 
 export async function getSignedInUser() {
-  const headerList = await headers();
-  if (!headerList) {
-    return null;
-  }
-  const cookieHeader = headerList.get("cookie");
-  if (!cookieHeader) {
-    return null;
-  }
-  const value = cookieHeader
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${SESSION_COOKIE_NAME}=`));
-  if (!value) {
+  const cookieStore = await cookies();
+  const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  if (!cookieValue) {
     return null;
   }
   try {
-    const parsed = JSON.parse(
-      decodeURIComponent(value.split("=")[1] ?? "")
-    ) as Partial<SignedInUser>;
+    const parsed = JSON.parse(decodeURIComponent(cookieValue)) as Partial<SignedInUser>;
     if (
       typeof parsed.name === "string" &&
       parsed.name.length > 0 &&

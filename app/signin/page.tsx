@@ -42,7 +42,9 @@ export default async function SignInPage() {
         {signedIn ? (
           <div className="space-y-3">
             <p className="text-neutral-300">
-              Signed in as <span className="font-semibold">{signedIn}</span>.
+              Signed in as{" "}
+              <span className="font-semibold text-white">{signedIn.name}</span>{" "}
+              <span className="text-xs text-neutral-400">({signedIn.email})</span>.
             </p>
             <form action={signOutUser}>
               <button

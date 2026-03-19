@@ -12,6 +12,8 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 const formConditions = ["Deadstock", "Very Good", "Good", "Fair"];
+const formInputClassName =
+  "rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white transition disabled:border-neutral-700 disabled:bg-neutral-900/60 disabled:text-neutral-500 disabled:cursor-not-allowed";
 
 async function createListing(formData: FormData) {
   "use server";
@@ -86,17 +88,27 @@ export default async function MarketplacePage() {
     <main className="min-h-screen bg-neutral-950 px-6 py-12 text-white">
       <div className="mx-auto max-w-6xl space-y-12">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-neutral-400">
-              Marketplace
-            </p>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">
-              Browse live sneaker listings
-            </h1>
-            <p className="mt-4 max-w-2xl text-neutral-400">
-              This is the first marketplace foundation for SneakPrice. You can
-              now test a dedicated browse page backed by Prisma data.
-            </p>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-neutral-400">
+                Marketplace
+              </p>
+              <h1 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">
+                Browse live sneaker listings
+              </h1>
+              <p className="mt-4 max-w-2xl text-neutral-400">
+                This is the first marketplace foundation for SneakPrice. You can
+                now test a dedicated browse page backed by Prisma data.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/buyer"
+                className="inline-flex items-center justify-center rounded-full border border-emerald-500/60 bg-emerald-500/10 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-emerald-200 transition hover:border-emerald-400"
+              >
+                Browse buyer portal
+              </Link>
+            </div>
           </div>
 
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900/70 px-5 py-4 text-sm text-neutral-300">
@@ -182,8 +194,15 @@ export default async function MarketplacePage() {
           </div>
 
           {!signedInUser && (
-            <div className="mb-6 rounded-2xl border border-amber-500/50 bg-amber-500/10 px-5 py-3 text-xs uppercase tracking-[0.3em] text-amber-200">
-              Please <Link href="/signin" className="underline">register</Link> or sign in before listing so resellers know who you are.
+            <div className="mb-6 rounded-2xl border border-amber-500/50 bg-amber-500/12 px-5 py-4 text-xs uppercase tracking-[0.3em] text-amber-100">
+              New to SneakPrice?{" "}
+              <Link
+                href="/signin"
+                className="text-amber-100 underline underline-offset-2"
+              >
+                Sign in
+              </Link>{" "}
+              to register your identity before listing sneakers.
             </div>
           )}
 
@@ -199,32 +218,37 @@ export default async function MarketplacePage() {
             <input
               name="brand"
               placeholder="Brand (e.g., Nike)"
-              className="rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white"
+              className={formInputClassName}
               required
+              disabled={listingCreationDisabled}
             />
             <input
               name="model"
               placeholder="Model (e.g., Air Jordan 1)"
-              className="rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white"
+              className={formInputClassName}
               required
+              disabled={listingCreationDisabled}
             />
             <input
               name="colorway"
               placeholder="Colorway (e.g., Bred Toe)"
-              className="rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white"
+              className={formInputClassName}
               required
+              disabled={listingCreationDisabled}
             />
             <input
               name="sku"
               placeholder="SKU (unique identifier)"
-              className="rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white"
+              className={formInputClassName}
               required
+              disabled={listingCreationDisabled}
             />
             <input
               name="size"
               placeholder="Size (e.g., 10)"
-              className="rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white"
+              className={formInputClassName}
               required
+              disabled={listingCreationDisabled}
             />
             <input
               name="price"
@@ -232,12 +256,14 @@ export default async function MarketplacePage() {
               min="1"
               step="0.01"
               placeholder="Ask price (USD)"
-              className="rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white"
+              className={formInputClassName}
               required
+              disabled={listingCreationDisabled}
             />
             <select
               name="condition"
-              className="rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white"
+              className={formInputClassName}
+              disabled={listingCreationDisabled}
             >
               {formConditions.map((condition) => (
                 <option key={condition} value={condition}>
