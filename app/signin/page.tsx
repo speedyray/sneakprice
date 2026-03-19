@@ -28,7 +28,7 @@ async function signOutUser() {
   "use server";
 
   const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE_NAME, { path: "/" });
+  cookieStore.delete({ name: SESSION_COOKIE_NAME, path: "/" });
   redirect("/marketplace");
 }
 
