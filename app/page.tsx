@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Twitter, Instagram, Youtube, Facebook } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 
 
 const trendingTitles = [
@@ -55,6 +56,7 @@ const arbitrageTitles = [
 
 
 export default function Landing() {
+const { user } = useUser();
 
 const [deals, setDeals] = useState<any[]>([]);
 const [recentDeals, setRecentDeals] = useState<any[]>([]);
@@ -193,12 +195,21 @@ useEffect(() => {
           Scan My Sneakers
         </Link>
 
-        <Link
-  href="/login"
-  className="border border-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition"
->
-  Login or Sign Up
-</Link>
+        {user ? (
+          <Link
+            href="/marketplace"
+            className="border border-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition"
+          >
+            Go to Marketplace
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="border border-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition"
+          >
+            Login or Sign Up
+          </Link>
+        )}
       </div>
 
      <p className="text-gray-500 text-sm mt-6 mb-10">

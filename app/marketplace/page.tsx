@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getSignedInUser } from "@/lib/session";
 import { formatHoldExpiry } from "@/lib/listing-hold";
+import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
+
+const PAGE_SIZE = 60;
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -11,82 +12,41 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-const formConditions = ["Deadstock", "Very Good", "Good", "Fair"];
-const formInputClassName =
-  "rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white transition disabled:border-neutral-700 disabled:bg-neutral-900/60 disabled:text-neutral-500 disabled:cursor-not-allowed";
+export default async function MarketplacePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const requestedPage = Number(resolvedSearchParams?.page ?? "1");
+  const currentPage =
+    Number.isFinite(requestedPage) && requestedPage > 0
+      ? Math.floor(requestedPage)
+      : 1;
 
-async function createListing(formData: FormData) {
-  "use server";
-
-  const brand = formData.get("brand")?.toString().trim();
-  const model = formData.get("model")?.toString().trim();
-  const colorway = formData.get("colorway")?.toString().trim();
-  const sku = formData.get("sku")?.toString().trim().toUpperCase();
-  const size = formData.get("size")?.toString().trim();
-  const condition =
-    formData.get("condition")?.toString().trim() || "Deadstock";
-  const rawPrice = formData.get("price")?.toString() ?? "";
-  const priceValue = Number(rawPrice);
-  const signingUser = await getSignedInUser();
-
-  if (!signingUser) {
-    redirect("/login");
-  }
-
-  if (
-    !brand ||
-    !model ||
-    !colorway ||
-    !sku ||
-    !size ||
-    Number.isNaN(priceValue) ||
-    priceValue <= 0
-  ) {
-    return;
-  }
-
-  const sneaker = await prisma.sneaker.upsert({
-    where: { sku },
-    update: { brand, model, colorway },
-    create: {
-      brand,
-      model,
-      colorway,
-      sku,
-    },
-  });
-
-  await prisma.marketplaceListing.create({
-    data: {
-    sneakerId: sneaker.id,
-    sellerName: signingUser.name,
-    sellerId: signingUser.email,
-      size,
-      condition,
-      price: priceValue,
-      status: "ACTIVE",
-    },
-  });
-
-  revalidatePath("/marketplace");
-}
-
-export default async function MarketplacePage() {
-  const listings = await prisma.marketplaceListing.findMany({
-    where: { status: { in: ["ACTIVE", "HELD"] } },
-    include: {
-      sneaker: true,
-      listingHolds: { orderBy: { createdAt: "desc" }, take: 1 },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 24,
-  });
-  const signedInUser = await getSignedInUser();
-  const listingCreationDisabled = !signedInUser;
+  const [signedInUser, totalListings, listings] = await Promise.all([
+    getSignedInUser(),
+    prisma.marketplaceListing.count({
+      where: { status: { in: ["ACTIVE", "HELD"] } },
+    }),
+    prisma.marketplaceListing.findMany({
+      where: { status: { in: ["ACTIVE", "HELD"] } },
+      include: {
+        sneaker: true,
+        listingHolds: { orderBy: { createdAt: "desc" }, take: 1 },
+      },
+      orderBy: { createdAt: "desc" },
+      skip: (currentPage - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(totalListings / PAGE_SIZE));
+  const previousPage = currentPage > 1 ? currentPage - 1 : null;
+  const nextPage = currentPage < totalPages ? currentPage + 1 : null;
 
   return (
     <main className="min-h-screen bg-neutral-950 px-6 py-12 text-white">
-      <div className="mx-auto max-w-6xl space-y-12">
+      <div className="w-full space-y-12">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-4">
             <div>
@@ -102,6 +62,21 @@ export default async function MarketplacePage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
+              {signedInUser ? (
+                <Link
+                  href="/marketplace/sell"
+                  className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-neutral-200 transition hover:border-neutral-500"
+                >
+                  Create listing
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-neutral-200 transition hover:border-neutral-500"
+                >
+                  Login / Sign Up
+                </Link>
+              )}
               <Link
                 href="/buyer"
                 className="inline-flex items-center justify-center rounded-full border border-emerald-500/60 bg-emerald-500/10 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-emerald-200 transition hover:border-emerald-400"
@@ -113,7 +88,10 @@ export default async function MarketplacePage() {
 
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900/70 px-5 py-4 text-sm text-neutral-300">
             Active listings:{" "}
-            <span className="font-semibold text-white">{listings.length}</span>
+            <span className="font-semibold text-white">{totalListings}</span>
+            <p className="mt-1 text-xs uppercase tracking-[0.3em] text-neutral-500">
+              Page {currentPage} of {totalPages}
+            </p>
           </div>
         </div>
 
@@ -122,172 +100,120 @@ export default async function MarketplacePage() {
             <h2 className="text-2xl font-semibold">No listings yet</h2>
             <p className="mx-auto mt-3 max-w-xl text-neutral-400">
               The marketplace data layer is in place, but there are no active
-              or held listings in the database yet. Run the seed script or create
-              a listing below to populate the page.
+              or held listings in the database yet. Run the seed script or open
+              the seller page to add the first listing.
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {listings.map((listing) => {
-              const hold = listing.listingHolds[0];
-              const isHeld = listing.status === "HELD";
-              const holdExpiry = hold ? formatHoldExpiry(hold.expiresAt) : null;
-              return (
-                <article
-                  key={listing.id}
-                  className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6"
-                >
-                  <Link
-                    href={`/marketplace/${listing.id}`}
-                    className="space-y-8 block"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm text-neutral-400">
-                          {listing.sneaker.brand}
-                        </p>
-                        <h2 className="mt-1 text-2xl font-semibold leading-tight">
-                          {listing.sneaker.model}
-                        </h2>
-                        <p className="mt-2 text-neutral-400">
-                          {listing.sneaker.colorway}
-                        </p>
-                      </div>
-                      <div className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-emerald-300">
-                        {listing.status}
-                      </div>
-                    </div>
+          <section className="space-y-6" id="all-listings">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold">All listings</h2>
+                <p className="text-sm text-neutral-400">
+                  Compact browse mode with up to 60 listings per page.
+                </p>
+              </div>
+              <Link
+                href="/marketplace?page=1#all-listings"
+                className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300"
+              >
+                See all -&gt;
+              </Link>
+            </div>
 
-                    <div className="flex items-end justify-between gap-4">
-                      <div>
-                        <p className="text-sm text-neutral-500">Ask</p>
-                        <p className="text-3xl font-bold text-emerald-400">
-                          {currencyFormatter.format(listing.price)}
-                        </p>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {listings.map((listing) => {
+                const hold = listing.listingHolds[0];
+                const isHeld = listing.status === "HELD";
+                const holdExpiry = hold ? formatHoldExpiry(hold.expiresAt) : null;
+                return (
+                  <article
+                    key={listing.id}
+                    className="overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900 shadow-[0_15px_30px_rgba(0,0,0,0.25)]"
+                  >
+                    <Link
+                      href={`/marketplace/${listing.id}`}
+                      className="block h-full"
+                    >
+                      <div className="relative aspect-square overflow-hidden bg-neutral-950">
+                        <MarketplaceListingImage
+                          src={listing.sneaker.imageUrl}
+                          alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
+                        />
+                        <div className="absolute left-3 top-3 rounded-full border border-emerald-500/40 bg-black/65 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-emerald-200">
+                          {listing.status}
+                        </div>
                       </div>
-                      <div className="text-right text-sm text-neutral-400">
-                        <p>Size {listing.size}</p>
-                        <p>{listing.condition}</p>
-                        <p className="mt-1 text-neutral-500">
+
+                      <div className="space-y-3 p-3">
+                        <div className="space-y-1">
+                          <p className="text-[0.65rem] uppercase tracking-[0.35em] text-neutral-500">
+                            {listing.sneaker.brand}
+                          </p>
+                          <h3 className="line-clamp-2 text-sm font-semibold leading-snug xl:text-[0.95rem]">
+                            {listing.sneaker.model}
+                          </h3>
+                          <p className="line-clamp-1 text-xs text-neutral-400">
+                            {listing.sneaker.colorway}
+                          </p>
+                        </div>
+
+                        <div className="flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
+                              Ask
+                            </p>
+                            <p className="text-lg font-bold text-emerald-400 xl:text-xl">
+                              {currencyFormatter.format(listing.price)}
+                            </p>
+                          </div>
+                          <div className="text-right text-xs text-neutral-400">
+                            <p>Size {listing.size}</p>
+                            <p>{listing.condition}</p>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-neutral-500">
                           Seller: {listing.sellerName}
                         </p>
+                        {isHeld && hold ? (
+                          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-amber-400">
+                            Held by {hold.buyerName} until {holdExpiry}
+                          </p>
+                        ) : null}
                       </div>
-                    </div>
-                  </Link>
-                  {isHeld && hold ? (
-                    <p className="mt-4 text-xs uppercase tracking-[0.3em] text-amber-400">
-                      Held by {hold.buyerName} until {holdExpiry}
-                    </p>
-                  ) : null}
-                </article>
-              );
-            })}
-          </div>
-        )}
-
-        <section className="rounded-3xl border border-neutral-800 bg-neutral-900/60 p-8">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">List a sneaker</h2>
-            <p className="text-sm text-neutral-400">
-              Form submissions use Prisma server actions.
-            </p>
-          </div>
-
-          {!signedInUser && (
-            <div className="mb-6 rounded-2xl border border-amber-500/50 bg-amber-500/12 px-5 py-4 text-xs uppercase tracking-[0.3em] text-amber-100">
-              New to SneakPrice?{" "}
-                <Link
-                href="/login"
-                className="text-amber-100 underline underline-offset-2"
-              >
-                Login / Sign Up
-              </Link>{" "}
-              to register your identity before listing sneakers.
+                    </Link>
+                  </article>
+                );
+              })}
             </div>
-          )}
 
-          <form
-            action={createListing}
-            className="mt-6 grid gap-4 sm:grid-cols-2"
-          >
-            <p className="col-span-full text-xs uppercase tracking-[0.3em] text-neutral-400">
-              {signedInUser
-                ? `Listing as ${signedInUser.name}`
-                : "Login / Sign Up to list sneakers"}
-            </p>
-            <input
-              name="brand"
-              placeholder="Brand (e.g., Nike)"
-              className={formInputClassName}
-              required
-              disabled={listingCreationDisabled}
-            />
-            <input
-              name="model"
-              placeholder="Model (e.g., Air Jordan 1)"
-              className={formInputClassName}
-              required
-              disabled={listingCreationDisabled}
-            />
-            <input
-              name="colorway"
-              placeholder="Colorway (e.g., Bred Toe)"
-              className={formInputClassName}
-              required
-              disabled={listingCreationDisabled}
-            />
-            <input
-              name="sku"
-              placeholder="SKU (unique identifier)"
-              className={formInputClassName}
-              required
-              disabled={listingCreationDisabled}
-            />
-            <input
-              name="size"
-              placeholder="Size (e.g., 10)"
-              className={formInputClassName}
-              required
-              disabled={listingCreationDisabled}
-            />
-            <input
-              name="price"
-              type="number"
-              min="1"
-              step="0.01"
-              placeholder="Ask price (USD)"
-              className={formInputClassName}
-              required
-              disabled={listingCreationDisabled}
-            />
-            <select
-              name="condition"
-              className={formInputClassName}
-              disabled={listingCreationDisabled}
-            >
-              {formConditions.map((condition) => (
-                <option key={condition} value={condition}>
-                  {condition}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              disabled={listingCreationDisabled}
-              className={`w-full rounded-2xl border px-6 py-3 text-sm font-semibold uppercase tracking-[0.4em] transition ${
-                listingCreationDisabled
-                  ? "border-neutral-700 bg-neutral-900 text-neutral-500"
-                  : "border-emerald-500/60 bg-emerald-500/20 text-emerald-300 hover:border-emerald-400 hover:text-emerald-100"
-              }`}
-            >
-              Create listing
-            </button>
-          </form>
-          <p className="mt-4 text-xs text-neutral-500">
-            Listing creation is currently for testing. No payments or bids are
-            processed yet.
-          </p>
-        </section>
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/70 px-5 py-4 text-sm text-neutral-300">
+              <p>
+                Showing page <span className="font-semibold text-white">{currentPage}</span> of{" "}
+                <span className="font-semibold text-white">{totalPages}</span>
+              </p>
+              <div className="flex items-center gap-3">
+                {previousPage ? (
+                  <Link
+                    href={`/marketplace?page=${previousPage}#all-listings`}
+                    className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-neutral-200 transition hover:border-neutral-500"
+                  >
+                    Previous
+                  </Link>
+                ) : null}
+                {nextPage ? (
+                  <Link
+                    href={`/marketplace?page=${nextPage}#all-listings`}
+                    className="rounded-full border border-emerald-500/60 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-400"
+                  >
+                    Next
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

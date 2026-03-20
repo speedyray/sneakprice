@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 export default function Nav() {
   const pathname = usePathname();
@@ -38,6 +38,12 @@ export default function Nav() {
         {signedInUserName ? (
           <Link href="/buyer">Buyer portal</Link>
         ) : null}
+        {signedInUserName ? (
+          <Link href="/marketplace/my-listings">My listings</Link>
+        ) : null}
+        {signedInUserName ? (
+          <Link href="/marketplace/sell">Create listing</Link>
+        ) : null}
         {!signedInUserName ? (
           <Link
             href="/login"
@@ -45,7 +51,15 @@ export default function Nav() {
           >
             Login / Sign Up
           </Link>
-        ) : null}
+        ) : (
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonAvatarBox: "h-8 w-8",
+              },
+            }}
+          />
+        )}
       </div>
     </nav>
   );
