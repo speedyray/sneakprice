@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { currentUser } from "@clerk/nextjs/server";
 
 export const SESSION_COOKIE_NAME = "SneakPriceUser";
 
@@ -8,23 +8,18 @@ export type SignedInUser = {
 };
 
 export async function getSignedInUser() {
-  const cookieStore = await cookies();
-  const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  if (!cookieValue) {
+  const user = await currentUser();
+  if (!user) {
     return null;
   }
-  try {
-    const parsed = JSON.parse(decodeURIComponent(cookieValue)) as Partial<SignedInUser>;
-    if (
-      typeof parsed.name === "string" &&
-      parsed.name.length > 0 &&
-      typeof parsed.email === "string" &&
-      parsed.email.length > 0
-    ) {
-      return { name: parsed.name, email: parsed.email };
-    }
-  } catch (error) {
-    console.error("Unable to parse session cookie", error);
+
+  const email = user.emailAddresses[0]?.emailAddress;
+  const fallbackName = email?.split("@")[0] ?? null;
+  const name = user.fullName ?? user.username ?? fallbackName;
+
+  if (!name || !email) {
+    return null;
   }
-  return null;
+
+  return { name, email };
 }

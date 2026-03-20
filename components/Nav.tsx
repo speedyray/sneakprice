@@ -25,18 +25,19 @@ export default async function Nav() {
       </div>
 
       <div className="flex items-center gap-6">
-        <Link href="/">Home</Link>
         <Link href="/app">Scan</Link>
         <Link href="/marketplace">Marketplace</Link>
         {signedInUser ? (
           <Link href="/buyer">Buyer portal</Link>
         ) : null}
-        <Link
-          href="/signin"
-          className="text-sm uppercase tracking-[0.3em] text-emerald-300"
-        >
-          {signedInUser ? "Switch Identity" : "Sign in"}
-        </Link>
+        {!signedInUser ? (
+          <Link
+            href="/login"
+            className="text-emerald-300"
+          >
+            Login / Sign Up
+          </Link>
+        ) : null}
       </div>
     </nav>
   );

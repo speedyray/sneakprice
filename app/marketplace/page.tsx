@@ -30,7 +30,7 @@ async function createListing(formData: FormData) {
   const signingUser = await getSignedInUser();
 
   if (!signingUser) {
-    redirect("/signin");
+    redirect("/login");
   }
 
   if (
@@ -196,11 +196,11 @@ export default async function MarketplacePage() {
           {!signedInUser && (
             <div className="mb-6 rounded-2xl border border-amber-500/50 bg-amber-500/12 px-5 py-4 text-xs uppercase tracking-[0.3em] text-amber-100">
               New to SneakPrice?{" "}
-              <Link
-                href="/signin"
+                <Link
+                href="/login"
                 className="text-amber-100 underline underline-offset-2"
               >
-                Sign in
+                Login / Sign Up
               </Link>{" "}
               to register your identity before listing sneakers.
             </div>
@@ -213,7 +213,7 @@ export default async function MarketplacePage() {
             <p className="col-span-full text-xs uppercase tracking-[0.3em] text-neutral-400">
               {signedInUser
                 ? `Listing as ${signedInUser.name}`
-                : "Sign in to list sneakers"}
+                : "Login / Sign Up to list sneakers"}
             </p>
             <input
               name="brand"

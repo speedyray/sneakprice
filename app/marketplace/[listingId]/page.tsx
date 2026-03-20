@@ -98,9 +98,9 @@ export default async function ListingPage({
             </form>
           ) : (
             <p className="text-sm text-neutral-400">
-              Sign in at{" "}
-              <Link href="/signin" className="underline underline-offset-2">
-                /signin
+              Login or sign up at{" "}
+              <Link href="/login" className="underline underline-offset-2">
+                /login
               </Link>{" "}
               to hold listings as you.
             </p>

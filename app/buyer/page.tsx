@@ -14,7 +14,7 @@ export default async function BuyerPage() {
   const signedInUser = await getSignedInUser();
 
   if (!signedInUser) {
-    redirect("/signin");
+    redirect("/login");
   }
 
   const listings = await prisma.marketplaceListing.findMany({
