@@ -1,23 +1,38 @@
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
-model SneakerScan {
-  id            Int      @id @default(autoincrement())
-  query         String
-  medianPrice   Float
-  averagePrice  Float
-  lowestPrice   Float
-  highestPrice  Float
-  volatility    Float
-  marketLabel   String
-  totalListings Int
-  createdAt     DateTime @default(now())
+/// This model contains row level security and requires additional setup for migrations.
+model deals {
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  sneaker      String?
+  buy_price    Decimal?  @db.Decimal
+  market_price Decimal?  @db.Decimal
+  profit       Decimal?  @db.Decimal
+  roi          Decimal?  @db.Decimal
+  source       String?
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations.
+model scans {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  brand      String?
+  model      String?
+  colorway   String?
+  confidence Int?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations.
+model waitlist {
+  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email      String    @unique(map: "unique_email")
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
 }
 
 model Sneaker {
@@ -34,17 +49,17 @@ model Sneaker {
 }
 
 model MarketplaceListing {
-  id          Int             @id @default(autoincrement())
-  sellerName  String
-  sellerId    String?
-  size        String
-  condition   String
-  price       Float
-  status      ListingStatus   @default(ACTIVE)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  sneakerId   Int
-  sneaker     Sneaker         @relation(fields: [sneakerId], references: [id], onDelete: Cascade)
+  id           Int           @id @default(autoincrement())
+  sellerName   String
+  sellerId     String?
+  size         String
+  condition    String
+  price        Float
+  status       ListingStatus @default(ACTIVE)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sneakerId    Int
+  sneaker      Sneaker       @relation(fields: [sneakerId], references: [id], onDelete: Cascade)
   listingHolds ListingHold[]
 
   @@index([status, createdAt])
@@ -52,14 +67,14 @@ model MarketplaceListing {
 }
 
 model ListingHold {
-  id          Int           @id @default(autoincrement())
-  listingId   Int
-  listing     MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  buyerName   String
-  buyerId     String?
-  expiresAt   DateTime
-  status      HoldStatus     @default(ACTIVE)
-  createdAt   DateTime       @default(now())
+  id        Int                @id @default(autoincrement())
+  listingId Int
+  listing   MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerName String
+  buyerId   String?
+  expiresAt DateTime
+  status    HoldStatus         @default(ACTIVE)
+  createdAt DateTime           @default(now())
 
   @@index([listingId])
   @@index([buyerId])

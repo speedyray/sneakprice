@@ -1,9 +1,21 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import { normalizeDatabaseUrl } from "@/lib/database-url";
 
-const adapter = new PrismaBetterSqlite3({
-  url: "file:./prisma/dev.db",
+const rawConnectionString = process.env.DATABASE_URL;
+
+if (!rawConnectionString) {
+  throw new Error("DATABASE_URL is required for Prisma marketplace queries.");
+}
+
+const connectionString = normalizeDatabaseUrl(rawConnectionString);
+
+const pool = new Pool({
+  connectionString,
 });
+
+const adapter = new PrismaPg(pool);
 
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient | undefined;

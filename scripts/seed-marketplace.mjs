@@ -1,11 +1,52 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import "dotenv/config";
 
-const adapter = new PrismaBetterSqlite3({
-  url: "file:./prisma/dev.db",
+function normalizeDatabaseUrl(rawUrl) {
+  try {
+    new URL(rawUrl);
+    return rawUrl;
+  } catch {
+    const protocolSeparatorIndex = rawUrl.indexOf("://");
+    if (protocolSeparatorIndex === -1) {
+      throw new Error("DATABASE_URL is invalid.");
+    }
+
+    const protocol = rawUrl.slice(0, protocolSeparatorIndex + 3);
+    const remainder = rawUrl.slice(protocolSeparatorIndex + 3);
+    const lastAtIndex = remainder.lastIndexOf("@");
+
+    if (lastAtIndex === -1) {
+      throw new Error("DATABASE_URL is missing credentials or host.");
+    }
+
+    const auth = remainder.slice(0, lastAtIndex);
+    const hostAndPath = remainder.slice(lastAtIndex + 1);
+    const firstColonIndex = auth.indexOf(":");
+
+    if (firstColonIndex === -1) {
+      throw new Error("DATABASE_URL credentials are invalid.");
+    }
+
+    const username = auth.slice(0, firstColonIndex);
+    const password = auth.slice(firstColonIndex + 1);
+
+    return `${protocol}${username}:${encodeURIComponent(password)}@${hostAndPath}`;
+  }
+}
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is required to seed marketplace data.");
+}
+
+const pool = new Pool({
+  connectionString: normalizeDatabaseUrl(process.env.DATABASE_URL),
 });
 
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({
+  adapter: new PrismaPg(pool),
+});
 
 const sneakers = [
   {
@@ -124,4 +165,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
