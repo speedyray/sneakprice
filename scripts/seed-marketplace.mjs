@@ -51,51 +51,174 @@ const prisma = new PrismaClient({
 const sneakerTemplates = [
   {
     brand: "Nike",
-    model: "Air Max Pulse",
-    colorway: "Volt Fade",
+    model: "Air Jordan 1 Retro",
+    colorway: "Chicago Heritage",
     skuBase: "NK-AMP",
-    imageUrl: "/nike.svg",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/1985%20Air%20Jordan%201s.jpg",
     retailPrice: 180,
   },
   {
     brand: "Nike",
-    model: "Dunk Low",
-    colorway: "Court Purple",
-    skuBase: "NK-DLK",
-    imageUrl: "/jordan-yellow.png",
-    retailPrice: 120,
-  },
-  {
-    brand: "Jordan",
     model: "Air Jordan 1 High",
-    colorway: "Bred Toe",
-    skuBase: "JD-AJ1",
-    imageUrl: "/jordan.svg",
+    colorway: "Black Toe",
+    skuBase: "NK-DLK",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Jordan%201%20sb%20nike.jpg",
     retailPrice: 190,
   },
   {
+    brand: "Jordan",
+    model: "Jordan Flight Court",
+    colorway: "Summit White Fire Red",
+    skuBase: "JD-AJ1",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Airjordan1985-1st.JPG",
+    retailPrice: 175,
+  },
+  {
+    brand: "Nike",
+    model: "Air Jordan I",
+    colorway: "Museum White Red",
+    skuBase: "NK-AJ1",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Nike%20Air%20Jordan%20I.jpg",
+    retailPrice: 210,
+  },
+  {
+    brand: "Jordan",
+    model: "Air Jordan XIII",
+    colorway: "White Black Varsity Red",
+    skuBase: "JD-AJ4",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Nike%20Air%20Jordan%20XIII%20%28cropped%29.jpg",
+    retailPrice: 220,
+  },
+  {
     brand: "Adidas",
-    model: "Yeezy Boost 350",
-    colorway: "Zebra Mist",
-    skuBase: "AD-YZY",
-    imageUrl: "/yeezy.svg",
+    model: "Yeezy Boost 350 V2",
+    colorway: "EF2905 Grey",
+    skuBase: "JD-AJ8",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20Handball%20Spezial.jpg",
+    retailPrice: 225,
+  },
+  {
+    brand: "Adidas",
+    model: "Yeezy Boost 350 V2",
+    colorway: "Sesame",
+    skuBase: "JD-AJ12",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20Campus%2000s.jpg",
     retailPrice: 230,
   },
   {
     brand: "Adidas",
-    model: "Campus 00s",
-    colorway: "Cloud White",
-    skuBase: "AD-CMP",
-    imageUrl: "/adidas.svg",
-    retailPrice: 110,
+    model: "Yeezy Boost 350 V2",
+    colorway: "Onyx",
+    skuBase: "JD-AJ17",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20Superstar%20shoes%20pair.jpg",
+    retailPrice: 250,
+  },
+  {
+    brand: "Adidas",
+    model: "Yeezy Boost 350 V2",
+    colorway: "MX Rock",
+    skuBase: "JD-AJ16",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/A%20pair%20of%20Lee%20Cooper%20sneakers.jpg",
+    retailPrice: 240,
+  },
+  {
+    brand: "Jordan",
+    model: "Air Jordan XX",
+    colorway: "Stealth White",
+    skuBase: "JD-AJ20",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Nike%20Air%20Jordan%20XX%20%28cropped%29.jpg",
+    retailPrice: 235,
   },
   {
     brand: "Nike",
-    model: "Air Force 1 Low",
-    colorway: "Triple White",
-    skuBase: "NK-AF1",
-    imageUrl: "/nike.svg",
+    model: "Air Ship",
+    colorway: "Black Red",
+    skuBase: "NK-ASP",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Nike%20Air%20Ship.jpg",
+    retailPrice: 150,
+  },
+  {
+    brand: "Adidas",
+    model: "SL 72 RTN",
+    colorway: "Bluebird Yellow",
+    skuBase: "AD-YZY",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20SL%2072%20RTN.jpg",
+    retailPrice: 125,
+  },
+  {
+    brand: "Adidas",
+    model: "Handball Spezial",
+    colorway: "Cream White Gum",
+    skuBase: "AD-CMP",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20Handball%20Spezial.jpg",
     retailPrice: 115,
+  },
+  {
+    brand: "Adidas",
+    model: "Campus 00s",
+    colorway: "Core Black",
+    skuBase: "AD-C00",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20Campus%2000s.jpg",
+    retailPrice: 120,
+  },
+  {
+    brand: "Adidas",
+    model: "Superstar",
+    colorway: "White Black Shell Toe",
+    skuBase: "AD-SUP",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20Superstar%20shoes%20pair.jpg",
+    retailPrice: 110,
+  },
+  {
+    brand: "Adidas",
+    model: "Stan Smith",
+    colorway: "White Green",
+    skuBase: "AD-STM",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Adidas%20Stan%20Smith%20shoes.jpg",
+    retailPrice: 105,
+  },
+  {
+    brand: "Adidas",
+    model: "Stan Smith 1972",
+    colorway: "Archive White",
+    skuBase: "AD-ST2",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/A%20pair%20of%20Lee%20Cooper%20sneakers.jpg",
+    retailPrice: 130,
+  },
+  {
+    brand: "Nike",
+    model: "Nike Air Ship",
+    colorway: "Black Red",
+    skuBase: "NK-CEM",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Nike%20Air%20Ship.jpg",
+    retailPrice: 215,
+  },
+  {
+    brand: "Nike",
+    model: "Air Jordan XIII",
+    colorway: "1998 Black",
+    skuBase: "NK-VTG",
+    imageUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Nike%20Air%20Jordan%20XIII%20de%201998.JPG",
+    retailPrice: 145,
   },
 ];
 

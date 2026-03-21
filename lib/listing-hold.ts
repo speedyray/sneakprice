@@ -34,6 +34,7 @@ export async function holdListingAction(formData: FormData) {
     },
   });
 
+  revalidatePath("/");
   revalidatePath("/marketplace");
   revalidatePath(`/marketplace/${listingId}`);
   revalidatePath("/buyer");

@@ -40,7 +40,7 @@ export default async function BuyerPage() {
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-4xl font-bold tracking-tight">Reserved buyers only</h1>
               <Link
-                href="/marketplace"
+                href="/"
                 className="inline-flex items-center justify-center rounded-full border border-emerald-500/60 bg-emerald-500/10 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-emerald-200 transition hover:border-emerald-400"
               >
                 Browse listings
@@ -65,7 +65,7 @@ export default async function BuyerPage() {
               Fresh arrivals refreshed live
             </p>
             <Link
-              href="/marketplace"
+              href="/"
               className="text-xs uppercase tracking-[0.4em] text-emerald-200"
             >
               Switch to marketplace view

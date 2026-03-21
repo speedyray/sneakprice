@@ -56,6 +56,7 @@ export async function createListing(formData: FormData) {
     },
   });
 
+  revalidatePath("/");
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/sell");
   revalidatePath("/marketplace/my-listings");

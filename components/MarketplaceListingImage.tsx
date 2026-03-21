@@ -22,12 +22,14 @@ export function MarketplaceListingImage({
   }
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className="h-full w-full object-cover transition duration-300 hover:scale-105"
-      loading="lazy"
-      onError={() => setHasError(true)}
-    />
+    <div className="flex h-full w-full items-center justify-center bg-white p-2">
+      <img
+        src={src}
+        alt={alt}
+        className="h-full w-full object-contain transition duration-300 hover:scale-[1.03]"
+        loading="lazy"
+        onError={() => setHasError(true)}
+      />
+    </div>
   );
 }

@@ -21,7 +21,7 @@ async function signInUser(formData: FormData) {
     httpOnly: true,
   });
 
-  redirect("/marketplace");
+  redirect("/");
 }
 
 async function signOutUser() {
@@ -29,7 +29,7 @@ async function signOutUser() {
 
   const cookieStore = await cookies();
   cookieStore.delete({ name: SESSION_COOKIE_NAME, path: "/" });
-  redirect("/marketplace");
+  redirect("/");
 }
 
 export default async function SignInPage() {
@@ -84,7 +84,7 @@ export default async function SignInPage() {
         )}
 
         <Link
-          href="/marketplace"
+          href="/"
           className="text-sm text-neutral-400 underline underline-offset-4"
         >
           Back to marketplace

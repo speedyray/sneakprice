@@ -59,14 +59,14 @@ export default async function ListingPage({
               Home
             </Link>
             <span>/</span>
-            <Link href="/marketplace" className="transition hover:text-white">
+            <Link href="/" className="transition hover:text-white">
               Marketplace
             </Link>
             <span>/</span>
             <span className="text-neutral-200">{listing.sneaker.brand}</span>
           </div>
           <Link
-            href="/marketplace"
+            href="/"
             className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300"
           >
             Back to listings
@@ -259,7 +259,7 @@ export default async function ListingPage({
                 </p>
               </div>
               <Link
-                href="/marketplace"
+                href="/"
                 className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300"
               >
                 See all

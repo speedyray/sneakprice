@@ -58,7 +58,7 @@ export default async function MyListingsPage() {
                 Create listing
               </Link>
               <Link
-                href="/marketplace"
+                href="/"
                 className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-neutral-200 transition hover:border-neutral-500"
               >
                 Browse marketplace
