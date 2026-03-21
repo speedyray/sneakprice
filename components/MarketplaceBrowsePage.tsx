@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
 import { formatHoldExpiry } from "@/lib/listing-hold";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
+import { MarketplaceVideoShowcase } from "@/components/MarketplaceVideoShowcase";
 
 const PAGE_SIZE = 60;
 
@@ -94,6 +95,8 @@ export default async function MarketplacePage({
             </p>
           </div>
         </div>
+
+        <MarketplaceVideoShowcase />
 
         {listings.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-neutral-700 bg-neutral-900/60 px-8 py-16 text-center">
