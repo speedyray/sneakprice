@@ -9,7 +9,7 @@ export default async function AppLayout({
   const { userId } = await auth();
 
   if (!userId) {
-    redirect("/login");
+    redirect("/login?redirect_url=/app");
   }
 
   return <>{children}</>;
