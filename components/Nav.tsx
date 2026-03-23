@@ -29,6 +29,8 @@ export default function Nav() {
     pathname === "/discover" ||
     pathname.startsWith("/marketplace") ||
     (pathname.startsWith("/login") && isScanLoginReturn);
+  const isDiscoverPage = pathname === "/discover";
+  const isBuyerPage = pathname === "/buyer";
 
   return (
     <nav className="w-full flex flex-col gap-3 border-b border-white/10 bg-black/80 px-6 py-4 text-white md:flex-row md:items-center md:justify-between md:gap-0">
@@ -52,9 +54,9 @@ export default function Nav() {
       <div className="flex items-center gap-6">
         {showHomeLink ? <Link href="/">Home</Link> : null}
         <Link href="/app">Scan</Link>
-        <Link href="/discover">Discover</Link>
+        {!isDiscoverPage ? <Link href="/discover">Discover</Link> : null}
         {signedInUserName ? (
-          <Link href="/buyer">Buyer portal</Link>
+          isBuyerPage ? null : <Link href="/buyer">Buyer portal</Link>
         ) : null}
         {signedInUserName ? (
           <Link href="/marketplace/my-listings">My listings</Link>
