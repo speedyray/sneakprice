@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
 import { formatHoldExpiry } from "@/lib/listing-hold";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
+import { deleteListing } from "@/app/marketplace/actions";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -11,7 +12,12 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-export default async function MyListingsPage() {
+export default async function MyListingsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ created?: string; updated?: string; deleted?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
   const signedInUser = await getSignedInUser();
 
   if (!signedInUser) {
@@ -92,6 +98,22 @@ export default async function MyListingsPage() {
           </div>
         </div>
 
+        {resolvedSearchParams?.created === "1" ? (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            Listing created successfully.
+          </div>
+        ) : null}
+        {resolvedSearchParams?.updated === "1" ? (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            Listing updated successfully.
+          </div>
+        ) : null}
+        {resolvedSearchParams?.deleted === "1" ? (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            Listing deleted successfully.
+          </div>
+        ) : null}
+
         {listings.length === 0 ? (
           <section className="rounded-3xl border border-dashed border-neutral-700 bg-neutral-900/50 px-8 py-16 text-center">
             <h2 className="text-2xl font-semibold">No listings yet</h2>
@@ -126,7 +148,7 @@ export default async function MyListingsPage() {
                     key={listing.id}
                     className="overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900 shadow-[0_15px_30px_rgba(0,0,0,0.25)]"
                   >
-                    <Link href={`/marketplace/${listing.id}`} className="block h-full">
+                    <Link href={`/marketplace/${listing.id}`} className="block">
                       <div className="relative aspect-square overflow-hidden bg-neutral-950">
                         <MarketplaceListingImage
                           src={listing.sneaker.imageUrl}
@@ -175,6 +197,23 @@ export default async function MyListingsPage() {
                         )}
                       </div>
                     </Link>
+                    <div className="flex items-center gap-2 border-t border-neutral-800 px-4 py-3">
+                      <Link
+                        href={`/marketplace/my-listings/${listing.id}/edit`}
+                        className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-neutral-200 transition hover:border-neutral-500"
+                      >
+                        Edit
+                      </Link>
+                      <form action={deleteListing}>
+                        <input type="hidden" name="listingId" value={listing.id} />
+                        <button
+                          type="submit"
+                          className="inline-flex items-center justify-center rounded-full border border-rose-500/40 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-rose-200 transition hover:border-rose-400"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
                   </article>
                 );
               })}
