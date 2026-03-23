@@ -37,6 +37,7 @@ const videoCards: VideoCard[] = [
 
 function VideoTile({ card }: { card: VideoCard }) {
   const [hasError, setHasError] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   return (
     <Link
@@ -46,12 +47,15 @@ function VideoTile({ card }: { card: VideoCard }) {
       <div className="relative aspect-[4/5] bg-neutral-950">
         {!hasError ? (
           <video
-            className="h-full w-full object-cover"
+            className={`h-full w-full object-cover transition-opacity duration-500 ${
+              isReady ? "opacity-100" : "opacity-0"
+            }`}
             autoPlay
             muted
             loop
             playsInline
-            poster={card.poster}
+            preload="auto"
+            onLoadedData={() => setIsReady(true)}
             onError={() => setHasError(true)}
           >
             <source src={card.src} type="video/mp4" />

@@ -6,6 +6,7 @@ import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 import { MarketplaceVideoShowcase } from "@/components/MarketplaceVideoShowcase";
 
 const PAGE_SIZE = 60;
+const FEATURED_VIDEO_INSERT_INDEX = 12;
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -44,6 +45,81 @@ export default async function MarketplacePage({
   const totalPages = Math.max(1, Math.ceil(totalListings / PAGE_SIZE));
   const previousPage = currentPage > 1 ? currentPage - 1 : null;
   const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+  const listingsBeforeVideo = listings.slice(0, FEATURED_VIDEO_INSERT_INDEX);
+  const listingsAfterVideo = listings.slice(FEATURED_VIDEO_INSERT_INDEX);
+
+  function renderListingCard(listing: (typeof listings)[number]) {
+    const hold = listing.listingHolds[0];
+    const isHeld = listing.status === "HELD";
+    const holdExpiry = hold ? formatHoldExpiry(hold.expiresAt) : null;
+
+    return (
+      <article
+        key={listing.id}
+        className="overflow-hidden rounded-2xl border border-neutral-950 bg-neutral-950"
+      >
+        <Link href={`/marketplace/${listing.id}`} className="block h-full">
+          <div className="relative aspect-[2/1] overflow-hidden rounded-[0.9rem] bg-white">
+            <MarketplaceListingImage
+              src={listing.sneaker.imageUrl}
+              alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
+            />
+            <div className="absolute left-2 top-2 rounded-full border border-emerald-500/40 bg-black/65 px-1.5 py-1 text-[0.52rem] font-semibold uppercase tracking-[0.25em] text-emerald-200">
+              {listing.status}
+            </div>
+          </div>
+
+          <div className="space-y-1 px-1 pb-1 pt-1.5">
+            <div className="space-y-1">
+              <p className="text-[0.5rem] uppercase tracking-[0.24em] text-neutral-500">
+                {listing.sneaker.brand}
+              </p>
+              <h3 className="line-clamp-2 text-[0.72rem] font-semibold leading-snug text-white">
+                {listing.sneaker.model}
+              </h3>
+              <p className="line-clamp-1 text-[0.6rem] text-neutral-400">
+                {listing.sneaker.colorway}
+              </p>
+            </div>
+
+            <div className="space-y-0.5">
+              <p className="text-[0.55rem] font-medium text-neutral-400">
+                Lowest Ask
+              </p>
+              <div className="flex items-end justify-between gap-3">
+                <p className="text-lg font-bold text-white">
+                  {currencyFormatter.format(listing.price)}
+                </p>
+                <p className="text-[0.55rem] text-neutral-500">
+                  Size {listing.size}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1 text-[0.55rem] text-neutral-500">
+              <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
+                {listing.condition}
+              </span>
+              <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
+                Seller verified
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1 text-[0.55rem] text-neutral-500">
+              <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
+                {1400 + (listing.id % 900)} sold
+              </span>
+              {isHeld && hold ? (
+                <span className="rounded-md bg-amber-500/10 px-1.5 py-0.5 text-amber-400">
+                  Held until {holdExpiry}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </Link>
+      </article>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-neutral-950 px-6 py-12 text-white">
@@ -96,8 +172,6 @@ export default async function MarketplacePage({
           </div>
         </div>
 
-        <MarketplaceVideoShowcase />
-
         {listings.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-neutral-700 bg-neutral-900/60 px-8 py-16 text-center">
             <h2 className="text-2xl font-semibold">No listings yet</h2>
@@ -125,81 +199,16 @@ export default async function MarketplacePage({
             </div>
 
             <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 xl:grid-cols-6">
-              {listings.map((listing) => {
-                const hold = listing.listingHolds[0];
-                const isHeld = listing.status === "HELD";
-                const holdExpiry = hold ? formatHoldExpiry(hold.expiresAt) : null;
-                return (
-                  <article
-                    key={listing.id}
-                    className="overflow-hidden rounded-2xl border border-neutral-950 bg-neutral-950"
-                  >
-                    <Link
-                      href={`/marketplace/${listing.id}`}
-                      className="block h-full"
-                    >
-                      <div className="relative aspect-[2/1] overflow-hidden rounded-[0.9rem] bg-white">
-                        <MarketplaceListingImage
-                          src={listing.sneaker.imageUrl}
-                          alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
-                        />
-                        <div className="absolute left-2 top-2 rounded-full border border-emerald-500/40 bg-black/65 px-1.5 py-1 text-[0.52rem] font-semibold uppercase tracking-[0.25em] text-emerald-200">
-                          {listing.status}
-                        </div>
-                      </div>
-
-                      <div className="space-y-1 px-1 pb-1 pt-1.5">
-                        <div className="space-y-1">
-                          <p className="text-[0.5rem] uppercase tracking-[0.24em] text-neutral-500">
-                            {listing.sneaker.brand}
-                          </p>
-                          <h3 className="line-clamp-2 text-[0.72rem] font-semibold leading-snug text-white">
-                            {listing.sneaker.model}
-                          </h3>
-                          <p className="line-clamp-1 text-[0.6rem] text-neutral-400">
-                            {listing.sneaker.colorway}
-                          </p>
-                        </div>
-
-                        <div className="space-y-0.5">
-                          <p className="text-[0.55rem] font-medium text-neutral-400">
-                            Lowest Ask
-                          </p>
-                          <div className="flex items-end justify-between gap-3">
-                            <p className="text-lg font-bold text-white">
-                              {currencyFormatter.format(listing.price)}
-                            </p>
-                            <p className="text-[0.55rem] text-neutral-500">
-                              Size {listing.size}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-1 text-[0.55rem] text-neutral-500">
-                          <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
-                            {listing.condition}
-                          </span>
-                          <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
-                            Seller verified
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-1 text-[0.55rem] text-neutral-500">
-                          <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
-                            {1400 + (listing.id % 900)} sold
-                          </span>
-                          {isHeld && hold ? (
-                            <span className="rounded-md bg-amber-500/10 px-1.5 py-0.5 text-amber-400">
-                              Held until {holdExpiry}
-                            </span>
-                          ) : null}
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
-                );
-              })}
+              {listingsBeforeVideo.map(renderListingCard)}
             </div>
+
+            {listingsAfterVideo.length > 0 ? <MarketplaceVideoShowcase /> : null}
+
+            {listingsAfterVideo.length > 0 ? (
+              <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 xl:grid-cols-6">
+                {listingsAfterVideo.map(renderListingCard)}
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/70 px-5 py-4 text-sm text-neutral-300">
               <p>
