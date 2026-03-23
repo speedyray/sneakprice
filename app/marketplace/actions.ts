@@ -304,3 +304,54 @@ export async function deleteListing(formData: FormData) {
   revalidatePath("/marketplace/my-listings");
   redirect("/marketplace/my-listings?deleted=1");
 }
+
+async function updateListingStatus(formData: FormData, status: "ACTIVE" | "SOLD" | "DRAFT") {
+  const signingUser = await ensureSignedInUser();
+  const listingId = Number(formData.get("listingId"));
+
+  if (!listingId) {
+    return;
+  }
+
+  const listing = await prisma.marketplaceListing.findFirst({
+    where: {
+      id: listingId,
+      sellerId: signingUser.email,
+    },
+  });
+
+  if (!listing) {
+    return;
+  }
+
+  await prisma.marketplaceListing.update({
+    where: { id: listing.id },
+    data: { status },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/marketplace");
+  revalidatePath("/marketplace/my-listings");
+  revalidatePath(`/marketplace/${listing.id}`);
+
+  const statusParam =
+    status === "SOLD"
+      ? "sold=1"
+      : status === "DRAFT"
+        ? "unlisted=1"
+        : "relisted=1";
+
+  redirect(`/marketplace/my-listings?${statusParam}`);
+}
+
+export async function markListingSold(formData: FormData) {
+  return updateListingStatus(formData, "SOLD");
+}
+
+export async function unlistListing(formData: FormData) {
+  return updateListingStatus(formData, "DRAFT");
+}
+
+export async function relistListing(formData: FormData) {
+  return updateListingStatus(formData, "ACTIVE");
+}

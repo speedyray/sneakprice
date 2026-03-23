@@ -4,7 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
 import { formatHoldExpiry } from "@/lib/listing-hold";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
-import { deleteListing } from "@/app/marketplace/actions";
+import {
+  deleteListing,
+  markListingSold,
+  relistListing,
+  unlistListing,
+} from "@/app/marketplace/actions";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -15,7 +20,14 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 export default async function MyListingsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ created?: string; updated?: string; deleted?: string }>;
+  searchParams?: Promise<{
+    created?: string;
+    updated?: string;
+    deleted?: string;
+    sold?: string;
+    unlisted?: string;
+    relisted?: string;
+  }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const signedInUser = await getSignedInUser();
@@ -37,7 +49,95 @@ export default async function MyListingsPage({
 
   const activeCount = listings.filter((listing) => listing.status === "ACTIVE").length;
   const heldCount = listings.filter((listing) => listing.status === "HELD").length;
+  const soldCount = listings.filter((listing) => listing.status === "SOLD").length;
+  const draftCount = listings.filter((listing) => listing.status === "DRAFT").length;
   const totalValue = listings.reduce((sum, listing) => sum + listing.price, 0);
+
+  const listingGroups = [
+    {
+      key: "active",
+      title: "Active listings",
+      description: "Visible now and ready for buyers.",
+      listings: listings.filter((listing) => listing.status === "ACTIVE"),
+    },
+    {
+      key: "held",
+      title: "Held listings",
+      description: "Currently reserved by a buyer hold.",
+      listings: listings.filter((listing) => listing.status === "HELD"),
+    },
+    {
+      key: "draft",
+      title: "Unlisted inventory",
+      description: "Hidden from buyers until you relist them.",
+      listings: listings.filter((listing) => listing.status === "DRAFT"),
+    },
+    {
+      key: "sold",
+      title: "Sold archive",
+      description: "Pairs you marked as sold.",
+      listings: listings.filter((listing) => listing.status === "SOLD"),
+    },
+  ];
+
+  function renderListingActions(listing: (typeof listings)[number]) {
+    return (
+      <div className="flex flex-wrap items-center gap-2 border-t border-neutral-800 px-4 py-3">
+        <Link
+          href={`/marketplace/my-listings/${listing.id}/edit`}
+          className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-neutral-200 transition hover:border-neutral-500"
+        >
+          Edit
+        </Link>
+
+        {listing.status !== "SOLD" ? (
+          <form action={markListingSold}>
+            <input type="hidden" name="listingId" value={listing.id} />
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center rounded-full border border-emerald-500/40 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-400"
+            >
+              Mark sold
+            </button>
+          </form>
+        ) : null}
+
+        {listing.status === "ACTIVE" || listing.status === "HELD" ? (
+          <form action={unlistListing}>
+            <input type="hidden" name="listingId" value={listing.id} />
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center rounded-full border border-amber-500/40 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-amber-200 transition hover:border-amber-400"
+            >
+              Unlist
+            </button>
+          </form>
+        ) : null}
+
+        {listing.status === "DRAFT" || listing.status === "SOLD" ? (
+          <form action={relistListing}>
+            <input type="hidden" name="listingId" value={listing.id} />
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center rounded-full border border-sky-500/40 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-sky-200 transition hover:border-sky-400"
+            >
+              Relist
+            </button>
+          </form>
+        ) : null}
+
+        <form action={deleteListing}>
+          <input type="hidden" name="listingId" value={listing.id} />
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center rounded-full border border-rose-500/40 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-rose-200 transition hover:border-rose-400"
+          >
+            Delete
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-neutral-950 px-6 py-12 text-white">
@@ -89,6 +189,14 @@ export default async function MyListingsPage({
             </div>
             <div className="rounded-2xl border border-neutral-800 bg-neutral-900/70 px-5 py-4">
               <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
+                Sold / Unlisted
+              </p>
+              <p className="mt-2 text-3xl font-bold text-white">
+                {soldCount} / {draftCount}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/70 px-5 py-4 sm:col-span-3 lg:col-span-1">
+              <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
                 Ask value
               </p>
               <p className="mt-2 text-3xl font-bold text-emerald-300">
@@ -113,6 +221,21 @@ export default async function MyListingsPage({
             Listing deleted successfully.
           </div>
         ) : null}
+        {resolvedSearchParams?.sold === "1" ? (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            Listing marked as sold.
+          </div>
+        ) : null}
+        {resolvedSearchParams?.unlisted === "1" ? (
+          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+            Listing moved to unlisted inventory.
+          </div>
+        ) : null}
+        {resolvedSearchParams?.relisted === "1" ? (
+          <div className="rounded-2xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-200">
+            Listing relisted successfully.
+          </div>
+        ) : null}
 
         {listings.length === 0 ? (
           <section className="rounded-3xl border border-dashed border-neutral-700 bg-neutral-900/50 px-8 py-16 text-center">
@@ -129,95 +252,90 @@ export default async function MyListingsPage({
             </Link>
           </section>
         ) : (
-          <section className="space-y-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold">Inventory overview</h2>
-                <p className="text-sm text-neutral-400">
-                  Your live marketplace listings and current reservation status.
-                </p>
-              </div>
-            </div>
+          <section className="space-y-10">
+            {listingGroups.map((group) => (
+              <div key={group.key} className="space-y-5">
+                <div>
+                  <h2 className="text-2xl font-semibold">{group.title}</h2>
+                  <p className="text-sm text-neutral-400">{group.description}</p>
+                </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {listings.map((listing) => {
-                const latestHold = listing.listingHolds[0];
+                {group.listings.length === 0 ? (
+                  <div className="rounded-3xl border border-dashed border-neutral-800 bg-neutral-900/40 px-6 py-10 text-sm text-neutral-500">
+                    No listings in this section yet.
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                    {group.listings.map((listing) => {
+                      const latestHold = listing.listingHolds[0];
 
-                return (
-                  <article
-                    key={listing.id}
-                    className="overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900 shadow-[0_15px_30px_rgba(0,0,0,0.25)]"
-                  >
-                    <Link href={`/marketplace/${listing.id}`} className="block">
-                      <div className="relative aspect-square overflow-hidden bg-neutral-950">
-                        <MarketplaceListingImage
-                          src={listing.sneaker.imageUrl}
-                          alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
-                        />
-                        <div className="absolute left-3 top-3 rounded-full border border-emerald-500/40 bg-black/65 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-emerald-200">
-                          {listing.status}
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 p-4">
-                        <div className="space-y-1">
-                          <p className="text-[0.65rem] uppercase tracking-[0.35em] text-neutral-500">
-                            {listing.sneaker.brand}
-                          </p>
-                          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-white">
-                            {listing.sneaker.model}
-                          </h3>
-                          <p className="line-clamp-1 text-xs text-neutral-400">
-                            {listing.sneaker.colorway}
-                          </p>
-                        </div>
-
-                        <div className="flex items-end justify-between gap-3">
-                          <div>
-                            <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
-                              Ask
-                            </p>
-                            <p className="text-lg font-bold text-emerald-400">
-                              {currencyFormatter.format(listing.price)}
-                            </p>
-                          </div>
-                          <div className="text-right text-xs text-neutral-400">
-                            <p>Size {listing.size}</p>
-                            <p>{listing.condition}</p>
-                          </div>
-                        </div>
-
-                        {latestHold ? (
-                          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-amber-400">
-                            Held by {latestHold.buyerName} until{" "}
-                            {formatHoldExpiry(latestHold.expiresAt)}
-                          </p>
-                        ) : (
-                          <p className="text-xs text-neutral-500">No active hold</p>
-                        )}
-                      </div>
-                    </Link>
-                    <div className="flex items-center gap-2 border-t border-neutral-800 px-4 py-3">
-                      <Link
-                        href={`/marketplace/my-listings/${listing.id}/edit`}
-                        className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-neutral-200 transition hover:border-neutral-500"
-                      >
-                        Edit
-                      </Link>
-                      <form action={deleteListing}>
-                        <input type="hidden" name="listingId" value={listing.id} />
-                        <button
-                          type="submit"
-                          className="inline-flex items-center justify-center rounded-full border border-rose-500/40 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-rose-200 transition hover:border-rose-400"
+                      return (
+                        <article
+                          key={listing.id}
+                          className="overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900 shadow-[0_15px_30px_rgba(0,0,0,0.25)]"
                         >
-                          Delete
-                        </button>
-                      </form>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+                          <Link href={`/marketplace/${listing.id}`} className="block">
+                            <div className="relative aspect-square overflow-hidden bg-neutral-950">
+                              <MarketplaceListingImage
+                                src={listing.sneaker.imageUrl}
+                                alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
+                              />
+                              <div className="absolute left-3 top-3 rounded-full border border-emerald-500/40 bg-black/65 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-emerald-200">
+                                {listing.status}
+                              </div>
+                            </div>
+
+                            <div className="space-y-3 p-4">
+                              <div className="space-y-1">
+                                <p className="text-[0.65rem] uppercase tracking-[0.35em] text-neutral-500">
+                                  {listing.sneaker.brand}
+                                </p>
+                                <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-white">
+                                  {listing.sneaker.model}
+                                </h3>
+                                <p className="line-clamp-1 text-xs text-neutral-400">
+                                  {listing.sneaker.colorway}
+                                </p>
+                              </div>
+
+                              <div className="flex items-end justify-between gap-3">
+                                <div>
+                                  <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
+                                    Ask
+                                  </p>
+                                  <p className="text-lg font-bold text-emerald-400">
+                                    {currencyFormatter.format(listing.price)}
+                                  </p>
+                                </div>
+                                <div className="text-right text-xs text-neutral-400">
+                                  <p>Size {listing.size}</p>
+                                  <p>{listing.condition}</p>
+                                </div>
+                              </div>
+
+                              {latestHold ? (
+                                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+                                  <p className="text-[0.65rem] uppercase tracking-[0.3em] text-amber-300">
+                                    Buyer hold
+                                  </p>
+                                  <p className="mt-1 text-xs text-amber-100">
+                                    {latestHold.buyerName} until{" "}
+                                    {formatHoldExpiry(latestHold.expiresAt)}
+                                  </p>
+                                </div>
+                              ) : (
+                                <p className="text-xs text-neutral-500">No active hold</p>
+                              )}
+                            </div>
+                          </Link>
+                          {renderListingActions(listing)}
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
           </section>
         )}
       </div>

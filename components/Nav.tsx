@@ -25,6 +25,7 @@ export default function Nav() {
 
   const showHomeLink =
     pathname === "/app" ||
+    pathname === "/buyer" ||
     pathname === "/discover" ||
     pathname.startsWith("/marketplace") ||
     (pathname.startsWith("/login") && isScanLoginReturn);
