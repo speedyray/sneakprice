@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
-import { holdListingAction, formatHoldExpiry } from "@/lib/listing-hold";
+import { beginPurchaseAction, formatHoldExpiry } from "@/lib/listing-hold";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -13,10 +13,13 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 export default async function ListingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ listingId: string }>;
+  searchParams?: Promise<{ unavailable?: string }>;
 }) {
   const { listingId: rawListingId } = await params;
+  const resolvedSearchParams = await searchParams;
   const listingId = Number(rawListingId);
   const signedInUser = await getSignedInUser();
   const listing = await prisma.marketplaceListing.findUnique({
@@ -47,7 +50,9 @@ export default async function ListingPage({
   });
 
   const latestHold = listing.listingHolds[0];
-  const canHold = listing.status === "ACTIVE" && Boolean(signedInUser);
+  const canBuyNow =
+    (listing.status === "ACTIVE" || latestHold?.buyerId === signedInUser?.email) &&
+    Boolean(signedInUser);
   const marketDelta = listing.price - (listing.sneaker.retailPrice ?? 0);
 
   return (
@@ -161,18 +166,18 @@ export default async function ListingPage({
                   Make offer
                 </Link>
                 {signedInUser ? (
-                  <form action={holdListingAction}>
+                  <form action={beginPurchaseAction}>
                     <input type="hidden" name="listingId" value={listing.id} />
                     <button
                       type="submit"
-                      disabled={!canHold}
+                      disabled={!canBuyNow}
                       className={`w-full rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] transition ${
-                        canHold
+                        canBuyNow
                           ? "bg-emerald-500 text-black hover:bg-emerald-400"
                           : "bg-neutral-800 text-neutral-500"
                       }`}
                     >
-                      {canHold ? "Buy now" : "Unavailable"}
+                      {canBuyNow ? "Buy now" : "Unavailable"}
                     </button>
                   </form>
                 ) : (
@@ -185,10 +190,16 @@ export default async function ListingPage({
                 )}
               </div>
 
+              {resolvedSearchParams?.unavailable === "1" ? (
+                <div className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                  This listing is already reserved by another buyer.
+                </div>
+              ) : null}
+
               <div className="mt-5 space-y-3 border-t border-neutral-800 pt-5 text-sm text-neutral-400">
                 <p>
-                  Buyer protection, verified seller identity, and 15-minute listing
-                  reservation workflow are built into the SneakPrice marketplace.
+                  Buyer protection, verified seller identity, and 15-minute hold-to-checkout
+                  workflow are built into the SneakPrice marketplace.
                 </p>
                 <p>
                   Last sale estimate:{" "}

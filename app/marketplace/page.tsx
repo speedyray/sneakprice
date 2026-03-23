@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation";
-
-export default function MarketplacePage() {
-  redirect("/discover");
-}
+export { default } from "@/components/MarketplaceBrowsePage";
