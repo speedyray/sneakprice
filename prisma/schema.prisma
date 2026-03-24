@@ -72,6 +72,12 @@ model ListingHold {
   listing   MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
   buyerName String
   buyerId   String?
+  buyerEmail String?
+  shippingAddress String?
+  shippingCity String?
+  shippingRegion String?
+  shippingCountry String?
+  buyerNotes String?
   expiresAt DateTime
   status    HoldStatus         @default(ACTIVE)
   createdAt DateTime           @default(now())

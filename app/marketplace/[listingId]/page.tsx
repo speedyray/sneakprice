@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getSignedInUser } from "@/lib/session";
-import { beginPurchaseAction, formatHoldExpiry } from "@/lib/listing-hold";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -13,20 +11,16 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 export default async function ListingPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ listingId: string }>;
-  searchParams?: Promise<{ unavailable?: string }>;
 }) {
   const { listingId: rawListingId } = await params;
-  const resolvedSearchParams = await searchParams;
   const listingId = Number(rawListingId);
-  const signedInUser = await getSignedInUser();
+
   const listing = await prisma.marketplaceListing.findUnique({
     where: { id: listingId },
     include: {
       sneaker: true,
-      listingHolds: { orderBy: { createdAt: "desc" }, take: 5 },
     },
   });
 
@@ -37,7 +31,7 @@ export default async function ListingPage({
   const relatedListings = await prisma.marketplaceListing.findMany({
     where: {
       id: { not: listing.id },
-      status: { in: ["ACTIVE", "HELD"] },
+      status: "ACTIVE",
       sneaker: {
         brand: listing.sneaker.brand,
       },
@@ -49,10 +43,6 @@ export default async function ListingPage({
     take: 6,
   });
 
-  const latestHold = listing.listingHolds[0];
-  const canBuyNow =
-    (listing.status === "ACTIVE" || latestHold?.buyerId === signedInUser?.email) &&
-    Boolean(signedInUser);
   const marketDelta = listing.price - (listing.sneaker.retailPrice ?? 0);
 
   return (
@@ -160,46 +150,17 @@ export default async function ListingPage({
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <Link
-                  href="/buyer"
-                  className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-neutral-200 transition hover:border-neutral-500"
+                  href={`/buyer/checkout/${listing.id}`}
+                  className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-emerald-400"
                 >
-                  Make offer
+                  Buy now
                 </Link>
-                {signedInUser ? (
-                  <form action={beginPurchaseAction}>
-                    <input type="hidden" name="listingId" value={listing.id} />
-                    <button
-                      type="submit"
-                      disabled={!canBuyNow}
-                      className={`w-full rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] transition ${
-                        canBuyNow
-                          ? "bg-emerald-500 text-black hover:bg-emerald-400"
-                          : "bg-neutral-800 text-neutral-500"
-                      }`}
-                    >
-                      {canBuyNow ? "Buy now" : "Unavailable"}
-                    </button>
-                  </form>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-emerald-400"
-                  >
-                    Login to buy
-                  </Link>
-                )}
               </div>
-
-              {resolvedSearchParams?.unavailable === "1" ? (
-                <div className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                  This listing is already reserved by another buyer.
-                </div>
-              ) : null}
 
               <div className="mt-5 space-y-3 border-t border-neutral-800 pt-5 text-sm text-neutral-400">
                 <p>
-                  Buyer protection, verified seller identity, and 15-minute hold-to-checkout
-                  workflow are built into the SneakPrice marketplace.
+                  Buyer protection and verified sellers keep the market safe. We no longer support
+                  holds—proceed with Buy It Now or ask the seller about deposit options.
                 </p>
                 <p>
                   Last sale estimate:{" "}
@@ -210,22 +171,9 @@ export default async function ListingPage({
               </div>
             </div>
 
-            {latestHold ? (
-              <div className="rounded-3xl border border-amber-500/40 bg-amber-500/10 p-5">
-                <p className="text-[0.7rem] uppercase tracking-[0.3em] text-amber-300">
-                  Listing hold
-                </p>
-                <p className="mt-2 text-sm text-amber-100">
-                  Held by {latestHold.buyerName} until{" "}
-                  {formatHoldExpiry(latestHold.expiresAt)}.
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-3xl border border-neutral-800 bg-neutral-900/70 p-5 text-sm text-neutral-400">
-                This listing is available now. Complete the buy flow or place an
-                offer before someone else reserves it.
-              </div>
-            )}
+            <div className="rounded-3xl border border-neutral-800 bg-neutral-900/70 p-5 text-sm text-neutral-400">
+              This listing is available now. Complete the buy flow or place an offer before someone else secures it.
+            </div>
 
             <div className="space-y-3 rounded-3xl border border-neutral-800 bg-neutral-900/70 p-6">
               <div className="flex items-center justify-between">

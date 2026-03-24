@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
-import { formatHoldExpiry } from "@/lib/listing-hold";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 import {
   deleteListing,
@@ -42,7 +41,6 @@ export default async function MyListingsPage({
     },
     include: {
       sneaker: true,
-      listingHolds: { orderBy: { createdAt: "desc" }, take: 1 },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -267,7 +265,6 @@ export default async function MyListingsPage({
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                     {group.listings.map((listing) => {
-                      const latestHold = listing.listingHolds[0];
 
                       return (
                         <article
@@ -313,19 +310,7 @@ export default async function MyListingsPage({
                                 </div>
                               </div>
 
-                              {latestHold ? (
-                                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
-                                  <p className="text-[0.65rem] uppercase tracking-[0.3em] text-amber-300">
-                                    Buyer hold
-                                  </p>
-                                  <p className="mt-1 text-xs text-amber-100">
-                                    {latestHold.buyerName} until{" "}
-                                    {formatHoldExpiry(latestHold.expiresAt)}
-                                  </p>
-                                </div>
-                              ) : (
-                                <p className="text-xs text-neutral-500">No active hold</p>
-                              )}
+                              <p className="text-xs text-neutral-500">Hold feature removed. Buyers proceed with Buy now.</p>
                             </div>
                           </Link>
                           {renderListingActions(listing)}

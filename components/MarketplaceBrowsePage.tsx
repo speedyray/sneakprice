@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
-import { formatHoldExpiry } from "@/lib/listing-hold";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 import { MarketplaceVideoShowcase } from "@/components/MarketplaceVideoShowcase";
 
@@ -29,13 +28,12 @@ export default async function MarketplacePage({
   const [signedInUser, totalListings, listings] = await Promise.all([
     getSignedInUser(),
     prisma.marketplaceListing.count({
-      where: { status: { in: ["ACTIVE", "HELD"] } },
+      where: { status: "ACTIVE" },
     }),
     prisma.marketplaceListing.findMany({
-      where: { status: { in: ["ACTIVE", "HELD"] } },
+      where: { status: "ACTIVE" },
       include: {
         sneaker: true,
-        listingHolds: { orderBy: { createdAt: "desc" }, take: 1 },
       },
       orderBy: { createdAt: "desc" },
       skip: (currentPage - 1) * PAGE_SIZE,
@@ -49,9 +47,6 @@ export default async function MarketplacePage({
   const listingsAfterVideo = listings.slice(FEATURED_VIDEO_INSERT_INDEX);
 
   function renderListingCard(listing: (typeof listings)[number]) {
-    const hold = listing.listingHolds[0];
-    const isHeld = listing.status === "HELD";
-    const holdExpiry = hold ? formatHoldExpiry(hold.expiresAt) : null;
 
     return (
       <article
@@ -109,11 +104,6 @@ export default async function MarketplacePage({
               <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
                 {1400 + (listing.id % 900)} sold
               </span>
-              {isHeld && hold ? (
-                <span className="rounded-md bg-amber-500/10 px-1.5 py-0.5 text-amber-400">
-                  Held until {holdExpiry}
-                </span>
-              ) : null}
             </div>
           </div>
         </Link>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
-import { formatHoldExpiry } from "@/lib/listing-hold";
+import { captureBuyerInfoAction } from "@/app/buyer/checkout/actions";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -28,7 +28,6 @@ export default async function BuyerCheckoutPage({
     where: { id: listingId },
     include: {
       sneaker: true,
-      listingHolds: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
 
@@ -36,12 +35,29 @@ export default async function BuyerCheckoutPage({
     notFound();
   }
 
-  const latestHold = listing.listingHolds[0];
-  const heldByBuyer = latestHold?.buyerId === signedInUser.email;
+  const previousInfo = await prisma.listingHold.findFirst({
+    where: {
+      listingId,
+      buyerId: signedInUser.email,
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
-  if (!latestHold || !heldByBuyer) {
-    redirect(`/marketplace/${listing.id}`);
-  }
+  const buyerEmail = previousInfo?.buyerEmail ?? signedInUser.email;
+  const buyerName = previousInfo?.buyerName ?? signedInUser.name;
+  const shippingSummary = [
+    previousInfo?.shippingAddress,
+    previousInfo?.shippingCity,
+    previousInfo?.shippingRegion,
+    previousInfo?.shippingCountry,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const hasShippingInfo = Boolean(
+    previousInfo?.shippingAddress ||
+      previousInfo?.shippingCity ||
+      previousInfo?.shippingCountry
+  );
 
   return (
     <main className="min-h-screen bg-neutral-950 px-6 py-12 text-white">
@@ -52,11 +68,11 @@ export default async function BuyerCheckoutPage({
               Buyer checkout
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">
-              Review your purchase
+              Confirm your purchase details
             </h1>
             <p className="mt-4 max-w-2xl text-neutral-400">
-              Your hold is active. This is the first step of the buyer purchase flow:
-              confirm the pair and continue to buyer details next.
+              We no longer support holds. This page shares your buyer info with the seller before
+              they ship or meet up. Complete the form and the seller can coordinate final handoff.
             </p>
           </div>
           <Link
@@ -118,41 +134,136 @@ export default async function BuyerCheckoutPage({
               <p className="mt-3 text-5xl font-bold text-white">
                 {currencyFormatter.format(listing.price)}
               </p>
-
-              <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-4">
-                <p className="text-[0.7rem] uppercase tracking-[0.3em] text-emerald-300">
-                  Hold active
-                </p>
-                <p className="mt-2 text-sm text-emerald-100">
-                  Reserved for {signedInUser.name} until{" "}
-                  {formatHoldExpiry(latestHold.expiresAt)}.
-                </p>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <button
-                  type="button"
-                  disabled
-                  className="w-full rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black opacity-70"
-                >
-                  Buyer details next
-                </button>
-                <p className="text-xs text-neutral-500">
-                  Next step: collect buyer information and complete the checkout handoff.
-                </p>
-              </div>
+              <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
+                Pricing may vary based on your shipping or pickup arrangement.
+              </p>
             </div>
 
-            <div className="rounded-3xl border border-neutral-800 bg-neutral-900/70 p-5">
-              <h3 className="text-lg font-semibold text-white">What happens now</h3>
-              <ul className="mt-4 space-y-3 text-sm text-neutral-400">
-                <li>1. Your pair is reserved for 15 minutes.</li>
-                <li>2. Next we will capture buyer details and confirmation info.</li>
-                <li>3. Then the seller can complete the handoff with confidence.</li>
-              </ul>
+            <div className="rounded-3xl border border-neutral-800 bg-neutral-900/70 p-5 text-sm text-neutral-400">
+              <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
+                No holds, no guessing
+              </p>
+              <p className="text-sm">
+                Once you submit this form, the seller knows your confirmed name, email, and location.
+                Continue the conversation through the app or checkout notes to finalize payment.
+              </p>
             </div>
           </aside>
         </div>
+
+        <section className="space-y-6 rounded-[2rem] border border-neutral-800 bg-neutral-900/70 p-6">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm uppercase tracking-[0.3em] text-neutral-400">
+              Buyer info capture
+            </p>
+            <h2 className="text-3xl font-bold">Share your contact details</h2>
+            <p className="text-sm text-neutral-400">
+              Supply the name, email, and shipping instructions the seller can rely on. Submit once you are ready to move forward.
+            </p>
+            {hasShippingInfo || previousInfo?.buyerEmail ? (
+              <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">
+                Latest submitted info is shown below and will be shared with the seller when you tap "Save buyer info".
+              </p>
+            ) : null}
+          </div>
+
+          <form action={captureBuyerInfoAction} className="space-y-5">
+            <input type="hidden" name="listingId" value={listing.id} />
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="space-y-1 text-sm text-neutral-300">
+                Full name
+                <input
+                  name="fullName"
+                  required
+                  defaultValue={buyerName}
+                  className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+                />
+              </label>
+              <label className="space-y-1 text-sm text-neutral-300">
+                Email
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  defaultValue={buyerEmail}
+                  className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+                />
+              </label>
+            </div>
+
+            <div className="space-y-3 text-sm text-neutral-300">
+              <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
+                Shipping or meet-up details (optional)
+              </p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="space-y-1">
+                  Address
+                  <input
+                    name="shippingAddress"
+                    defaultValue={previousInfo?.shippingAddress ?? ""}
+                    placeholder="Street, apartment, etc."
+                    className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+                <label className="space-y-1">
+                  City
+                  <input
+                    name="shippingCity"
+                    defaultValue={previousInfo?.shippingCity ?? ""}
+                    placeholder="City"
+                    className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="space-y-1">
+                  Region / State
+                  <input
+                    name="shippingRegion"
+                    defaultValue={previousInfo?.shippingRegion ?? ""}
+                    placeholder="State, province, etc."
+                    className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+                <label className="space-y-1">
+                  Country
+                  <input
+                    name="shippingCountry"
+                    defaultValue={previousInfo?.shippingCountry ?? ""}
+                    placeholder="Country"
+                    className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <label className="space-y-1 text-sm text-neutral-300">
+              Notes for seller
+              <textarea
+                name="buyerNotes"
+                defaultValue={previousInfo?.buyerNotes ?? ""}
+                rows={3}
+                placeholder="Leave any details about shipping preference, drop-off, or timing."
+                className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+              />
+            </label>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-emerald-400"
+              >
+                Save buyer info
+              </button>
+              {hasShippingInfo || previousInfo?.buyerEmail ? (
+                <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
+                  {shippingSummary ? `${shippingSummary}` : "Shipping info on file"}
+                </p>
+              ) : null}
+            </div>
+          </form>
+        </section>
       </div>
     </main>
   );
