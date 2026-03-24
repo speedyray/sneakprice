@@ -1,3 +1,4 @@
+import { HoldStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
 import { redirect } from "next/navigation";
@@ -35,6 +36,7 @@ export async function captureBuyerInfoAction(formData: FormData) {
   const shippingCountry = normalize(formData.get("shippingCountry"));
   const buyerNotes = normalize(formData.get("buyerNotes"));
 
+  const now = new Date();
   const data = {
     listingId,
     buyerName: fullName,
@@ -44,7 +46,8 @@ export async function captureBuyerInfoAction(formData: FormData) {
     shippingRegion: shippingRegion || null,
     shippingCountry: shippingCountry || null,
     buyerNotes: buyerNotes || null,
-    status: "ACTIVE",
+    expiresAt: existing?.expiresAt ?? now,
+    status: HoldStatus.ACTIVE,
   };
 
   if (existing) {
