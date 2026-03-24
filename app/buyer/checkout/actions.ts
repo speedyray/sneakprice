@@ -21,7 +21,7 @@ export async function captureBuyerInfoAction(formData: FormData) {
       listingId,
       buyerId: signedInUser.email,
     },
-    orderBy: { updatedAt: "desc" },
+    orderBy: { createdAt: "desc" },
   });
 
   const normalize = (value: FormDataEntryValue | null) =>
