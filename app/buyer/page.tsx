@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
+import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -64,6 +65,12 @@ export default async function BuyerPage() {
               key={listing.id}
               className="flex h-full flex-col justify-between gap-4 rounded-3xl border border-neutral-800 bg-neutral-900/60 p-5 shadow-[0_15px_30px_rgba(0,0,0,0.45)]"
             >
+              <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-neutral-950">
+                <MarketplaceListingImage
+                  src={listing.sneaker.imageUrl}
+                  alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
+                />
+              </div>
               <div>
                 <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-neutral-500">
                   <span>{listing.sneaker.brand}</span>

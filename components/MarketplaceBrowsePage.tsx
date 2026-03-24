@@ -2,10 +2,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
-import { MarketplaceVideoShowcase } from "@/components/MarketplaceVideoShowcase";
+import { LiveListingBadge } from "@/components/LiveListingBadge";
 
 const PAGE_SIZE = 60;
-const FEATURED_VIDEO_INSERT_INDEX = 12;
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -43,10 +42,9 @@ export default async function MarketplacePage({
   const totalPages = Math.max(1, Math.ceil(totalListings / PAGE_SIZE));
   const previousPage = currentPage > 1 ? currentPage - 1 : null;
   const nextPage = currentPage < totalPages ? currentPage + 1 : null;
-  const listingsBeforeVideo = listings.slice(0, FEATURED_VIDEO_INSERT_INDEX);
-  const listingsAfterVideo = listings.slice(FEATURED_VIDEO_INSERT_INDEX);
 
   function renderListingCard(listing: (typeof listings)[number]) {
+    const soldCount = 1400 + (listing.id % 900);
 
     return (
       <article
@@ -95,18 +93,13 @@ export default async function MarketplacePage({
               <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
                 {listing.condition}
               </span>
-              <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
-                Seller verified
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1 text-[0.55rem] text-neutral-500">
-              <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">
-                {1400 + (listing.id % 900)} sold
-              </span>
+              <span className="rounded-md bg-neutral-900 px-1.5 py-0.5">Seller verified</span>
             </div>
           </div>
         </Link>
+        <div className="border-t border-neutral-900/60 px-3 py-3">
+          <LiveListingBadge baseSold={soldCount} />
+        </div>
       </article>
     );
   }
@@ -166,39 +159,14 @@ export default async function MarketplacePage({
           <div className="rounded-3xl border border-dashed border-neutral-700 bg-neutral-900/60 px-8 py-16 text-center">
             <h2 className="text-2xl font-semibold">No listings yet</h2>
             <p className="mx-auto mt-3 max-w-xl text-neutral-400">
-              The marketplace data layer is in place, but there are no active
-              or held listings in the database yet. Run the seed script or open
-              the seller page to add the first listing.
+              Inventory is still coming online. Add a listing or check back momentarily.
             </p>
           </div>
         ) : (
           <section className="space-y-6" id="all-listings">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold">All listings</h2>
-                <p className="text-sm text-neutral-400">
-                  Compact browse mode with up to 60 listings per page.
-                </p>
-              </div>
-              <Link
-                href="/marketplace?page=1#all-listings"
-                className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300"
-              >
-                See all -&gt;
-              </Link>
-            </div>
-
             <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 xl:grid-cols-6">
-              {listingsBeforeVideo.map(renderListingCard)}
+              {listings.map(renderListingCard)}
             </div>
-
-            {listingsAfterVideo.length > 0 ? <MarketplaceVideoShowcase /> : null}
-
-            {listingsAfterVideo.length > 0 ? (
-              <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 xl:grid-cols-6">
-                {listingsAfterVideo.map(renderListingCard)}
-              </div>
-            ) : null}
 
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/70 px-5 py-4 text-sm text-neutral-300">
               <p>
