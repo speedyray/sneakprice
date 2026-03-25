@@ -71,7 +71,7 @@ export default async function ListingPage({
         <section className="grid gap-10 xl:grid-cols-[minmax(0,1.25fr)_420px]">
           <div className="space-y-6">
             <div className="rounded-[2rem] border border-neutral-800 bg-white p-6 text-neutral-950 shadow-[0_25px_80px_rgba(0,0,0,0.35)]">
-              <div className="relative mx-auto aspect-square max-w-4xl overflow-hidden rounded-[1.5rem] bg-neutral-100">
+              <div className="relative mx-auto aspect-square max-w-4xl overflow-hidden rounded-[1.5rem] bg-white">
                 <MarketplaceListingImage
                   src={listing.sneaker.imageUrl}
                   alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}

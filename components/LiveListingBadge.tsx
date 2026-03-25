@@ -11,17 +11,22 @@ export function LiveListingBadge({ baseSold }: { baseSold: number }) {
   const [sold, setSold] = useState(baseSold);
   const [watching, setWatching] = useState(initialWatching);
   const [minutesAgo, setMinutesAgo] = useState(initialMinutesAgo);
-  const startValue = useMemo(() => baseSold, [baseSold]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSold(startValue + randomBetween(-2, 7));
+    const update = () => {
+      setSold(baseSold + randomBetween(-2, 7));
       setWatching(randomBetween(3, 24));
-      setMinutesAgo((prev) => (prev % 12) + 1);
-    }, 6000);
+      setMinutesAgo(((baseSold + randomBetween(0, 3)) % 12) + 1);
+    };
 
-    return () => clearInterval(interval);
-  }, [startValue]);
+    const starter = setTimeout(update, 0);
+    const interval = setInterval(update, 6000);
+
+    return () => {
+      clearTimeout(starter);
+      clearInterval(interval);
+    };
+  }, [baseSold]);
 
   const highlight = useMemo(() => `${watching} watching`, [watching]);
 
