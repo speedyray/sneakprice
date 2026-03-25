@@ -2,24 +2,21 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
 
 export default function Nav() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { user } = useUser();
   const signedInUserName =
     user?.fullName ?? user?.username ?? user?.primaryEmailAddress?.emailAddress?.split("@")[0] ?? null;
-  const isScanLoginReturn =
-    pathname.startsWith("/login") && searchParams.get("redirect_url") === "/app";
 
   const showHomeLink =
     pathname === "/app" ||
     pathname === "/buyer" ||
     pathname === "/discover" ||
     pathname.startsWith("/marketplace") ||
-    (pathname.startsWith("/login") && isScanLoginReturn);
+    pathname.startsWith("/login");
   const isDiscoverPage = pathname === "/discover";
   const isBuyerPage = pathname === "/buyer";
 

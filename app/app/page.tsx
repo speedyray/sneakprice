@@ -643,11 +643,15 @@ if (
         <XAxis dataKey="name" />
         <YAxis domain={[0, "auto"]} />
         <Tooltip
-          formatter={(value: number | string) =>
-            typeof value === "number"
+          formatter={(value) => {
+            if (value === undefined || value === null) {
+              return "";
+            }
+
+            return typeof value === "number"
               ? `$${value.toFixed(2)}`
-              : value
-          }
+              : String(value);
+          }}
         />
         <Bar
           dataKey="price"
