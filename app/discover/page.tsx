@@ -53,14 +53,21 @@ const arbitrageTitles = [
   "📊 Reseller Profit Opportunities"
 ];
 
+type LiveDeal = {
+  sneaker: string;
+  buy_price: number;
+  market_price: number;
+  profit: number;
+  roi: number;
+};
+
 
 
 export default function Landing() {
 const { user } = useUser();
 
-const [deals, setDeals] = useState<any[]>([]);
-const [recentDeals, setRecentDeals] = useState<any[]>([]);
-const [flash, setFlash] = useState(false);
+const [deals, setDeals] = useState<LiveDeal[]>([]);
+const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
 const [trending, setTrending] = useState(trendingSneakers.slice(0,4));
 const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
 const [marketTitle, setMarketTitle] = useState(marketInsightTitles[0]);
@@ -73,7 +80,7 @@ useEffect(() => {
 
   eventSource.onmessage = (event) => {
 
-    const deal = JSON.parse(event.data);
+    const deal = JSON.parse(event.data) as LiveDeal;
 
     setDeals((prev) => {
       const updated = [deal, ...prev];
@@ -81,9 +88,6 @@ useEffect(() => {
     });
 
     setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
-
-    setFlash(true);
-    setTimeout(() => setFlash(false), 800);
 
   };
 
@@ -155,7 +159,7 @@ useEffect(() => {
 
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center text-center px-6 py-6">
+    <div className="flex min-h-screen flex-col items-center bg-white px-6 py-6 text-center text-black">
       <div className="mb-6">
   <Image
     src="/sneakprice-logo.png"
@@ -169,16 +173,16 @@ useEffect(() => {
 
       {/* HERO */}
       <h1 className="text-6xl font-extrabold mb-6 leading-tight">
-      Know  your <span className="text-green-500">Sneakers</span> <br/>real market value <br />
+      Know  your <span className="text-black">Sneakers</span> <br/>real market value <br />
       </h1>
 
       <h2 className="text-3xl font-extrabold mb-3 leading-tight">
-        using <span className="text-green-300">verified resale data</span> <br />
+        using <span className="text-black">verified resale data</span> <br />
       </h2>
 
       
 
-      <p className="text-gray-400 text-lg max-w-2xl mb-10">
+      <p className="mb-10 max-w-2xl text-lg text-neutral-600">
         Scan any sneaker and get real resale market value based on verified sold
         listings. No guessing. No hype. Just data.
       </p>
@@ -190,7 +194,7 @@ useEffect(() => {
       <div className="flex gap-4">
         <Link
           href="/app"
-          className="bg-green-500 hover:bg-green-600 text-black px-8 py-4 rounded-xl font-semibold transition"
+          className="bg-[#24262b] hover:bg-black text-white px-8 py-4 rounded-xl font-semibold transition"
         >
           Scan My Sneakers
         </Link>
@@ -198,21 +202,21 @@ useEffect(() => {
         {user ? (
           <Link
             href="/"
-            className="border border-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition"
+            className="inline-flex items-center justify-center rounded-full border border-black/20 bg-white px-8 py-4 font-semibold text-black transition hover:border-black/35"
           >
             Go to Marketplace
           </Link>
         ) : (
           <Link
             href="/login"
-            className="border border-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition"
+            className="inline-flex items-center justify-center rounded-full border border-black/20 bg-white px-8 py-4 font-semibold text-black transition hover:border-black/35"
           >
             Login or Sign Up
           </Link>
         )}
       </div>
 
-     <p className="text-gray-500 text-sm mt-6 mb-10">
+     <p className="mt-6 mb-10 text-sm text-neutral-500">
         Free 3 scans per day • No credit card required
       </p>
 
@@ -236,16 +240,16 @@ useEffect(() => {
 🔥 Live Sneaker Deals
 </h2>
 
-<p className="text-green-400 text-sm text-center mb-6">
+<p className="text-black text-sm text-center mb-6">
 ● Live Market Feed
 </p>
 
 {/* LIVE DEAL TICKER */}
-<div className="overflow-hidden whitespace-nowrap border-y border-gray-800 py-3 mb-10">
+<div className="mb-10 overflow-hidden whitespace-nowrap border-y border-black/10 py-3">
   <div className="animate-[scroll_35s_linear_infinite] inline-block">
 
     {[...recentDeals, ...recentDeals].map((d, i) => (
-      <span key={i} className="mx-6 text-gray-300">
+      <span key={i} className="mx-6 text-neutral-600">
         🔥 {d.sneaker} +${d.profit.toFixed(0)}
       </span>
     ))}
@@ -285,7 +289,7 @@ useEffect(() => {
               <strong>Market Price:</strong> ${deal.market_price.toFixed(2)}
             </p>
 
-            <p className="text-green-600 font-semibold">
+            <p className="text-black font-semibold">
               Profit: +${deal.profit.toFixed(2)}
             </p>
 
@@ -318,25 +322,25 @@ useEffect(() => {
 
 <div className="mt-24 max-w-5xl w-full text-center">
 
-  <h2 className="text-2xl font-semibold mb-10 text-gray-300">
+  <h2 className="mb-10 text-2xl font-semibold text-neutral-700">
     Sneaker market intelligence powered by real data
   </h2>
 
   <div className="grid md:grid-cols-3 gap-10">
 
     <div>
-      <p className="text-4xl font-bold text-green-500">12,000+</p>
-      <p className="text-gray-400 mt-2">Sneakers Analyzed</p>
+      <p className="text-4xl font-bold text-black">12,000+</p>
+      <p className="mt-2 text-neutral-600">Sneakers Analyzed</p>
     </div>
 
     <div>
-      <p className="text-4xl font-bold text-green-500">$3.2M</p>
-      <p className="text-gray-400 mt-2">Resale Value Calculated</p>
+      <p className="text-4xl font-bold text-black">$3.2M</p>
+      <p className="mt-2 text-neutral-600">Resale Value Calculated</p>
     </div>
 
     <div>
-      <p className="text-4xl font-bold text-green-500">2,500+</p>
-      <p className="text-gray-400 mt-2">Resellers Using SneakPrice</p>
+      <p className="text-4xl font-bold text-black">2,500+</p>
+      <p className="mt-2 text-neutral-600">Resellers Using SneakPrice</p>
     </div>
 
   </div>
@@ -356,34 +360,34 @@ useEffect(() => {
   <div className="grid md:grid-cols-3 gap-10 text-center">
 
     {/* STEP 1 */}
-    <div className="bg-gray-900 p-8 rounded-xl">
+    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
       <div className="text-4xl mb-4">📸</div>
       <h3 className="font-semibold text-lg mb-2">
         Upload or Take a Photo
       </h3>
-      <p className="text-gray-400 text-sm">
+      <p className="text-sm text-neutral-600">
         Snap a picture of any sneaker or upload a photo from your phone.
       </p>
     </div>
 
     {/* STEP 2 */}
-    <div className="bg-gray-900 p-8 rounded-xl">
+    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
       <div className="text-4xl mb-4">🤖</div>
       <h3 className="font-semibold text-lg mb-2">
         AI Identifies the Sneaker
       </h3>
-      <p className="text-gray-400 text-sm">
+      <p className="text-sm text-neutral-600">
         Our AI detects the exact sneaker model instantly.
       </p>
     </div>
 
     {/* STEP 3 */}
-    <div className="bg-gray-900 p-8 rounded-xl">
+    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
       <div className="text-4xl mb-4">💰</div>
       <h3 className="font-semibold text-lg mb-2">
         Get Real Market Value
       </h3>
-      <p className="text-gray-400 text-sm">
+      <p className="text-sm text-neutral-600">
         We analyze verified sold listings to calculate the real resale price.
       </p>
     </div>
@@ -400,7 +404,7 @@ useEffect(() => {
 Sneaker Reseller Playbook
 </h2>
 
-<p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
+<p className="mx-auto mb-12 max-w-2xl text-center text-neutral-600">
 Learn where to buy sneakers below market value and how resellers flip them
 for profit using real resale market data.
 </p>
@@ -409,66 +413,66 @@ for profit using real resale market data.
 
  {/* BEST PLACES TO BUY */}
 
-<div className="bg-gray-900 p-6 rounded-xl flex gap-4 items-start">
+<div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
   <div className="text-2xl">🏬</div>
 
   <div>
-    <h3 className="text-xl font-semibold text-white mb-6">
+    <h3 className="mb-6 text-xl font-semibold text-black">
       Best Places to Buy Sneakers Cheap
     </h3>
 
-    <p className="text-gray-400 text-sm mb-3">
+    <p className="mb-3 text-sm text-neutral-600">
       Successful resellers source sneakers below market value from outlets,
       local marketplaces, and clearance sales.
     </p>
 
 
-    <ul className="text-gray-300 text-sm space-y-4 text-left">
+    <ul className="space-y-4 text-left text-sm text-neutral-700">
 
 <li>
-<a href="https://www.nike.com/retail" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.nike.com/retail" target="_blank" className="font-semibold text-black hover:text-black">
 Nike Outlet Stores
 </a>
 
 </li>
 
 <li>
-<a href="https://www.adidas.com/us/storefinder" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.adidas.com/us/storefinder" target="_blank" className="font-semibold text-black hover:text-black">
 Adidas Outlet Clearance
 </a>
 
 </li>
 
 <li>
-<a href="https://www.footlocker.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.footlocker.com/" target="_blank" className="font-semibold text-black hover:text-black">
 Foot Locker Clearance Walls
 </a>
 
 </li>
 
 <li>
-<a href="https://www.amazon.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.amazon.com/" target="_blank" className="font-semibold text-black hover:text-black">
 Amazon Sneaker Deals
 </a>
 
 </li>
 
 <li>
-<a href="https://www.ebay.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.ebay.com/" target="_blank" className="font-semibold text-black hover:text-black">
 eBay Auctions Ending Soon
 </a>
 
 </li>
 
 <li>
-<a href="https://www.facebook.com/marketplace" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.facebook.com/marketplace" target="_blank" className="font-semibold text-black hover:text-black">
 Facebook Marketplace
 </a>
 
 </li>
 
 <li>
-<a href="https://offerup.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://offerup.com/" target="_blank" className="font-semibold text-black hover:text-black">
 OfferUp Local Deals
 </a>
 
@@ -476,28 +480,28 @@ OfferUp Local Deals
 </li>
 
 <li>
-<a href="https://www.mercari.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.mercari.com/" target="_blank" className="font-semibold text-black hover:text-black">
 Mercari Sneaker Listings
 </a>
 
 </li>
 
 <li>
-<a href="https://stockx.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://stockx.com/" target="_blank" className="font-semibold text-black hover:text-black">
 StockX Market Prices
 </a>
 
 </li>
 
 <li>
-<a href="https://www.goat.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.goat.com/" target="_blank" className="font-semibold text-black hover:text-black">
 GOAT Sneaker Marketplace
 </a>
 
 </li>
 
 <li>
-<a href="https://www.grailed.com/" target="_blank" className="hover:text-green-400 font-semibold text-green-400">
+<a href="https://www.grailed.com/" target="_blank" className="font-semibold text-black hover:text-black">
 Grailed Sneaker Listings
 </a>
 
@@ -520,13 +524,13 @@ Grailed Sneaker Listings
 
 
     {/* TIP 1 */}
-    <div className="bg-gray-900 p-6 rounded-xl flex gap-4 items-start">
+    <div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
       <div className="text-2xl">💰</div>
       <div>
         <h3 className="font-semibold mb-1">
           Check Sold Listings
         </h3>
-        <p className="text-gray-400 text-sm">
+        <p className="text-sm text-neutral-600">
           Always compare active listings with sold listings. The real market
           value comes from what buyers actually paid.
         </p>
@@ -534,13 +538,13 @@ Grailed Sneaker Listings
     </div>
 
     {/* TIP 2 */}
-    <div className="bg-gray-900 p-6 rounded-xl flex gap-4 items-start">
+    <div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
       <div className="text-2xl">📦</div>
       <div>
         <h3 className="font-semibold mb-1">
           Condition Matters
         </h3>
-        <p className="text-gray-400 text-sm">
+        <p className="text-sm text-neutral-600">
           Sneakers with original boxes and minimal wear can sell for 20–40%
           more than heavily used pairs.
         </p>
@@ -548,13 +552,13 @@ Grailed Sneaker Listings
     </div>
 
     {/* TIP 3 */}
-    <div className="bg-gray-900 p-6 rounded-xl flex gap-4 items-start">
+    <div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
       <div className="text-2xl">📈</div>
       <div>
         <h3 className="font-semibold mb-1">
           Watch Market Trends
         </h3>
-        <p className="text-gray-400 text-sm">
+        <p className="text-sm text-neutral-600">
           Some sneakers spike in value after releases sell out. Monitoring
           demand trends can reveal profitable flips.
         </p>
@@ -569,52 +573,52 @@ Grailed Sneaker Listings
 Sneaker Reselling Guide
 </h2>
 
-<p className="text-gray-400 text-center max-w-3xl mx-auto mb-12">
+<p className="mx-auto mb-12 max-w-3xl text-center text-neutral-600">
 Learn how sneaker resellers find undervalued sneakers, buy them below market value,
 and flip them for profit using real resale marketplace data. SneakPrice analyzes
 sold listings and active market prices to help identify profitable sneaker
 arbitrage opportunities.
 </p>
 
-<div className="space-y-8 text-gray-300">
+<div className="space-y-8 text-neutral-700">
 
 <div>
-<h3 className="text-lg font-semibold text-green-400">
+<h3 className="text-lg font-semibold text-black">
 Facebook Marketplace Sneaker Deals
 </h3>
 
 </div>
 
 <div>
-<h3 className="text-lg font-semibold text-green-400">
+<h3 className="text-lg font-semibold text-black">
 OfferUp Local Sneaker Deals
 </h3>
 
 </div>
 
 <div>
-<h3 className="text-lg font-semibold text-green-400">
+<h3 className="text-lg font-semibold text-black">
 Mercari Sneaker Listings
 </h3>
 
 </div>
 
 <div>
-<h3 className="text-lg font-semibold text-green-400">
+<h3 className="text-lg font-semibold text-black">
 StockX Market Pricing
 </h3>
 
 </div>
 
 <div>
-<h3 className="text-lg font-semibold text-green-400">
+<h3 className="text-lg font-semibold text-black">
 GOAT Sneaker Marketplace
 </h3>
 
 </div>
 
 <div>
-<h3 className="text-lg font-semibold text-green-400">
+<h3 className="text-lg font-semibold text-black">
 Grailed Sneaker Listings
 </h3>
 
@@ -637,7 +641,7 @@ Grailed Sneaker Listings
   <div className="grid md:grid-cols-2 gap-8">
 
     {/* TRENDING */}
-    <div className="bg-gray-900 p-8 rounded-xl">
+    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
 
 
   
@@ -646,7 +650,7 @@ Grailed Sneaker Listings
       </h3>
 
 <div className="overflow-hidden h-[120px]">
-  <ul className="space-y-3 text-gray-300 animate-[scrollVertical_10s_linear_infinite]">
+  <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
 
 {trending.map((sneaker, i) => (
 
@@ -654,7 +658,7 @@ Grailed Sneaker Listings
 
 <span>{sneaker.name}</span>
 
-<span className="text-green-400">
+<span className="text-black">
 {sneaker.demand}
 </span>
 
@@ -671,7 +675,7 @@ Grailed Sneaker Listings
     </div>
 
 {/* ARBITRAGE */}
-<div className="bg-gray-900 p-8 rounded-xl">
+<div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
 
 <h3 className="text-xl font-semibold mb-6 transition-all duration-500">
   {arbitrageTitle}
@@ -679,7 +683,7 @@ Grailed Sneaker Listings
 
   <div className="overflow-hidden h-[120px]">
 
-    <ul className="space-y-3 text-gray-300 animate-[scrollVertical_10s_linear_infinite]">
+    <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
 
       {[...[
         { name: "Air Jordan 1 Chicago", profit: 64 },
@@ -698,7 +702,7 @@ Grailed Sneaker Listings
 
           <span>{item.name}</span>
 
-          <span className="text-green-400">
+          <span className="text-black">
             +${item.profit}
           </span>
 
@@ -724,7 +728,7 @@ Grailed Sneaker Listings
 </div>
 {/* FOOTER */}
 
-<footer className="mt-24 border-t border-gray-800 pt-12 pb-8 text-center text-gray-500 text-sm w-full max-w-5xl">
+<footer className="mt-24 w-full max-w-5xl border-t border-black/10 pb-8 pt-12 text-center text-sm text-neutral-500">
 
   {/* Logo */}
   <div className="flex justify-center mb-6">
@@ -740,29 +744,29 @@ Grailed Sneaker Listings
   {/* Links */}
   <div className="flex justify-center gap-6 mb-6 flex-wrap">
 
-    <Link href="/about" className="hover:text-white transition">
+    <Link href="/about" className="transition hover:text-black">
       About
     </Link>
 
-    <Link href="/faq" className="hover:text-white transition">
+    <Link href="/faq" className="transition hover:text-black">
       FAQ
     </Link>
 
-    <Link href="/press" className="hover:text-white transition">
+    <Link href="/press" className="transition hover:text-black">
       Press
     </Link>
 
     <span>•</span>
 
-    <Link href="/privacy" className="hover:text-white transition">
+    <Link href="/privacy" className="transition hover:text-black">
       Privacy
     </Link>
 
-    <Link href="/terms" className="hover:text-white transition">
+    <Link href="/terms" className="transition hover:text-black">
       Terms
     </Link>
 
-    <Link href="/contact" className="hover:text-white transition">
+    <Link href="/contact" className="transition hover:text-black">
       Contact
     </Link>
 
@@ -775,7 +779,7 @@ Grailed Sneaker Listings
     href="https://twitter.com/sneakprice"
     target="_blank"
     rel="noopener noreferrer"
-    className="text-gray-400 hover:text-white transition"
+    className="text-neutral-500 transition hover:text-black"
   >
     <Twitter size={20} />
   </a>
@@ -784,7 +788,7 @@ Grailed Sneaker Listings
     href="https://instagram.com/sneakprice"
     target="_blank"
     rel="noopener noreferrer"
-    className="text-gray-400 hover:text-white transition"
+    className="text-neutral-500 transition hover:text-black"
   >
     <Instagram size={20} />
   </a>
@@ -793,7 +797,7 @@ Grailed Sneaker Listings
     href="https://youtube.com/@sneakprice"
     target="_blank"
     rel="noopener noreferrer"
-    className="text-gray-400 hover:text-white transition"
+    className="text-neutral-500 transition hover:text-black"
   >
     <Youtube size={20} />
   </a>
@@ -801,7 +805,7 @@ Grailed Sneaker Listings
     href="https://facebook.com/sneakprice"
     target="_blank"
     rel="noopener noreferrer"
-    className="text-gray-400 hover:text-white transition transform hover:scale-110"
+    className="text-neutral-500 transition hover:text-black transform hover:scale-110"
   >
     <Facebook size={22} />
   </a>
@@ -811,7 +815,7 @@ Grailed Sneaker Listings
     href="https://tiktok.com/@sneakprice"
     target="_blank"
     rel="noopener noreferrer"
-    className="text-gray-400 hover:text-white transition transform hover:scale-110"
+    className="text-neutral-500 transition hover:text-black transform hover:scale-110"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"

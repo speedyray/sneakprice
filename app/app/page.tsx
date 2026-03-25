@@ -47,13 +47,36 @@ const brandLogos: Record<string, string> = {
   jordan: "/jordan.svg",
 };
 
+type ScanResults = {
+  activeMarket?: {
+    medianPrice?: number;
+    averagePrice?: number;
+    lowestPrice?: number;
+    highestPrice?: number;
+    totalListings?: number;
+    marketLabel?: string;
+  };
+  soldMarket?: {
+    overallMedian?: number;
+    newMedian?: number;
+    usedMedian?: number;
+    totalSold?: number;
+  };
+  deal?: {
+    buyPrice: number;
+    marketPrice: number;
+    profit: number;
+    roi: number;
+  };
+};
+
 
 export default function AppPage() {
   const [query, setQuery] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<ScanResults | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastScanTime, setLastScanTime] = useState<number | null>(null);
 
@@ -228,7 +251,7 @@ if (
 }
 
   return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-white py-12">
         <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-lg space-y-8">
 
       <div className="flex items-center justify-between">
@@ -319,7 +342,7 @@ if (
   <button
   onClick={handleAnalyze}
   disabled={loading}
-  className="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+  className="bg-black hover:bg-neutral-800 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
 >
   {loading ? (
     <>
@@ -620,7 +643,7 @@ if (
         <XAxis dataKey="name" />
         <YAxis domain={[0, "auto"]} />
         <Tooltip
-          formatter={(value: any) =>
+          formatter={(value: number | string) =>
             typeof value === "number"
               ? `$${value.toFixed(2)}`
               : value

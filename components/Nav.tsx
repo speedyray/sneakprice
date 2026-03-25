@@ -2,26 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
 
 export default function Nav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useUser();
-  const [isScanLoginReturn, setIsScanLoginReturn] = useState(false);
   const signedInUserName =
     user?.fullName ?? user?.username ?? user?.primaryEmailAddress?.emailAddress?.split("@")[0] ?? null;
-
-  useEffect(() => {
-    if (pathname.startsWith("/login")) {
-      const params = new URLSearchParams(window.location.search);
-      setIsScanLoginReturn(params.get("redirect_url") === "/app");
-      return;
-    }
-
-    setIsScanLoginReturn(false);
-  }, [pathname]);
+  const isScanLoginReturn =
+    pathname.startsWith("/login") && searchParams.get("redirect_url") === "/app";
 
   const showHomeLink =
     pathname === "/app" ||
@@ -33,7 +24,9 @@ export default function Nav() {
   const isBuyerPage = pathname === "/buyer";
 
   return (
-    <nav className="w-full flex flex-col gap-3 border-b border-white/10 bg-black/80 px-6 py-4 text-white md:flex-row md:items-center md:justify-between md:gap-0">
+    <nav
+      className="w-full flex flex-col gap-3 border-b border-black/10 bg-[#eee8df] px-6 py-4 text-black md:flex-row md:items-center md:justify-between md:gap-0"
+    >
       <div className="flex items-center gap-3">
         <Link href="/" className="flex items-center gap-2">
           <Image
@@ -45,7 +38,9 @@ export default function Nav() {
           <span className="font-bold text-lg">SneakPrice</span>
         </Link>
         {signedInUserName ? (
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.3em] text-emerald-300">
+          <span
+            className="rounded-full border border-emerald-600/20 bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.3em] text-emerald-700"
+          >
             {signedInUserName}
           </span>
         ) : null}
@@ -67,7 +62,7 @@ export default function Nav() {
         {!signedInUserName ? (
           <Link
             href="/login"
-            className="text-emerald-300"
+            className="text-black"
           >
             Login / Sign Up
           </Link>

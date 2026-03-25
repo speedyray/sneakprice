@@ -18,7 +18,7 @@ const modelSuggestions = [
 ];
 const formConditions = ["Deadstock", "Excellent", "Very Good", "Good", "Fair"];
 const formInputClassName =
-  "w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-white transition placeholder:text-neutral-500 focus:border-emerald-500/70 focus:outline-none";
+  "w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-black transition placeholder:text-neutral-500 focus:border-emerald-500/70 focus:outline-none";
 const MAX_IMAGE_FILE_SIZE = 2 * 1024 * 1024;
 
 function SubmitButton({ label }: { label: string }) {
@@ -28,7 +28,7 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-2xl border border-emerald-500/60 bg-emerald-500/20 px-6 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-emerald-300 transition hover:border-emerald-400 hover:text-emerald-100 disabled:cursor-not-allowed disabled:border-neutral-700 disabled:bg-neutral-900 disabled:text-neutral-500"
+      className="w-full rounded-2xl border border-emerald-600/30 bg-emerald-500/10 px-6 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-emerald-700 transition hover:border-emerald-600/50 disabled:cursor-not-allowed disabled:border-black/10 disabled:bg-white disabled:text-neutral-500"
     >
       {pending ? "Saving..." : label}
     </button>
@@ -41,7 +41,7 @@ function FieldError({ error }: { error?: string }) {
   }
 
   return (
-    <p className="rounded-xl border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-200">
+    <p className="rounded-xl border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-700">
       {error}
     </p>
   );
@@ -83,12 +83,12 @@ export function ListingForm({
     >
       {listingId ? <input type="hidden" name="listingId" value={listingId} /> : null}
 
-      <div className="col-span-full flex items-center justify-between gap-4 rounded-2xl border border-neutral-800 bg-neutral-950/80 px-4 py-3">
-        <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
+      <div className="col-span-full flex items-center justify-between gap-4 rounded-2xl border border-black/10 bg-white px-4 py-3">
+        <p className="text-xs uppercase tracking-[0.3em] text-neutral-600">
           Seller form with validation, image upload, and saved-state feedback
         </p>
         {state.status === "error" && state.message ? (
-          <p className="text-sm text-rose-300">{state.message}</p>
+          <p className="text-sm text-rose-700">{state.message}</p>
         ) : null}
       </div>
 
@@ -204,9 +204,9 @@ export function ListingForm({
           />
           <FieldError error={state.fieldErrors?.imageUrl} />
 
-          <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-dashed border-neutral-700 bg-neutral-950 px-4 py-3 text-sm text-neutral-300 transition hover:border-neutral-500">
+          <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-dashed border-black/15 bg-white px-4 py-3 text-sm text-neutral-700 transition hover:border-black/30">
             <span>{selectedFileName || "Upload listing image (JPG, PNG, WebP up to 2MB)"}</span>
-            <span className="rounded-full border border-neutral-700 px-3 py-1 text-[0.65rem] uppercase tracking-[0.3em]">
+            <span className="rounded-full border border-black/15 bg-white px-3 py-1 text-[0.65rem] uppercase tracking-[0.3em]">
               Choose
             </span>
             <input
@@ -244,7 +244,7 @@ export function ListingForm({
           <FieldError error={clientImageError || state.fieldErrors?.imageFile} />
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-neutral-800 bg-white/95 p-4">
+        <div className="overflow-hidden rounded-3xl border border-black/10 bg-white p-4 shadow-[0_18px_45px_rgba(0,0,0,0.06)]">
           <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
             Preview
           </p>

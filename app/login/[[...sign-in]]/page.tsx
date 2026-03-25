@@ -9,7 +9,7 @@ export default async function Page({
   const redirectUrl = resolvedSearchParams?.redirect_url || "/marketplace";
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-white px-6 py-10">
       <SignIn
         fallbackRedirectUrl={redirectUrl}
         signUpFallbackRedirectUrl={redirectUrl}

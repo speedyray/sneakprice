@@ -2,7 +2,7 @@ import SneakerScanner from "@/components/SneakerScanner";
 
 export default function ScanPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="flex min-h-screen items-center justify-center bg-white p-6">
       <SneakerScanner />
     </div>
   );
