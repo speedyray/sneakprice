@@ -165,11 +165,17 @@ if (lastScanTime && now - lastScanTime < 3000) {
       });
 
       if (scanRes.status === 403) {
-  setError("Sneaker scanning is coming soon.");
-  return;
-}
+        setError("Sneaker scanning is coming soon.");
+        return;
+      }
 
       const scanData = await scanRes.json();
+
+      if (!scanRes.ok) {
+        setError(scanData.error || "Image scan failed.");
+        setLoading(false);
+        return;
+      }
 
       const sneakerName = scanData.sneakerName?.trim();
 
@@ -198,6 +204,13 @@ if (lastScanTime && now - lastScanTime < 3000) {
     });
 
     const ebayData = await ebayRes.json();
+
+    if (!ebayRes.ok) {
+      setError(ebayData.error || "Market lookup failed.");
+      setLoading(false);
+      return;
+    }
+
     setResults(ebayData);
 
   } catch (err) {

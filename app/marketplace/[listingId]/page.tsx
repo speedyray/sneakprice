@@ -17,6 +17,10 @@ export default async function ListingPage({
   const { listingId: rawListingId } = await params;
   const listingId = Number(rawListingId);
 
+  if (!Number.isInteger(listingId) || listingId <= 0) {
+    notFound();
+  }
+
   const listing = await prisma.marketplaceListing.findUnique({
     where: { id: listingId },
     include: {

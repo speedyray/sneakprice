@@ -8,15 +8,13 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-
     if (process.env.NODE_ENV === "production") {
-    return NextResponse.json(
-      { error: "Sneaker scanning is coming soon." },
-      { status: 403 }
-    );
+      return NextResponse.json(
+        { error: "Sneaker scanning is coming soon." },
+        { status: 403 }
+      );
+    }
 
-  }
-    
     const formData = await req.formData();
     const file = formData.get("image") as File;
 
@@ -27,17 +25,16 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-  // Resize + compress
-   const compressedBuffer = await sharp(buffer)
-  .resize({ width: 800 }) // max width 800px
-  .jpeg({ quality: 70 })
-  .toBuffer();
+    const compressedBuffer = await sharp(buffer)
+      .resize({ width: 800 })
+      .jpeg({ quality: 70 })
+      .toBuffer();
 
- const base64 = compressedBuffer.toString("base64");
+    const base64 = compressedBuffer.toString("base64");
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
+    const response = await openai.responses.create({
+      model: "gpt-4.1-mini",
+      input: [
         {
           role: "system",
           content:
@@ -47,25 +44,46 @@ export async function POST(req: Request) {
           role: "user",
           content: [
             {
-              type: "text",
+              type: "input_text",
               text: "Identify this sneaker model.",
             },
             {
-              type: "image_url",
-              image_url: {
-                url: `data:${file.type};base64,${base64}`,
-              },
+              type: "input_image",
+              image_url: `data:image/jpeg;base64,${base64}`,
+              detail: "high",
             },
           ],
         },
       ],
     });
 
-    const sneakerName = response.choices[0].message.content?.trim();
+    const sneakerName = response.output_text?.trim();
+
+    if (!sneakerName) {
+      return NextResponse.json(
+        { error: "No sneaker could be identified from this image." },
+        { status: 422 }
+      );
+    }
 
     return NextResponse.json({ sneakerName });
   } catch (err) {
     console.error("Scan error:", err);
-    return NextResponse.json({ error: "Scan failed" }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Scan failed";
+    const isQuotaError =
+      message.includes("429") ||
+      message.toLowerCase().includes("quota") ||
+      message.toLowerCase().includes("billing");
+
+    return NextResponse.json(
+      {
+        error: isQuotaError
+          ? "Sneaker scanning is temporarily unavailable because the OpenAI API quota has been exceeded."
+          : process.env.NODE_ENV === "development"
+            ? message
+            : "Scan failed",
+      },
+      { status: isQuotaError ? 429 : 500 }
+    );
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getMarketplaceImageCandidates } from "@/lib/marketplace-image-fallbacks";
 
 type MarketplaceListingImageProps = {
   src: string | null;
@@ -11,24 +12,36 @@ export function MarketplaceListingImage({
   src,
   alt,
 }: MarketplaceListingImageProps) {
-  const [hasError, setHasError] = useState(false);
+  const imageCandidates = useMemo(() => getMarketplaceImageCandidates(src, alt), [alt, src]);
+  const [imageIndex, setImageIndex] = useState(0);
+  const currentSrc = imageCandidates[imageIndex] ?? null;
 
-  if (!src || hasError) {
+  useEffect(() => {
+    setImageIndex(0);
+  }, [imageCandidates]);
+
+  if (!currentSrc) {
     return (
-      <div className="flex h-full items-center justify-center bg-white px-4 text-center text-xs uppercase tracking-[0.35em] text-neutral-500">
-        Sneaker image
+      <div className="relative h-full w-full rounded-[0.9rem] bg-white">
+        <div className="flex h-full w-full items-center justify-center px-4 text-center text-xs uppercase tracking-[0.35em] text-neutral-500">
+          Sneaker image
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[0.9rem] border border-neutral-200 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
+    <div className="relative h-full w-full overflow-hidden rounded-[0.9rem] bg-white">
       <img
-        src={src}
+        src={currentSrc}
         alt={alt}
-        className="h-full w-full object-contain"
+        className="absolute inset-0 h-full w-full object-contain p-2"
         loading="lazy"
-        onError={() => setHasError(true)}
+        onError={() => {
+          setImageIndex((current) =>
+            current + 1 < imageCandidates.length ? current + 1 : current
+          );
+        }}
       />
     </div>
   );
