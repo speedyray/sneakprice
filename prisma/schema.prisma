@@ -59,31 +59,49 @@ model MarketplaceListing {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   sneakerId    Int
-  sneaker      Sneaker       @relation(fields: [sneakerId], references: [id], onDelete: Cascade)
   listingHolds ListingHold[]
+  sneaker      Sneaker       @relation(fields: [sneakerId], references: [id], onDelete: Cascade)
 
   @@index([status, createdAt])
   @@index([sneakerId])
 }
 
 model ListingHold {
-  id        Int                @id @default(autoincrement())
-  listingId Int
-  listing   MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  buyerName String
-  buyerId   String?
-  buyerEmail String?
+  id              Int                @id @default(autoincrement())
+  listingId       Int
+  buyerName       String
+  buyerId         String?
+  expiresAt       DateTime
+  status          HoldStatus         @default(ACTIVE)
+  createdAt       DateTime           @default(now())
+  buyerEmail      String?
+  buyerNotes      String?
   shippingAddress String?
-  shippingCity String?
-  shippingRegion String?
+  shippingCity    String?
   shippingCountry String?
-  buyerNotes String?
-  expiresAt DateTime
-  status    HoldStatus         @default(ACTIVE)
-  createdAt DateTime           @default(now())
+  shippingRegion  String?
+  listing         MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@index([listingId])
   @@index([buyerId])
+}
+
+model InventoryItem {
+  id            Int      @id @default(autoincrement())
+  userId        String?
+  name          String
+  brand         String?
+  model         String?
+  colorway      String?
+  size          String?
+  condition     String?
+  source        String?
+  status        String   @default("unlisted")
+  purchasePrice Float?
+  marketPrice   Float?
+  listedPrice   Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 enum ListingStatus {

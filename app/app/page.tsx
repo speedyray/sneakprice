@@ -1,681 +1,479 @@
-"use client";
-
-import imageCompression from "browser-image-compression";
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { getSignedInUser } from "@/lib/session";
 
-
-
-import { useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
-
-const detectBrand = (name: string) => {
-  const lower = name.toLowerCase();
-
-  // Yeezy FIRST
-  if (lower.includes("yeezy")) {
-    return "yeezy";
-  }
-
-  if (lower.includes("air jordan") || lower.includes("jordan")) {
-    return "jordan";
-  }
-
-  if (lower.includes("adidas")) {
-    return "adidas";
-  }
-
-  if (lower.includes("nike")) {
-    return "nike";
-  }
-
-  return null;
-};
-
-
-const brandLogos: Record<string, string> = {
-  yeezy: "/yeezy.svg",
-  adidas: "/adidas.svg",
-  nike: "/nike.svg",
-  jordan: "/jordan.svg",
-};
-
-type ScanResults = {
-  activeMarket?: {
-    medianPrice?: number;
-    averagePrice?: number;
-    lowestPrice?: number;
-    highestPrice?: number;
-    totalListings?: number;
-    marketLabel?: string;
-  };
-  soldMarket?: {
-    overallMedian?: number;
-    newMedian?: number;
-    usedMedian?: number;
-    totalSold?: number;
-  };
-  deal?: {
-    buyPrice: number;
-    marketPrice: number;
-    profit: number;
-    roi: number;
-  };
-};
-
-
-export default function AppPage() {
-  const [query, setQuery] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<ScanResults | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [lastScanTime, setLastScanTime] = useState<number | null>(null);
-
- 
-  const handleFile = (file: File) => {
-  setImage(file);
-  setPreview(URL.createObjectURL(file));
-  setResults(null);
-  setError(null);
-  setQuery(""); // clear previous detected name
-};
-
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      handleFile(e.target.files[0]);
-    }
-  };
-
-  const takePhoto = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-
-      const video = document.createElement("video");
-      video.srcObject = stream;
-      await video.play();
-
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      const ctx = canvas.getContext("2d");
-      ctx?.drawImage(video, 0, 0);
-
-      stream.getTracks().forEach((t) => t.stop());
-
-      canvas.toBlob((blob) => {
-        if (blob) {
-          handleFile(new File([blob], "photo.jpg", { type: "image/jpeg" }));
-        }
-      }, "image/jpeg");
-    } catch (err) {
-      console.error("Camera error:", err);
-      setError("Camera access denied or unavailable.");
-    }
-  };
-  
-
-  const handleAnalyze = async () => {
-    const now = Date.now();
-
-if (lastScanTime && now - lastScanTime < 3000) {
-  setError("Please wait a few seconds before scanning again.");
-  return;
+function formatCurrency(value?: number | null) {
+  if (typeof value !== "number" || Number.isNaN(value)) return "—";
+  return `$${value.toFixed(0)}`;
 }
 
-  if (!query && !image) {
-    setError("Upload a photo or type a sneaker name.");
-    return;
-  }
+export default async function AppPage() {
+  const currentUser = await getSignedInUser();
 
-  if (loading) return;
-
-  setLoading(true);
-  setResults(null);
-  setError(null);
-
-  try {
-    let searchQuery = query;
-
-    if (image) {
-      const compressedImage = await imageCompression(image, {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1024,
-        useWebWorker: true,
-      });
-
-      const formData = new FormData();
-      formData.append("image", compressedImage);
-
-      const scanRes = await fetch("/api/scan-photo", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (scanRes.status === 403) {
-        setError("Sneaker scanning is coming soon.");
-        return;
-      }
-
-      const scanData = await scanRes.json();
-
-      if (!scanRes.ok) {
-        setError(scanData.error || "Image scan failed.");
-        setLoading(false);
-        return;
-      }
-
-      const sneakerName = scanData.sneakerName?.trim();
-
-      if (
-        !sneakerName ||
-        sneakerName.length < 5 ||
-        sneakerName.toLowerCase().includes("don't know") ||
-        sneakerName.toLowerCase().includes("not sure") ||
-        sneakerName.toLowerCase().includes("cannot") ||
-        sneakerName.toLowerCase().includes("no sneaker")
-      ) {
-        setError("This doesn't appear to be a sneaker. Please upload a clear sneaker photo.");
-        setLoading(false);
-        return;
-      }
-
-      searchQuery = sneakerName;
-      setQuery(searchQuery);
-    } // ✅ THIS CLOSING BRACE IS IMPORTANT
-
-    // 🔎 Call eBay API
-    const ebayRes = await fetch("/api/ebay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: searchQuery }),
-    });
-
-    const ebayData = await ebayRes.json();
-
-    if (!ebayRes.ok) {
-      setError(ebayData.error || "Market lookup failed.");
-      setLoading(false);
-      return;
-    }
-
-    setResults(ebayData);
-
-  } catch (err) {
-    console.error(err);
-    setError("Something went wrong. Please try again.");
-  }
-
-  setLoading(false);
-  setLastScanTime(now);
-
-};
-
-
-  const activeMedian = results?.activeMarket?.medianPrice;
- const soldMedian = results?.soldMarket?.overallMedian;
-
- const chartData =
-  typeof activeMedian === "number" &&
-  typeof soldMedian === "number"
-    ? [
-        { name: "Active Median", price: activeMedian },
-        { name: "Sold Median", price: soldMedian },
-      ]
-    : [];
-
-
-let priceGap: number | null = null;
-let gapPercent: number | null = null;
-
-if (
-  typeof activeMedian === "number" &&
-  typeof soldMedian === "number" &&
-  soldMedian !== 0
-) {
-  priceGap = activeMedian - soldMedian;
-  gapPercent = (priceGap / soldMedian) * 100;
-}
-
-const activeLowest = results?.activeMarket?.lowestPrice;
-
-let arbitrageSpread: number | null = null;
-let arbitragePercent: number | null = null;
-
-if (
-  typeof activeLowest === "number" &&
-  typeof soldMedian === "number" &&
-  activeLowest < soldMedian
-) {
-  arbitrageSpread = soldMedian - activeLowest;
-  arbitragePercent = (arbitrageSpread / activeLowest) * 100;
-}
-
-  return (
-      <div className="min-h-screen bg-white py-12">
-        <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-lg space-y-8">
-
-      <div className="flex items-center justify-between">
-  <h1 className="text-3xl font-bold">
-    SneakPrice Market Valuation
-  </h1>
-
-  <Link
-    href="/"
-    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-200 transition"
-  >
-    <span className="text-black text-2xl font-extrabold leading-none">✕</span>
-  </Link>
-</div>
-      
-      {/* PHOTO SECTION */}
-<div className="flex gap-4 justify-center">
-
-<label className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl cursor-pointer font-medium transition shadow-md">
-  Upload Photo
-  <input
-    type="file"
-    accept="image/*"
-    className="hidden"
-    onChange={handleUpload}
-  />
-</label>
-
-<button
-  onClick={takePhoto}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition shadow-md"
->
-  Take Photo
-</button>
-
-</div>
-
-      {/* IMAGE PREVIEW */}
-      {preview && (
-        <img
-          src={preview}
-          alt="Sneaker preview"
-          className="w-full rounded-xl shadow-lg"
-        />
-      )}
-
-      {/* SEARCH */}
-      <div className="flex gap-3">
-
-     {(() => {
-  const brand = query ? detectBrand(query) : null;
-
-  return (
-    <div className="border px-4 py-3 rounded-xl w-full bg-gray-100 min-h-[52px] flex items-center justify-between">
-      {loading ? (
-        <span className="text-gray-500 animate-pulse">
-          Detecting sneaker...
-        </span>
-      ) : query ? (
-        <div className="flex items-center gap-3">
-          <span className="font-semibold text-gray-900">
-            {query}
-          </span>
-
-          {brand && (
-            <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border shadow-sm">
-              <img
-                src={brandLogos[brand]}
-                alt={brand}
-                className="h-4 w-auto"
-              />
-              <span className="text-sm font-medium capitalize">
-                {brand}
-              </span>
-            </div>
-          )}
+  if (!currentUser) {
+    return (
+      <main className="min-h-screen bg-white px-6 py-10 text-black">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-black/10 bg-white p-8 text-center">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="mt-3 text-neutral-600">
+            Please sign in to access your seller dashboard.
+          </p>
+          <div className="mt-6">
+            <Link
+              href="/login"
+              className="inline-flex rounded-xl bg-black px-5 py-3 font-semibold text-white transition hover:bg-neutral-800"
+            >
+              Login / Sign Up
+            </Link>
+          </div>
         </div>
-      ) : (
-        <span className="text-gray-400">
-          Sneaker name will appear after scanning
-        </span>
-      )}
+      </main>
+    );
+  }
+
+  const [inventoryItems, recentScans, liveListings, userListings] =
+    await Promise.all([
+      prisma.inventoryItem.findMany({
+        where: {
+          userId: currentUser.email,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+      prisma.scans.findMany({
+        orderBy: { created_at: "desc" },
+        take: 5,
+      }),
+      prisma.marketplaceListing.findMany({
+        where: { status: "ACTIVE" },
+        include: { sneaker: true },
+        orderBy: { createdAt: "desc" },
+        take: 4,
+      }),
+      prisma.marketplaceListing.findMany({
+        where: {
+          OR: [
+            { sellerId: currentUser.email },
+            { sellerName: currentUser.name },
+          ],
+        },
+        include: { sneaker: true },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+
+  const inventoryCount = inventoryItems.length;
+
+  const trackedMarketValue = inventoryItems.reduce((sum, item) => {
+    return sum + (item.marketPrice ?? 0);
+  }, 0);
+
+  const listedCount = userListings.filter(
+    (listing) => listing.status === "ACTIVE"
+  ).length;
+
+  const activeListingsValue = userListings
+    .filter((listing) => listing.status === "ACTIVE")
+    .reduce((sum, listing) => sum + (listing.price ?? 0), 0);
+
+  return (
+    <main className="min-h-screen bg-white px-6 py-10 text-black">
+      <div className="mx-auto max-w-7xl space-y-10">
+        <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
+              Dashboard
+            </p>
+            <h1 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">
+              Seller Command Center
+            </h1>
+            <p className="mt-4 max-w-2xl text-neutral-600">
+              Manage your sneaker inventory, track market value, and move quickly
+              from scan to listing.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/discover"
+              className="inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 font-semibold text-white transition hover:bg-neutral-800"
+            >
+              Scan Sneaker
+            </Link>
+
+            <Link
+              href="/inventory"
+              className="inline-flex items-center justify-center rounded-xl border border-black/15 bg-white px-5 py-3 font-semibold text-black transition hover:border-black/30"
+            >
+              View Inventory
+            </Link>
+
+            <Link
+              href="/marketplace/sell"
+              className="inline-flex items-center justify-center rounded-xl border border-emerald-600/30 bg-emerald-500/10 px-5 py-3 font-semibold text-emerald-700 transition hover:border-emerald-600/50"
+            >
+              Create Listing
+            </Link>
+          </div>
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard
+            label="Inventory Items"
+            value={String(inventoryCount)}
+            helper="Sneakers currently tracked"
+          />
+          <DashboardCard
+            label="Tracked Market Value"
+            value={formatCurrency(trackedMarketValue)}
+            helper="Based on your saved inventory values"
+          />
+          <DashboardCard
+            label="Listed Items"
+            value={String(listedCount)}
+            helper="Your active marketplace listings"
+          />
+          <DashboardCard
+            label="Active Listings Value"
+            value={formatCurrency(activeListingsValue)}
+            helper="Total asking value of your active listings"
+          />
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+          <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_18px_40px_rgba(0,0,0,0.04)]">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold">Inventory Snapshot</h2>
+                <p className="mt-1 text-sm text-neutral-500">
+                  Your latest tracked sneakers
+                </p>
+              </div>
+              <Link
+                href="/inventory"
+                className="text-sm font-semibold text-black underline-offset-4 hover:underline"
+              >
+                Open inventory
+              </Link>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-black/10">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-black/10 bg-neutral-50">
+                  <tr>
+                    <th className="px-4 py-3 font-medium text-neutral-600">Name</th>
+                    <th className="px-4 py-3 font-medium text-neutral-600">Status</th>
+                    <th className="px-4 py-3 font-medium text-neutral-600">Market</th>
+                    <th className="px-4 py-3 font-medium text-neutral-600">Purchase</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventoryItems.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="px-4 py-10 text-center text-neutral-500"
+                      >
+                        No inventory yet. Scan a sneaker to get started.
+                      </td>
+                    </tr>
+                  ) : (
+                    inventoryItems.map((item) => (
+                      <tr key={item.id} className="border-b border-black/5">
+                        <td className="px-4 py-4">
+                          <div>
+                            <p className="font-semibold text-black">{item.name}</p>
+                            <p className="text-xs text-neutral-500">
+                              {[item.brand, item.colorway].filter(Boolean).join(" • ") ||
+                                "Sneaker item"}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium capitalize text-black">
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          {formatCurrency(item.marketPrice)}
+                        </td>
+                        <td className="px-4 py-4">
+                          {formatCurrency(item.purchasePrice)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <PanelCard
+              title="Quick Actions"
+              subtitle="Move fast from scan to sale"
+            >
+              <div className="grid gap-3">
+                <Link
+                  href="/discover"
+                  className="rounded-xl bg-black px-4 py-3 text-center font-semibold text-white transition hover:bg-neutral-800"
+                >
+                  Scan New Sneaker
+                </Link>
+                <Link
+                  href="/inventory"
+                  className="rounded-xl border border-black/15 bg-white px-4 py-3 text-center font-semibold text-black transition hover:border-black/30"
+                >
+                  Manage Inventory
+                </Link>
+                <Link
+                  href="/marketplace"
+                  className="rounded-xl border border-black/15 bg-white px-4 py-3 text-center font-semibold text-black transition hover:border-black/30"
+                >
+                  Browse Marketplace
+                </Link>
+                <Link
+                  href="/marketplace/sell"
+                  className="rounded-xl border border-emerald-600/30 bg-emerald-500/10 px-4 py-3 text-center font-semibold text-emerald-700 transition hover:border-emerald-600/50"
+                >
+                  Create Listing
+                </Link>
+              </div>
+            </PanelCard>
+
+            <PanelCard
+              title="Recent Scans"
+              subtitle="Latest identification activity"
+            >
+              {recentScans.length === 0 ? (
+                <p className="text-sm text-neutral-500">No recent scans yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentScans.map((scan) => (
+                    <div
+                      key={scan.id}
+                      className="rounded-xl border border-black/10 bg-neutral-50 px-4 py-3"
+                    >
+                      <p className="font-semibold text-black">
+                        {[scan.brand, scan.model].filter(Boolean).join(" ") ||
+                          "Unlabeled scan"}
+                      </p>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {scan.colorway || "No colorway saved"} • Confidence{" "}
+                        {typeof scan.confidence === "number"
+                          ? `${scan.confidence}%`
+                          : "—"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </PanelCard>
+          </div>
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+          <PanelCard
+            title="Deal Radar"
+            subtitle="Your inventory opportunities"
+          >
+            {inventoryItems.length === 0 ? (
+              <p className="text-sm text-neutral-500">
+                Add sneakers to inventory to start tracking deal signals.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {inventoryItems.slice(0, 4).map((item) => {
+                  const spread =
+                    typeof item.marketPrice === "number" &&
+                    typeof item.purchasePrice === "number"
+                      ? item.marketPrice - item.purchasePrice
+                      : null;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-xl border border-black/10 bg-neutral-50 px-4 py-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-black">{item.name}</p>
+                          <p className="mt-1 text-xs text-neutral-500">
+                            Market {formatCurrency(item.marketPrice)} • Purchase{" "}
+                            {formatCurrency(item.purchasePrice)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs uppercase tracking-wide text-neutral-500">
+                            Spread
+                          </p>
+                          <p
+                            className={`font-semibold ${
+                              typeof spread === "number"
+                                ? spread >= 0
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                                : "text-neutral-500"
+                            }`}
+                          >
+                            {typeof spread === "number"
+                              ? `${spread >= 0 ? "+" : ""}${formatCurrency(spread)}`
+                              : "—"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </PanelCard>
+
+          <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_18px_40px_rgba(0,0,0,0.04)]">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold">Live Marketplace Listings</h2>
+                <p className="mt-1 text-sm text-neutral-500">
+                  Active listings from your marketplace
+                </p>
+              </div>
+              <Link
+                href="/marketplace"
+                className="text-sm font-semibold text-black underline-offset-4 hover:underline"
+              >
+                View all
+              </Link>
+            </div>
+
+            {liveListings.length === 0 ? (
+              <p className="text-sm text-neutral-500">
+                No active listings found.
+              </p>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {liveListings.map((listing) => (
+                  <div
+                    key={listing.id}
+                    className="rounded-xl border border-black/10 bg-neutral-50 p-4"
+                  >
+                    <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">
+                      {listing.sneaker.brand}
+                    </p>
+                    <h3 className="mt-1 font-semibold text-black">
+                      {listing.sneaker.model}
+                    </h3>
+                    <p className="mt-1 text-sm text-neutral-600">
+                      {listing.sneaker.colorway}
+                    </p>
+                    <div className="mt-4 flex items-end justify-between">
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          Lowest Ask
+                        </p>
+                        <p className="text-2xl font-bold text-black">
+                          {formatCurrency(listing.price)}
+                        </p>
+                      </div>
+                      <p className="text-sm text-neutral-500">
+                        Size {listing.size}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <PanelCard
+            title="My Listings Snapshot"
+            subtitle="Your latest marketplace listings"
+          >
+            {userListings.length === 0 ? (
+              <p className="text-sm text-neutral-500">
+                You do not have any listings yet.
+              </p>
+            ) : (
+              <div className="overflow-hidden rounded-xl border border-black/10">
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-black/10 bg-neutral-50">
+                    <tr>
+                      <th className="px-4 py-3 font-medium text-neutral-600">Sneaker</th>
+                      <th className="px-4 py-3 font-medium text-neutral-600">Status</th>
+                      <th className="px-4 py-3 font-medium text-neutral-600">Price</th>
+                      <th className="px-4 py-3 font-medium text-neutral-600">Size</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userListings.slice(0, 5).map((listing) => (
+                      <tr key={listing.id} className="border-b border-black/5">
+                        <td className="px-4 py-4">
+                          <div>
+                            <p className="font-semibold text-black">
+                              {listing.sneaker.model}
+                            </p>
+                            <p className="text-xs text-neutral-500">
+                              {listing.sneaker.brand} • {listing.sneaker.colorway}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium capitalize text-black">
+                            {listing.status.toLowerCase()}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">{formatCurrency(listing.price)}</td>
+                        <td className="px-4 py-4">{listing.size}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </PanelCard>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function DashboardCard({
+  label,
+  value,
+  helper,
+}: {
+  label: string;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-[0_18px_40px_rgba(0,0,0,0.04)]">
+      <p className="text-sm uppercase tracking-[0.18em] text-neutral-500">
+        {label}
+      </p>
+      <p className="mt-3 text-3xl font-bold text-black">{value}</p>
+      <p className="mt-2 text-sm text-neutral-500">{helper}</p>
     </div>
   );
-})()}
+}
 
-
-  <button
-  onClick={handleAnalyze}
-  disabled={loading}
-  className="bg-black hover:bg-neutral-800 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
->
-  {loading ? (
-    <>
-      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-      Analyzing...
-    </>
-  ) : (
-    "Scan Sneaker"
-  )}
-</button>
-
+function PanelCard({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_18px_40px_rgba(0,0,0,0.04)]">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold">{title}</h2>
+        <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>
       </div>
-
-      {/* ERROR */}
-      {error && (
-  <div className="mt-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-start gap-2">
-    <div className="text-red-500 font-bold">⚠</div>
-    <div className="text-sm">{error}</div>
-  </div>
-  )}
-
-      {/* ACTIVE MARKET */}
-      {results?.activeMarket && (
-        <div className="bg-gray-100 p-6 rounded-xl space-y-2">
-  <h2 className="text-xl font-bold">Active Market</h2>
-
-  <p>
-    <strong>Median Price:</strong>{" "}
-    ${results.activeMarket.medianPrice?.toFixed(2)}
-  </p>
-
-  <p>
-    <strong>Average Price:</strong>{" "}
-    ${results.activeMarket.averagePrice?.toFixed(2)}
-  </p>
-
-  <p>
-    <strong>Lowest Price:</strong>{" "}
-    ${results.activeMarket.lowestPrice?.toFixed(2)}
-  </p>
-
-  <p>
-    <strong>Highest Price:</strong>{" "}
-    ${results.activeMarket.highestPrice?.toFixed(2)}
-  </p>
-
-  <p>
-    <strong>Total Listings:</strong>{" "}
-    {results.activeMarket.totalListings}
-  </p>
-
-  <p>
-    <strong>Market Status:</strong>{" "}
-    {results.activeMarket.marketLabel}
-  </p>
-
-  {/* 🔥 PRICE GAP INDICATOR */}
- {priceGap !== null && gapPercent !== null && (
-  <div className="mt-4 pt-4 border-t space-y-2">
-    <p>
-      <strong>Price Gap vs Sold:</strong>{" "}
-      ${priceGap.toFixed(2)} (
-      {gapPercent > 0 ? "+" : ""}
-      {gapPercent.toFixed(1)}%)
-    </p>
-
-       {/* 💰 ARBITRAGE DETECTION */}
-    
-    {/* 💰 ARBITRAGE DETECTION */}
-{arbitrageSpread !== null && arbitragePercent !== null && (
-  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg space-y-3">
-
-    <p className="font-semibold text-green-800">
-      💰 Arbitrage Opportunity Detected
-    </p>
-
-    <p>
-      Buy at <strong>${activeLowest?.toFixed(2)}</strong> → Market Sold Median{" "}
-      <strong>${soldMedian?.toFixed(2)}</strong>
-    </p>
-
-    <p>
-      Potential Spread:{" "}
-      <strong>
-        ${arbitrageSpread.toFixed(2)} ({arbitragePercent.toFixed(1)}%)
-      </strong>
-    </p>
-
-    {/* NEW SECTION */}
-    <div className="grid md:grid-cols-2 gap-4 pt-3 border-t">
-
-      <div>
-        <p className="font-semibold text-gray-700">Where to Buy</p>
-        <ul className="text-sm text-gray-600 space-y-1 mt-1">
-
-          <li>
-            <a
-              href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}`}
-              target="_blank"
-              className="hover:text-green-600"
-            >
-              • eBay Auctions
-            </a>
-          </li>
-
-          <li>
-            <a
-              href={`https://www.facebook.com/marketplace/search/?query=${encodeURIComponent(query)}`}
-              target="_blank"
-              className="hover:text-green-600"
-            >
-              • Facebook Marketplace
-            </a>
-          </li>
-
-          <li>
-            <a
-              href={`https://www.amazon.com/s?k=${encodeURIComponent(query)}`}
-              target="_blank"
-              className="hover:text-green-600"
-            >
-              • Amazon Deals
-            </a>
-          </li>
-
-        </ul>
-      </div>
-
-      <div>
-        <p className="font-semibold text-gray-700">Where to Sell</p>
-        <ul className="text-sm text-gray-600 space-y-1 mt-1">
-
-          <li>
-            <a
-              href={`https://stockx.com/search?s=${encodeURIComponent(query)}`}
-              target="_blank"
-              className="hover:text-green-600"
-            >
-              • StockX
-            </a>
-          </li>
-
-          <li>
-            <a
-              href={`https://www.goat.com/search?query=${encodeURIComponent(query)}`}
-              target="_blank"
-              className="hover:text-green-600"
-            >
-              • GOAT
-            </a>
-          </li>
-
-          <li>
-            <a
-              href={`https://www.mercari.com/search/?keyword=${encodeURIComponent(query)}`}
-              target="_blank"
-              className="hover:text-green-600"
-            >
-              • Mercari
-            </a>
-          </li>
-
-        </ul>
-      </div>
-
+      {children}
     </div>
-
-  </div>
-)}
-
-
-
-
-
-
-    {/* 📊 DEMAND BADGE */}
-    {/* 📊 PROFESSIONAL TRADING SIGNAL */}
-<div>
-
-
-  {/* STRONG OVERPRICED */}
-  {gapPercent > 12 && (
-    <span className="bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
-      🔥 Strong Sell Signal
-    </span>
-  )}
-
-  {/* MODERATE OVERPRICED */}
-  {gapPercent > 5 && gapPercent <= 12 && (
-    <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-medium">
-      ⚠ Moderate Overpricing
-    </span>
-  )}
-
-  {/* MILD OVERPRICED */}
-  {gapPercent > 3 && gapPercent <= 5 && (
-    <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-medium">
-      Slightly Over Market
-    </span>
-  )}
-
-  {/* NEUTRAL */}
-  {gapPercent >= -3 && gapPercent <= 3 && (
-    <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
-      ⚖ Neutral Market
-    </span>
-  )}
-
-  {/* MILD UNDERVALUED */}
-  {gapPercent < -3 && gapPercent >= -5 && (
-    <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-medium">
-      Slightly Undervalued
-    </span>
-  )}
-
-  {/* MODERATE UNDERVALUED */}
-  {gapPercent < -5 && gapPercent >= -12 && (
-    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-      💎 Moderate Buy Signal
-    </span>
-  )}
-
-  {/* STRONG UNDERVALUED */}
-  {gapPercent < -12 && (
-    <span className="bg-green-200 text-green-900 px-3 py-1 rounded-full text-sm font-semibold">
-      🚀 Strong Buy Signal
-    </span>
-  )}
- </div>
-</div>
-)}
-
-</div>
-
-      )}
-
-      {/* SOLD MARKET */}
-      {results?.soldMarket && (
-        <div className="bg-gray-50 p-6 rounded-xl space-y-2">
-          <h2 className="text-xl font-bold">Sold Market</h2>
-
-          <p><strong>Overall Median:</strong> ${results.soldMarket.overallMedian?.toFixed(2)}</p>
-          <p>
-            <strong>New Median:</strong>{" "}
-            {results.soldMarket.newMedian
-              ? `$${results.soldMarket.newMedian.toFixed(2)}`
-              : "N/A"}
-          </p>
-          <p>
-            <strong>Used Median:</strong>{" "}
-            {results.soldMarket.usedMedian
-              ? `$${results.soldMarket.usedMedian.toFixed(2)}`
-              : "N/A"}
-          </p>
-          <p><strong>Total Sold:</strong> {results.soldMarket.totalSold}</p>
-        </div>
-      )}
-
-      {/* DEAL RADAR */}
-
-{results?.deal && (
-  <div className="bg-green-50 border border-green-200 p-6 rounded-xl mt-6 space-y-2">
-
-    <h2 className="text-xl font-bold text-green-800">
-      🔥 Deal Radar
-    </h2>
-
-    <p>
-      Buy for <strong>${results.deal.buyPrice.toFixed(2)}</strong>
-    </p>
-
-    <p>
-      Market median: <strong>${results.deal.marketPrice.toFixed(2)}</strong>
-    </p>
-
-    <p>
-      Potential profit:{" "}
-      <strong className="text-green-700">
-        +${results.deal.profit.toFixed(2)}
-      </strong>
-    </p>
-
-    <p>
-      ROI: <strong>{results.deal.roi.toFixed(1)}%</strong>
-    </p>
-
-  </div>
-)}
-
-      {/* 📊 MARKET COMPARISON CHART */}
-      
-{chartData.length > 0 && (
-  <div className="bg-white p-6 rounded-xl shadow space-y-4">
-    <h2 className="text-xl font-bold">Market Comparison</h2>
-
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData}>
-        <XAxis dataKey="name" />
-        <YAxis domain={[0, "auto"]} />
-        <Tooltip
-          formatter={(value) => {
-            if (value === undefined || value === null) {
-              return "";
-            }
-
-            return typeof value === "number"
-              ? `$${value.toFixed(2)}`
-              : String(value);
-          }}
-        />
-        <Bar
-          dataKey="price"
-          fill="#3b82f6"
-          radius={[6, 6, 0, 0]}
-        />
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
-   )}
-   </div>
-</div>
   );
 }

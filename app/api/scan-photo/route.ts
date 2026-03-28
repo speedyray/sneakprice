@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("image") as File;
+    const file = formData.get("image") as File | null;
 
     if (!file) {
       return NextResponse.json({ error: "No image uploaded" }, { status: 400 });
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(bytes);
 
     const compressedBuffer = await sharp(buffer)
-      .resize({ width: 800 })
+      .resize({ width: 800, withoutEnlargement: true })
       .jpeg({ quality: 70 })
       .toBuffer();
 

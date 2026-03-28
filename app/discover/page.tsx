@@ -2,10 +2,21 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Twitter, Instagram, Youtube, Facebook } from "lucide-react";
-import { useState, useEffect } from "react";
+import {
+  Twitter,
+  Instagram,
+  Youtube,
+  Facebook,
+  Upload,
+  Camera,
+  Loader2,
+  CheckCircle2,
+  TrendingUp,
+  DollarSign,
+  Flame,
+} from "lucide-react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-
 
 const trendingTitles = [
   "🔥 Trending Sneaker Scans",
@@ -13,10 +24,8 @@ const trendingTitles = [
   "🔥 Sneaker Demand Signals",
   "🔥 Hottest Sneakers Right Now",
   "🔥 Real-Time Sneaker Trends",
-  "🔥 Sneaker Market Momentum"
+  "🔥 Sneaker Market Momentum",
 ];
-
-
 
 const trendingSneakers = [
   { name: "Yeezy Boost 350 V2", demand: "High Demand" },
@@ -33,16 +42,15 @@ const trendingSneakers = [
   { name: "Jordan 3 White Cement", demand: "Hot" },
   { name: "Nike Dunk Low Grey Fog", demand: "Trending" },
   { name: "Adidas Campus 00s", demand: "Growing" },
-  { name: "Jordan 1 Retro High OG", demand: "High Demand" }
+  { name: "Jordan 1 Retro High OG", demand: "High Demand" },
 ];
-
 
 const marketInsightTitles = [
   "Live Sneaker Market Insights",
   "Real-Time Sneaker Market Data",
   "Sneaker Market Intelligence",
   "Live Sneaker Demand Signals",
-  "Sneaker Market Activity"
+  "Sneaker Market Activity",
 ];
 
 const arbitrageTitles = [
@@ -50,7 +58,7 @@ const arbitrageTitles = [
   "💰 Top Sneaker Profit Spreads",
   "🔥 Sneaker Arbitrage Signals",
   "🚀 Best Sneaker Flip Opportunities",
-  "📊 Reseller Profit Opportunities"
+  "📊 Reseller Profit Opportunities",
 ];
 
 type LiveDeal = {
@@ -61,143 +69,407 @@ type LiveDeal = {
   roi: number;
 };
 
+type ScanResponse = {
+  sneakerName?: string;
+  error?: string;
+};
+
+type EbayResponse = {
+  activeMarket?: {
+    medianPrice?: number;
+    averagePrice?: number;
+    lowestPrice?: number;
+    highestPrice?: number;
+    totalListings?: number;
+    volatility?: number;
+    marketLabel?: string;
+  } | null;
+  soldMarket?: {
+    totalSold?: number;
+    overallMedian?: number;
+    newCount?: number;
+    newMedian?: number | null;
+    usedCount?: number;
+    usedMedian?: number | null;
+  } | null;
+  deal?: {
+    buyPrice?: number;
+    marketPrice?: number;
+    profit?: number;
+    roi?: number;
+  } | null;
+};
+
+function formatMoney(value?: number | null) {
+  if (typeof value !== "number" || Number.isNaN(value)) return "—";
+  return `$${value.toFixed(0)}`;
+}
+
+function getFlipScore(data: {
+  soldMedian?: number;
+  activeMedian?: number;
+  lowestPrice?: number;
+  dealProfit?: number;
+  dealRoi?: number;
+  volatility?: number;
+}) {
+  const {
+    soldMedian = 0,
+    activeMedian = 0,
+    lowestPrice = 0,
+    dealProfit = 0,
+    dealRoi = 0,
+    volatility = 0,
+  } = data;
+
+  let score = 35;
+
+  if (dealRoi >= 40) score += 30;
+  else if (dealRoi >= 25) score += 22;
+  else if (dealRoi >= 15) score += 15;
+  else if (dealRoi >= 8) score += 8;
+
+  if (dealProfit >= 60) score += 15;
+  else if (dealProfit >= 35) score += 10;
+  else if (dealProfit >= 20) score += 6;
+
+  if (soldMedian > 0 && lowestPrice > 0 && lowestPrice < soldMedian) {
+    score += 10;
+  }
+
+  if (activeMedian > 0 && soldMedian > 0) {
+    const gapPercent = ((activeMedian - soldMedian) / soldMedian) * 100;
+
+    if (gapPercent < -8) score += 8;
+    else if (gapPercent < -3) score += 5;
+    else if (gapPercent > 12) score -= 8;
+  }
+
+  if (volatility < 0.2) score += 5;
+  else if (volatility > 0.5) score -= 5;
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+export default function DiscoverPage() {
+  const { user } = useUser();
+
+  const [deals, setDeals] = useState<LiveDeal[]>([]);
+  const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
+  const [trending, setTrending] = useState(trendingSneakers.slice(0, 4));
+  const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
+  const [marketTitle, setMarketTitle] = useState(marketInsightTitles[0]);
+  const [arbitrageTitle, setArbitrageTitle] = useState(arbitrageTitles[0]);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [scanError, setScanError] = useState("");
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState("");
+
+  const [identifiedSneaker, setIdentifiedSneaker] = useState("");
+  const [marketData, setMarketData] = useState<EbayResponse | null>(null);
+
+  useEffect(() => {
+    let eventSource = new EventSource("/api/live-deals-stream");
+
+    eventSource.onmessage = (event) => {
+      const deal = JSON.parse(event.data) as LiveDeal;
+      setDeals((prev) => [deal, ...prev].slice(0, 10));
+      setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+      setTimeout(() => {
+        eventSource = new EventSource("/api/live-deals-stream");
+      }, 2000);
+    };
+
+    return () => eventSource.close();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const shuffled = [...trendingSneakers].sort(() => 0.5 - Math.random());
+      setTrending(shuffled.slice(0, 4));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomTitle =
+        trendingTitles[Math.floor(Math.random() * trendingTitles.length)];
+      setTrendingTitle(randomTitle);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newMarketTitle =
+        marketInsightTitles[Math.floor(Math.random() * marketInsightTitles.length)];
+      const newArbitrageTitle =
+        arbitrageTitles[Math.floor(Math.random() * arbitrageTitles.length)];
+
+      setMarketTitle(newMarketTitle);
+      setArbitrageTitle(newArbitrageTitle);
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
 
 
-export default function Landing() {
-const { user } = useUser();
 
-const [deals, setDeals] = useState<LiveDeal[]>([]);
-const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
-const [trending, setTrending] = useState(trendingSneakers.slice(0,4));
-const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
-const [marketTitle, setMarketTitle] = useState(marketInsightTitles[0]);
-const [arbitrageTitle, setArbitrageTitle] = useState(arbitrageTitles[0])
-  
 
-useEffect(() => {
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
-  let eventSource = new EventSource("/api/live-deals-stream");
 
-  eventSource.onmessage = (event) => {
 
-    const deal = JSON.parse(event.data) as LiveDeal;
 
-    setDeals((prev) => {
-      const updated = [deal, ...prev];
-      return updated.slice(0, 10);
+
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setPreviewUrl("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedFile);
+    setPreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [selectedFile]);
+
+  const derived = useMemo(() => {
+    const soldMedian = marketData?.soldMarket?.overallMedian;
+    const activeMedian =
+      marketData?.activeMarket?.medianPrice ?? marketData?.activeMarket?.averagePrice;
+    const lowestPrice = marketData?.activeMarket?.lowestPrice;
+    const highestPrice = marketData?.activeMarket?.highestPrice;
+    const volatility = marketData?.activeMarket?.volatility;
+    const marketLabel = marketData?.activeMarket?.marketLabel;
+    const dealProfit = marketData?.deal?.profit;
+    const dealRoi = marketData?.deal?.roi;
+
+    const fallbackProfit =
+      typeof soldMedian === "number" && typeof lowestPrice === "number"
+        ? soldMedian - lowestPrice
+        : undefined;
+
+    const fallbackRoi =
+      typeof fallbackProfit === "number" &&
+      typeof lowestPrice === "number" &&
+      lowestPrice > 0
+        ? (fallbackProfit / lowestPrice) * 100
+        : undefined;
+
+    const profit = dealProfit ?? fallbackProfit;
+    const roi = dealRoi ?? fallbackRoi;
+
+    const flipScore = getFlipScore({
+      soldMedian,
+      activeMedian,
+      lowestPrice,
+      dealProfit: profit,
+      dealRoi: roi,
+      volatility,
     });
 
-    setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
+    return {
+      soldMedian,
+      activeMedian,
+      lowestPrice,
+      highestPrice,
+      volatility,
+      marketLabel,
+      profit,
+      roi,
+      flipScore,
+    };
+  }, [marketData]);
 
-  };
+  async function handleAnalyze() {
+    if (!selectedFile) {
+      setScanError("Please upload a sneaker photo first.");
+      return;
+    }
 
-  eventSource.onerror = () => {
+    setIsAnalyzing(true);
+    setScanError("");
+    setIdentifiedSneaker("");
+    setMarketData(null);
 
-    eventSource.close();
+    try {
+      const formData = new FormData();
+      formData.append("image", selectedFile);
 
-    // reconnect after 2 seconds
-    setTimeout(() => {
-      eventSource = new EventSource("/api/live-deals-stream");
-    }, 2000);
+      const scanRes = await fetch("/api/scan-photo", {
+        method: "POST",
+        body: formData,
+      });
 
-  };
+      const scanJson = (await scanRes.json()) as ScanResponse;
 
-  return () => eventSource.close();
+      if (!scanRes.ok) {
+        throw new Error(scanJson.error || "Sneaker scan failed.");
+      }
 
-}, []);
+      if (!scanJson.sneakerName) {
+        throw new Error("No sneaker name returned from scan.");
+      }
+
+      setIdentifiedSneaker(scanJson.sneakerName);
+
+      const ebayRes = await fetch("/api/ebay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: scanJson.sneakerName,
+        }),
+      });
+
+      const ebayJson = (await ebayRes.json()) as EbayResponse;
+
+      if (!ebayRes.ok) {
+        throw new Error("Market valuation failed.");
+      }
+
+      setMarketData(ebayJson);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong.";
+      setScanError(message);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }
 
 
 
-useEffect(() => {
 
-  const interval = setInterval(() => {
+  async function startCamera() {
+    try {
+      setCameraError("");
+  
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+  
+      streamRef.current = stream;
+      setCameraOpen(true);
+  
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }, 0);
+    } catch (error) {
+      console.error(error);
+      setCameraError("Unable to access camera.");
+    }
+  }
+  
+  function stopCamera() {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  
+    setCameraOpen(false);
+  }
+  
+  function capturePhoto() {
+    const video = videoRef.current;
+    if (!video) return;
+  
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+  
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+  
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+  
+        const file = new File([blob], "camera-scan.jpg", {
+          type: "image/jpeg",
+        });
+  
+        setSelectedFile(file);
+        setScanError("");
+        stopCamera();
+      },
+      "image/jpeg",
+      0.9
+    );
+  }
 
-    const shuffled = [...trendingSneakers].sort(() => 0.5 - Math.random());
-    setTrending(shuffled.slice(0,4));
-
-  }, 5000);
-
-  return () => clearInterval(interval);
-
-}, []);
-
-useEffect(() => {
-
-  const interval = setInterval(() => {
-
-    const randomTitle =
-      trendingTitles[Math.floor(Math.random() * trendingTitles.length)];
-
-    setTrendingTitle(randomTitle);
-
-  }, 4000);
-
-  return () => clearInterval(interval);
-
-}, []);
 
 
-useEffect(() => {
 
-  const interval = setInterval(() => {
 
-    const newMarketTitle =
-      marketInsightTitles[Math.floor(Math.random() * marketInsightTitles.length)];
 
-    const newArbitrageTitle =
-      arbitrageTitles[Math.floor(Math.random() * arbitrageTitles.length)];
-
-    setMarketTitle(newMarketTitle);
-    setArbitrageTitle(newArbitrageTitle);
-
-  }, 6000);
-
-  return () => clearInterval(interval);
-
-}, []);
 
 
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-white px-6 py-6 text-center text-black">
       <div className="mb-6">
-  <Image
-    src="/sneakprice-logo.png"
-    alt="SneakPrice"
-    width={180}
-    height={180}
-    className="mx-auto"
-  />
-</div>
+        <Image
+          src="/sneakprice-logo.png"
+          alt="SneakPrice"
+          width={180}
+          height={180}
+          className="mx-auto"
+        />
+      </div>
 
-
-      {/* HERO */}
       <h1 className="text-6xl font-extrabold mb-6 leading-tight">
-      Know  your <span className="text-black">Sneakers</span> <br/>real market value <br />
+        Know your <span className="text-black">Sneakers</span> <br />
+        real market value <br />
       </h1>
 
       <h2 className="text-3xl font-extrabold mb-3 leading-tight">
         using <span className="text-black">verified resale data</span> <br />
       </h2>
 
-      
-
       <p className="mb-10 max-w-2xl text-lg text-neutral-600">
         Scan any sneaker and get real resale market value based on verified sold
         listings. No guessing. No hype. Just data.
       </p>
 
-      
-    
-
-      {/* CTA BUTTONS */}
       <div className="flex gap-4">
-        <Link
-          href="/app"
+        <a
+          href="#scan-tool"
           className="bg-[#24262b] hover:bg-black text-white px-8 py-4 rounded-xl font-semibold transition"
         >
           Scan My Sneakers
-        </Link>
+        </a>
 
         {user ? (
           <Link
@@ -216,630 +488,549 @@ useEffect(() => {
         )}
       </div>
 
-     <p className="mt-6 mb-10 text-sm text-neutral-500">
+      <p className="mt-6 mb-10 text-sm text-neutral-500">
         Free 3 scans per day • No credit card required
       </p>
 
- <div className="flex justify-center mb-6">
-    <Image
-      src="/jordan-yellow.png"
-      alt="SneakPrice"
-      width={160}
-      height={160}
-      className="opacity-90"
-    />
-  </div>
+      <div className="flex justify-center mb-8">
+        <Image
+          src="/jordan-yellow.png"
+          alt="SneakPrice"
+          width={160}
+          height={160}
+          className="opacity-90"
+        />
+      </div>
 
-  
-      
-    {/* LIVE DEALS */}
-<div className="mt-16 max-w-5xl w-full">
+      <section
+        id="scan-tool"
+        className="w-full max-w-6xl rounded-3xl border border-black/10 bg-gradient-to-b from-white to-neutral-50 p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)] md:p-8"
+      >
+        <div className="mb-8">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-neutral-500">
+            4-step scan workflow
+          </p>
+          <h2 className="text-3xl font-bold md:text-4xl">
+            Scan → Value → Profit → Flip Score
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-neutral-600">
+            Upload a sneaker photo and get a live market read on its resale potential.
+          </p>
+        </div>
 
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-2xl border border-black/10 bg-white p-6 text-left">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="rounded-full bg-black p-2 text-white">
+                <Upload size={18} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Step 1 — Upload sneaker photo</h3>
+                <p className="text-sm text-neutral-500">
+                  Use a clear image for best identification.
+                </p>
+              </div>
+            </div>
 
-<h2 className="text-3xl font-bold text-center mb-2">
-🔥 Live Sneaker Deals
-</h2>
+            <label className="flex min-h-[260px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black/15 bg-neutral-50 p-6 transition hover:border-black/30 hover:bg-neutral-100">
+              {previewUrl ? (
+                <div className="flex w-full flex-col items-center">
+                  <Image
+                    src={previewUrl}
+                    alt="Sneaker preview"
+                    width={280}
+                    height={220}
+                    className="max-h-[220px] w-auto rounded-xl object-contain"
+                    unoptimized
+                  />
+                  <p className="mt-4 text-sm text-neutral-500">
+                    {selectedFile?.name}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
+                    <Camera size={28} />
+                  </div>
+                  <p className="font-medium">Click to upload sneaker photo</p>
+                  <p className="mt-2 text-sm text-neutral-500">
+                    We’ll identify the sneaker and calculate live market value.
+                  </p>
+                </>
+              )}
 
-<p className="text-black text-sm text-center mb-6">
-● Live Market Feed
-</p>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setSelectedFile(file);
+                  setScanError("");
+                }}
+              />
+            </label>
 
-{/* LIVE DEAL TICKER */}
-<div className="mb-10 overflow-hidden whitespace-nowrap border-y border-black/10 py-3">
-  <div className="animate-[scroll_35s_linear_infinite] inline-block">
+<div className="mt-5 flex flex-wrap gap-3">
+  <button
+    type="button"
+    onClick={handleAnalyze}
+    disabled={!selectedFile || isAnalyzing}
+    className="inline-flex items-center justify-center rounded-xl bg-black px-6 py-3 font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {isAnalyzing ? (
+      <>
+        <Loader2 size={18} className="mr-2 animate-spin" />
+        Analyzing...
+      </>
+    ) : (
+      "Analyze Sneaker"
+    )}
+  </button>
 
-    {[...recentDeals, ...recentDeals].map((d, i) => (
-      <span key={i} className="mx-6 text-neutral-600">
-        🔥 {d.sneaker} +${d.profit.toFixed(0)}
-      </span>
-    ))}
+  <button
+    type="button"
+    onClick={startCamera}
+    className="rounded-xl border border-black/15 bg-white px-6 py-3 font-semibold text-black transition hover:border-black/30"
+  >
+    Use Camera
+  </button>
 
-  </div>
+  <button
+    type="button"
+    onClick={() => {
+      setSelectedFile(null);
+      setPreviewUrl("");
+      setIdentifiedSneaker("");
+      setMarketData(null);
+      setScanError("");
+      stopCamera();
+    }}
+    className="rounded-xl border border-black/15 bg-white px-6 py-3 font-semibold text-black transition hover:border-black/30"
+  >
+    Reset
+  </button>
 </div>
 
 
+{cameraOpen && (
+  <div className="mt-5 rounded-2xl border border-black/10 bg-neutral-50 p-4">
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      muted
+      className="w-full rounded-xl"
+    />
 
-<div className="flex justify-center">
+    <div className="mt-4 flex flex-wrap gap-3">
+      <button
+        type="button"
+        onClick={capturePhoto}
+        className="rounded-xl bg-black px-5 py-3 font-semibold text-white transition hover:bg-neutral-800"
+      >
+        Capture Photo
+      </button>
 
-{deals.length > 0 && (
-  <div className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)] overflow-hidden relative">
-
-    {/* TOP FADE */}
-    <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent z-10"></div>
-
-    {/* BOTTOM FADE */}
-    <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-10"></div>
-
-    <div className="h-[140px] overflow-hidden">
-
-      <div className="animate-[scrollVertical_12s_linear_infinite] space-y-6">
-
-        {[...deals, ...deals].map((deal, i) => (
-          <div key={i} className="text-center">
-
-            <h3 className="font-bold text-lg mb-2">
-              {deal.sneaker}
-            </h3>
-
-            <p>
-              <strong>Buy Price:</strong> ${deal.buy_price.toFixed(2)}
-            </p>
-
-            <p>
-              <strong>Market Price:</strong> ${deal.market_price.toFixed(2)}
-            </p>
-
-            <p className="text-black font-semibold">
-              Profit: +${deal.profit.toFixed(2)}
-            </p>
-
-            <p>
-              ROI: {deal.roi.toFixed(1)}%
-            </p>
-
-          </div>
-        ))}
-
-      </div>
-
+      <button
+        type="button"
+        onClick={stopCamera}
+        className="rounded-xl border border-black/15 bg-white px-5 py-3 font-semibold text-black transition hover:border-black/30"
+      >
+        Cancel Camera
+      </button>
     </div>
   </div>
 )}
 
-
-</div>
-</div>
-
-{/* PRODUCT PREVIEW CARD */}
-
-
-
-
-
-
-
-      {/* SOCIAL PROOF */}
-
-<div className="mt-24 max-w-5xl w-full text-center">
-
-  <h2 className="mb-10 text-2xl font-semibold text-neutral-700">
-    Sneaker market intelligence powered by real data
-  </h2>
-
-  <div className="grid md:grid-cols-3 gap-10">
-
-    <div>
-      <p className="text-4xl font-bold text-black">12,000+</p>
-      <p className="mt-2 text-neutral-600">Sneakers Analyzed</p>
-    </div>
-
-    <div>
-      <p className="text-4xl font-bold text-black">$3.2M</p>
-      <p className="mt-2 text-neutral-600">Resale Value Calculated</p>
-    </div>
-
-    <div>
-      <p className="text-4xl font-bold text-black">2,500+</p>
-      <p className="mt-2 text-neutral-600">Resellers Using SneakPrice</p>
-    </div>
-
-  </div>
-
-</div>
-
-
-
-
-      {/* HOW IT WORKS */}
-<div className="mt-24 max-w-5xl w-full">
-
-  <h2 className="text-3xl font-bold mb-12 text-center">
-    How SneakPrice Works
-  </h2>
-
-  <div className="grid md:grid-cols-3 gap-10 text-center">
-
-    {/* STEP 1 */}
-    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-      <div className="text-4xl mb-4">📸</div>
-      <h3 className="font-semibold text-lg mb-2">
-        Upload or Take a Photo
-      </h3>
-      <p className="text-sm text-neutral-600">
-        Snap a picture of any sneaker or upload a photo from your phone.
-      </p>
-    </div>
-
-    {/* STEP 2 */}
-    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-      <div className="text-4xl mb-4">🤖</div>
-      <h3 className="font-semibold text-lg mb-2">
-        AI Identifies the Sneaker
-      </h3>
-      <p className="text-sm text-neutral-600">
-        Our AI detects the exact sneaker model instantly.
-      </p>
-    </div>
-
-    {/* STEP 3 */}
-    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-      <div className="text-4xl mb-4">💰</div>
-      <h3 className="font-semibold text-lg mb-2">
-        Get Real Market Value
-      </h3>
-      <p className="text-sm text-neutral-600">
-        We analyze verified sold listings to calculate the real resale price.
-      </p>
-    </div>
-
-  </div>
-
-</div>
-
-{/* SNEAKER RESELLER TIPS */}
-
-<div className="mt-24 max-w-4xl w-full">
-
-<h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
-Sneaker Reseller Playbook
-</h2>
-
-<p className="mx-auto mb-12 max-w-2xl text-center text-neutral-600">
-Learn where to buy sneakers below market value and how resellers flip them
-for profit using real resale market data.
-</p>
-
-  <div className="space-y-6">
-
- {/* BEST PLACES TO BUY */}
-
-<div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-  <div className="text-2xl">🏬</div>
-
-  <div>
-    <h3 className="mb-6 text-xl font-semibold text-black">
-      Best Places to Buy Sneakers Cheap
-    </h3>
-
-    <p className="mb-3 text-sm text-neutral-600">
-      Successful resellers source sneakers below market value from outlets,
-      local marketplaces, and clearance sales.
-    </p>
-
-
-    <ul className="space-y-4 text-left text-sm text-neutral-700">
-
-<li>
-<a href="https://www.nike.com/retail" target="_blank" className="font-semibold text-black hover:text-black">
-Nike Outlet Stores
-</a>
-
-</li>
-
-<li>
-<a href="https://www.adidas.com/us/storefinder" target="_blank" className="font-semibold text-black hover:text-black">
-Adidas Outlet Clearance
-</a>
-
-</li>
-
-<li>
-<a href="https://www.footlocker.com/" target="_blank" className="font-semibold text-black hover:text-black">
-Foot Locker Clearance Walls
-</a>
-
-</li>
-
-<li>
-<a href="https://www.amazon.com/" target="_blank" className="font-semibold text-black hover:text-black">
-Amazon Sneaker Deals
-</a>
-
-</li>
-
-<li>
-<a href="https://www.ebay.com/" target="_blank" className="font-semibold text-black hover:text-black">
-eBay Auctions Ending Soon
-</a>
-
-</li>
-
-<li>
-<a href="https://www.facebook.com/marketplace" target="_blank" className="font-semibold text-black hover:text-black">
-Facebook Marketplace
-</a>
-
-</li>
-
-<li>
-<a href="https://offerup.com/" target="_blank" className="font-semibold text-black hover:text-black">
-OfferUp Local Deals
-</a>
-
-
-</li>
-
-<li>
-<a href="https://www.mercari.com/" target="_blank" className="font-semibold text-black hover:text-black">
-Mercari Sneaker Listings
-</a>
-
-</li>
-
-<li>
-<a href="https://stockx.com/" target="_blank" className="font-semibold text-black hover:text-black">
-StockX Market Prices
-</a>
-
-</li>
-
-<li>
-<a href="https://www.goat.com/" target="_blank" className="font-semibold text-black hover:text-black">
-GOAT Sneaker Marketplace
-</a>
-
-</li>
-
-<li>
-<a href="https://www.grailed.com/" target="_blank" className="font-semibold text-black hover:text-black">
-Grailed Sneaker Listings
-</a>
-
-</li>
-
-</ul>
-
-
-
-  </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-    {/* TIP 1 */}
-    <div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-      <div className="text-2xl">💰</div>
-      <div>
-        <h3 className="font-semibold mb-1">
-          Check Sold Listings
-        </h3>
-        <p className="text-sm text-neutral-600">
-          Always compare active listings with sold listings. The real market
-          value comes from what buyers actually paid.
-        </p>
-      </div>
-    </div>
-
-    {/* TIP 2 */}
-    <div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-      <div className="text-2xl">📦</div>
-      <div>
-        <h3 className="font-semibold mb-1">
-          Condition Matters
-        </h3>
-        <p className="text-sm text-neutral-600">
-          Sneakers with original boxes and minimal wear can sell for 20–40%
-          more than heavily used pairs.
-        </p>
-      </div>
-    </div>
-
-    {/* TIP 3 */}
-    <div className="flex items-start gap-4 rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-      <div className="text-2xl">📈</div>
-      <div>
-        <h3 className="font-semibold mb-1">
-          Watch Market Trends
-        </h3>
-        <p className="text-sm text-neutral-600">
-          Some sneakers spike in value after releases sell out. Monitoring
-          demand trends can reveal profitable flips.
-        </p>
-      </div>
-    </div>
-
-
-
-    <div className="mt-24 max-w-5xl w-full">
-
-<h2 className="text-3xl font-bold text-center mb-8">
-Sneaker Reselling Guide
-</h2>
-
-<p className="mx-auto mb-12 max-w-3xl text-center text-neutral-600">
-Learn how sneaker resellers find undervalued sneakers, buy them below market value,
-and flip them for profit using real resale marketplace data. SneakPrice analyzes
-sold listings and active market prices to help identify profitable sneaker
-arbitrage opportunities.
-</p>
-
-<div className="space-y-8 text-neutral-700">
-
-<div>
-<h3 className="text-lg font-semibold text-black">
-Facebook Marketplace Sneaker Deals
-</h3>
-
-</div>
-
-<div>
-<h3 className="text-lg font-semibold text-black">
-OfferUp Local Sneaker Deals
-</h3>
-
-</div>
-
-<div>
-<h3 className="text-lg font-semibold text-black">
-Mercari Sneaker Listings
-</h3>
-
-</div>
-
-<div>
-<h3 className="text-lg font-semibold text-black">
-StockX Market Pricing
-</h3>
-
-</div>
-
-<div>
-<h3 className="text-lg font-semibold text-black">
-GOAT Sneaker Marketplace
-</h3>
-
-</div>
-
-<div>
-<h3 className="text-lg font-semibold text-black">
-Grailed Sneaker Listings
-</h3>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-    {/* LIVE MARKET INSIGHTS */}
-
-<div className="mt-24 max-w-5xl w-full">
-
-<h2 className="text-3xl font-bold text-center mb-12  transition-all duration-700 ease-in-out">
-  {marketTitle}
-</h2>
-
-  <div className="grid md:grid-cols-2 gap-8">
-
-    {/* TRENDING */}
-    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-
-
-  
-      <h3 className="text-xl font-semibold mb-6 transition-all duration-700 ease-in-out">
-       {trendingTitle}
-      </h3>
-
-<div className="overflow-hidden h-[120px]">
-  <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
-
-{trending.map((sneaker, i) => (
-
-<li key={i} className="flex justify-between transition-all duration-500">
-
-<span>{sneaker.name}</span>
-
-<span className="text-black">
-{sneaker.demand}
-</span>
-
-</li>
-
-))}
-
-
-</ul>
-
-</div>
-
-
-    </div>
-
-{/* ARBITRAGE */}
-<div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-
-<h3 className="text-xl font-semibold mb-6 transition-all duration-500">
-  {arbitrageTitle}
-</h3>
-
-  <div className="overflow-hidden h-[120px]">
-
-    <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
-
-      {[...[
-        { name: "Air Jordan 1 Chicago", profit: 64 },
-        { name: "Yeezy 700 Wave Runner", profit: 48 },
-        { name: "Nike Dunk Panda", profit: 32 },
-        { name: "Jordan 4 Military Black", profit: 29 }
-      ],
-      ...[
-        { name: "Air Jordan 1 Chicago", profit: 64 },
-        { name: "Yeezy 700 Wave Runner", profit: 48 },
-        { name: "Nike Dunk Panda", profit: 32 },
-        { name: "Jordan 4 Military Black", profit: 29 }
-      ]].map((item, i) => (
-
-        <li key={i} className="flex justify-between">
-
-          <span>{item.name}</span>
-
-          <span className="text-black">
-            +${item.profit}
-          </span>
-
-        </li>
-
-      ))}
-
-    </ul>
-
-  </div>
-
-</div>
-
-
-
-  </div>
-
-</div>
-
-
-  </div>
-
-</div>
-{/* FOOTER */}
-
-<footer className="mt-24 w-full max-w-5xl border-t border-black/10 pb-8 pt-12 text-center text-sm text-neutral-500">
-
-  {/* Logo */}
-  <div className="flex justify-center mb-6">
-    <Image
-      src="/sneakprice-logo.png"
-      alt="SneakPrice"
-      width={60}
-      height={60}
-      className="opacity-90"
-    />
-  </div>
-
-  {/* Links */}
-  <div className="flex justify-center gap-6 mb-6 flex-wrap">
-
-    <Link href="/about" className="transition hover:text-black">
-      About
-    </Link>
-
-    <Link href="/faq" className="transition hover:text-black">
-      FAQ
-    </Link>
-
-    <Link href="/press" className="transition hover:text-black">
-      Press
-    </Link>
-
-    <span>•</span>
-
-    <Link href="/privacy" className="transition hover:text-black">
-      Privacy
-    </Link>
-
-    <Link href="/terms" className="transition hover:text-black">
-      Terms
-    </Link>
-
-    <Link href="/contact" className="transition hover:text-black">
-      Contact
-    </Link>
-
-  </div>
-
-  {/* Social Links */}
-<div className="flex justify-center gap-6 mb-6">
-
-  <a
-    href="https://twitter.com/sneakprice"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-neutral-500 transition hover:text-black"
-  >
-    <Twitter size={20} />
-  </a>
-
-  <a
-    href="https://instagram.com/sneakprice"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-neutral-500 transition hover:text-black"
-  >
-    <Instagram size={20} />
-  </a>
-
-  <a
-    href="https://youtube.com/@sneakprice"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-neutral-500 transition hover:text-black"
-  >
-    <Youtube size={20} />
-  </a>
-    <a
-    href="https://facebook.com/sneakprice"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-neutral-500 transition hover:text-black transform hover:scale-110"
-  >
-    <Facebook size={22} />
-  </a>
-
-  {/* TikTok */}
-  <a
-    href="https://tiktok.com/@sneakprice"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-neutral-500 transition hover:text-black transform hover:scale-110"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      fill="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path d="M16.5 3c.3 1.7 1.7 3.1 3.5 3.3v3.2c-1.4 0-2.7-.4-3.8-1.1v6.3c0 3.5-2.8 6.3-6.3 6.3S3.6 18.2 3.6 14.7s2.8-6.3 6.3-6.3c.4 0 .8 0 1.2.1v3.3c-.4-.1-.8-.2-1.2-.2-1.7 0-3.1 1.4-3.1 3.1S8.2 18 9.9 18s3.1-1.4 3.1-3.1V3h3.5z"/>
-    </svg>
-  </a>
-
-</div>
-
-
-  {/* Copyright */}
-  <p>
-    © {new Date().getFullYear()} SneakPrice — Sneaker Market Intelligence Platform
+{cameraError ? (
+  <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+    {cameraError}
   </p>
-
-</footer>
-
+) : null}
 
 
-</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            {scanError ? (
+              <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                {scanError}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="grid gap-4">
+            <StepCard
+              step="Step 2"
+              title="AI identifies the sneaker"
+              icon={<CheckCircle2 size={18} />}
+              value={identifiedSneaker || "Waiting for scan"}
+              helper="Detected sneaker model appears here after analysis."
+            />
+
+            <StepCard
+              step="Step 3"
+              title="Market value"
+              icon={<DollarSign size={18} />}
+              value={formatMoney(derived.soldMedian)}
+              helper={
+                derived.activeMedian
+                  ? `Active market median: ${formatMoney(derived.activeMedian)}`
+                  : "Sold and active market pricing will appear here."
+              }
+            />
+
+            <StepCard
+              step="Step 4"
+              title="Profit opportunity"
+              icon={<TrendingUp size={18} />}
+              value={
+                typeof derived.profit === "number"
+                  ? `+$${derived.profit.toFixed(0)}`
+                  : "—"
+              }
+              helper={
+                typeof derived.roi === "number"
+                  ? `Estimated ROI: ${derived.roi.toFixed(1)}%`
+                  : "Spread versus current listings will appear here."
+              }
+            />
+
+            <div className="rounded-2xl border border-green-200 bg-green-50 p-5 text-left">
+              <div className="mb-3 flex items-center gap-2 text-green-800">
+                <Flame size={18} />
+                <span className="font-semibold">Flip Score</span>
+              </div>
+
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-4xl font-extrabold text-green-900">
+                    {derived.flipScore}
+                    <span className="text-xl font-semibold">/100</span>
+                  </p>
+                  <p className="mt-2 text-sm text-green-800">
+                    Higher score means stronger resale edge and flip potential.
+                  </p>
+                </div>
+
+                <div className="min-w-[120px] rounded-xl bg-white px-4 py-3 text-center shadow-sm">
+                  <p className="text-xs uppercase tracking-wide text-neutral-500">
+                    Signal
+                  </p>
+                  <p className="mt-1 font-semibold text-black">
+                    {derived.flipScore >= 80
+                      ? "Strong Flip"
+                      : derived.flipScore >= 60
+                      ? "Watchlist"
+                      : derived.flipScore >= 40
+                      ? "Moderate"
+                      : "Low Edge"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+  onClick={async () => {
+    await fetch("/api/inventory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: identifiedSneaker,
+        marketPrice: derived.soldMedian,
+        brand: identifiedSneaker.split(" ")[0] || null,
+        source: "discover",
+        status: "unlisted",
+      }),
+    });
+  }}
+  className="mt-4 rounded-xl bg-black px-6 py-3 text-white"
+>
+  Add to Inventory
+</button>
+
+        {(identifiedSneaker || marketData) && (
+          
+          <div className="mt-8 rounded-2xl border border-black/10 bg-white p-6 text-left">
+            <h3 className="mb-4 text-xl font-bold">Scan summary</h3>
+
+            <div className="grid gap-4 md:grid-cols-4">
+              <Metric label="Sneaker" value={identifiedSneaker || "—"} />
+              <Metric label="Lowest Ask" value={formatMoney(derived.lowestPrice)} />
+              <Metric label="Sold Median" value={formatMoney(derived.soldMedian)} />
+              <Metric label="High Price" value={formatMoney(derived.highestPrice)} />
+            </div>
+
+            {derived.marketLabel ? (
+              <div className="mt-4">
+                <span className="inline-flex rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium text-black">
+                  {derived.marketLabel}
+                </span>
+              </div>
+            ) : null}
+          </div>
+        )}
+      </section>
+
+      <div className="mt-24 max-w-5xl w-full">
+        <h2 className="text-3xl font-bold mb-12 text-center">
+          How SneakPrice Works
+        </h2>
+
+        <div className="grid md:grid-cols-4 gap-6 text-center">
+          <MiniStep
+            emoji="📸"
+            title="1. Scan sneaker"
+            text="Upload a photo from your phone or desktop."
+          />
+          <MiniStep
+            emoji="🤖"
+            title="2. Identify model"
+            text="AI detects the sneaker model."
+          />
+          <MiniStep
+            emoji="💰"
+            title="3. Show market value"
+            text="Sold and active listing data are analyzed."
+          />
+          <MiniStep
+            emoji="🔥"
+            title="4. Flip Score"
+            text="Spot resale spread and profit potential."
+          />
+        </div>
+      </div>
+
+      <div className="mt-16 max-w-5xl w-full">
+        <h2 className="text-3xl font-bold text-center mb-2">
+          🔥 Live Sneaker Deals
+        </h2>
+
+        <p className="text-black text-sm text-center mb-6">● Live Market Feed</p>
+
+        <div className="mb-10 overflow-hidden whitespace-nowrap border-y border-black/10 py-3">
+          <div className="animate-[scroll_35s_linear_infinite] inline-block">
+            {[...recentDeals, ...recentDeals].map((d, i) => (
+              <span key={i} className="mx-6 text-neutral-600">
+                🔥 {d.sneaker} +${d.profit.toFixed(0)}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          {deals.length > 0 && (
+            <div className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)] overflow-hidden relative">
+              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent z-10"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-10"></div>
+
+              <div className="h-[140px] overflow-hidden">
+                <div className="animate-[scrollVertical_12s_linear_infinite] space-y-6">
+                  {[...deals, ...deals].map((deal, i) => (
+                    <div key={i} className="text-center">
+                      <h3 className="font-bold text-lg mb-2">{deal.sneaker}</h3>
+                      <p><strong>Buy Price:</strong> ${deal.buy_price.toFixed(2)}</p>
+                      <p><strong>Market Price:</strong> ${deal.market_price.toFixed(2)}</p>
+                      <p className="text-black font-semibold">
+                        Profit: +${deal.profit.toFixed(2)}
+                      </p>
+                      <p>ROI: {deal.roi.toFixed(1)}%</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-24 max-w-5xl w-full text-center">
+        <h2 className="mb-10 text-2xl font-semibold text-neutral-700">
+          Sneaker market intelligence powered by real data
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-10">
+          <div>
+            <p className="text-4xl font-bold text-black">12,000+</p>
+            <p className="mt-2 text-neutral-600">Sneakers Analyzed</p>
+          </div>
+
+          <div>
+            <p className="text-4xl font-bold text-black">$3.2M</p>
+            <p className="mt-2 text-neutral-600">Resale Value Calculated</p>
+          </div>
+
+          <div>
+            <p className="text-4xl font-bold text-black">2,500+</p>
+            <p className="mt-2 text-neutral-600">Resellers Using SneakPrice</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-24 max-w-5xl w-full">
+        <h2 className="text-3xl font-bold text-center mb-12 transition-all duration-700 ease-in-out">
+          {marketTitle}
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
+            <h3 className="text-xl font-semibold mb-6 transition-all duration-700 ease-in-out">
+              {trendingTitle}
+            </h3>
+
+            <div className="overflow-hidden h-[120px]">
+              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
+                {trending.map((sneaker, i) => (
+                  <li key={i} className="flex justify-between transition-all duration-500">
+                    <span>{sneaker.name}</span>
+                    <span className="text-black">{sneaker.demand}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
+            <h3 className="text-xl font-semibold mb-6 transition-all duration-500">
+              {arbitrageTitle}
+            </h3>
+
+            <div className="overflow-hidden h-[120px]">
+              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
+                {[
+                  { name: "Air Jordan 1 Chicago", profit: 64 },
+                  { name: "Yeezy 700 Wave Runner", profit: 48 },
+                  { name: "Nike Dunk Panda", profit: 32 },
+                  { name: "Jordan 4 Military Black", profit: 29 },
+                  { name: "Air Jordan 1 Chicago", profit: 64 },
+                  { name: "Yeezy 700 Wave Runner", profit: 48 },
+                  { name: "Nike Dunk Panda", profit: 32 },
+                  { name: "Jordan 4 Military Black", profit: 29 },
+                ].map((item, i) => (
+                  <li key={i} className="flex justify-between">
+                    <span>{item.name}</span>
+                    <span className="text-black">+${item.profit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer className="mt-24 w-full max-w-5xl border-t border-black/10 pb-8 pt-12 text-center text-sm text-neutral-500">
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/sneakprice-logo.png"
+            alt="SneakPrice"
+            width={60}
+            height={60}
+            className="opacity-90"
+          />
+        </div>
+
+        <div className="flex justify-center gap-6 mb-6 flex-wrap">
+          <Link href="/about" className="transition hover:text-black">About</Link>
+          <Link href="/faq" className="transition hover:text-black">FAQ</Link>
+          <Link href="/press" className="transition hover:text-black">Press</Link>
+          <span>•</span>
+          <Link href="/privacy" className="transition hover:text-black">Privacy</Link>
+          <Link href="/terms" className="transition hover:text-black">Terms</Link>
+          <Link href="/contact" className="transition hover:text-black">Contact</Link>
+        </div>
+
+        <div className="flex justify-center gap-6 mb-6">
+          <a href="https://twitter.com/sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
+            <Twitter size={20} />
+          </a>
+          <a href="https://instagram.com/sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
+            <Instagram size={20} />
+          </a>
+          <a href="https://youtube.com/@sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
+            <Youtube size={20} />
+          </a>
+          <a href="https://facebook.com/sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
+            <Facebook size={22} />
+          </a>
+        </div>
+
+        <p>
+          © {new Date().getFullYear()} SneakPrice — Sneaker Market Intelligence Platform
+        </p>
+      </footer>
+    </div>
+  );
+}
+
+function StepCard({
+  step,
+  title,
+  icon,
+  value,
+  helper,
+}: {
+  step: string;
+  title: string;
+  icon: React.ReactNode;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-black/10 bg-white p-5 text-left shadow-sm">
+      <div className="mb-3 flex items-center gap-2 text-neutral-700">
+        <div className="rounded-full bg-neutral-100 p-2">{icon}</div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            {step}
+          </p>
+          <h3 className="font-semibold">{title}</h3>
+        </div>
+      </div>
+
+      <p className="text-2xl font-bold text-black">{value}</p>
+      <p className="mt-2 text-sm text-neutral-500">{helper}</p>
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-black/10 bg-neutral-50 p-4">
+      <p className="text-sm text-neutral-500">{label}</p>
+      <p className="mt-1 text-lg font-semibold text-black">{value}</p>
+    </div>
+  );
+}
+
+function MiniStep({
+  emoji,
+  title,
+  text,
+}: {
+  emoji: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
+      <div className="text-4xl mb-4">{emoji}</div>
+      <h3 className="font-semibold text-lg mb-2">{title}</h3>
+      <p className="text-sm text-neutral-600">{text}</p>
+    </div>
   );
 }
