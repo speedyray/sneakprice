@@ -49,20 +49,18 @@ export default function Nav() {
         </div>
 
 
-  <form
+        <form
   action="/search"
-  className="hidden md:flex items-center bg-white border border-black/10 rounded-xl px-4 py-4 w-[1200px] gap-2"
-  >
-  <Search className="w-4 h-4 text-neutral-500" />
-
+  className="flex items-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-4 w-full md:max-w-[1200px]"
+>
+  <Search className="h-4 w-4 text-neutral-500" />
   <input
     type="text"
     name="q"
     placeholder="Search sneakers, brands, colorways..."
-    className="w-full outline-none text-sm placeholder:text-neutral-400"
+    className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
   />
 </form>
-
 
 
         <div className="flex flex-wrap items-center gap-6">
