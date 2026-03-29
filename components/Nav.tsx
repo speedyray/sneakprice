@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
+import { Search } from "lucide-react";
 
 export default function Nav() {
   const pathname = usePathname();
@@ -47,7 +48,27 @@ export default function Nav() {
           ) : null}
         </div>
 
+
+  <form
+  action="/search"
+  className="hidden md:flex items-center bg-white border border-black/10 rounded-xl px-4 py-4 w-[1200px] gap-2"
+  >
+  <Search className="w-4 h-4 text-neutral-500" />
+
+  <input
+    type="text"
+    name="q"
+    placeholder="Search sneakers, brands, colorways..."
+    className="w-full outline-none text-sm placeholder:text-neutral-400"
+  />
+</form>
+
+
+
         <div className="flex flex-wrap items-center gap-6">
+
+         <Link href="/news">News</Link>
+
           <Link href="/" className={linkClass(isHomePage)}>
             Home
           </Link>
