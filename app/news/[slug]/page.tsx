@@ -40,29 +40,72 @@ export default async function NewsArticlePage({
           ) : null}
         </div>
 
-        {article.coverImage ? (
-          <div className="mb-8 overflow-hidden rounded-2xl bg-neutral-100">
-            <img
-              src={article.coverImage}
-              alt={article.title}
-              className="h-full w-full object-cover"
-            />
-          </div>
-        ) : null}
+     
+
+
+
+
+
+        <div className="mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-neutral-100 to-neutral-200">
+  {article.coverImage && article.coverImage.trim() !== "" ? (
+    <img
+      src={article.coverImage}
+      alt={article.title}
+      className="h-[320px] w-full object-cover md:h-[420px]"
+    />
+  ) : (
+    <div className="flex h-[320px] w-full items-center justify-center md:h-[420px]">
+      <div className="text-center">
+        <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
+          SneakPrice News
+        </p>
+        <p className="mt-3 text-2xl font-bold text-black">
+          Sneaker Market Intelligence
+        </p>
+      </div>
+    </div>
+  )}
+</div>
+
+
+
+
+
+
 
         <div className="grid gap-8 md:grid-cols-[1fr_280px]">
           <div className="space-y-6">
+
+
+
+
+            
             <section>
               <h2 className="mb-3 text-2xl font-bold">What happened</h2>
-              <div className="whitespace-pre-line text-neutral-800">
-                {article.body}
-              </div>
+
+
+
+
+              <div className="space-y-6 text-[18px] leading-8 text-neutral-800">
+  {(article.body.includes("\n\n")
+    ? article.body.split("\n\n")
+    : article.body.split("\n")
+  )
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph: string, i: number) => (
+      <p key={i}>{paragraph}</p>
+    ))}
+</div>
+
             </section>
 
             {article.marketAngle ? (
               <section>
                 <h2 className="mb-3 text-2xl font-bold">Market angle</h2>
-                <p className="text-neutral-800">{article.marketAngle}</p>
+                <p className="text-neutral-800 leading-relaxed">
+                  {article.marketAngle}
+                </p>
               </section>
             ) : null}
           </div>

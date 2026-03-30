@@ -31,7 +31,7 @@ export default async function NewsPage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {articles.map((article) => (
+            {articles.map((article: any) => (
               <Link
                 key={article.id}
                 href={`/news/${article.slug}`}
