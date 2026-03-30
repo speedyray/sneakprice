@@ -1,21 +1,39 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export default async function NewsHomepage() {
+const CATEGORY_OPTIONS = ["All", "Sneakers", "Fashion", "Market", "Flip Watch"];
+
+type NewsPageProps = {
+  searchParams?: Promise<{
+    category?: string;
+  }>;
+};
+
+export default async function NewsHomepage({ searchParams }: NewsPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const selectedCategory = resolvedSearchParams?.category?.trim() || "All";
+
+  const isValidCategory =
+    selectedCategory === "All" || CATEGORY_OPTIONS.includes(selectedCategory);
+
+  const activeCategory = isValidCategory ? selectedCategory : "All";
+
   const articles = await prisma.newsArticle.findMany({
     where: {
       isPublished: true,
+      ...(activeCategory !== "All" ? { category: activeCategory } : {}),
     },
-    orderBy: [
-      { publishedAt: "desc" },
-      { createdAt: "desc" },
-    ],
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take: 12,
   });
 
   const featured = articles[0];
   const secondary = articles.slice(1, 3);
   const latest = articles.slice(3);
+
+  function getCategoryHref(category: string) {
+    return category === "All" ? "/news" : `/news?category=${encodeURIComponent(category)}`;
+  }
 
   return (
     <main className="min-h-screen bg-white px-4 py-8 text-black sm:px-6 md:py-10">
@@ -45,14 +63,42 @@ export default async function NewsHomepage() {
           </div>
         </div>
 
+        {/* CATEGORY FILTERS */}
+        <div className="mb-10">
+          <div className="flex flex-wrap gap-3">
+            {CATEGORY_OPTIONS.map((category) => {
+              const isActive = activeCategory === category;
+
+              return (
+                <Link
+                  key={category}
+                  href={getCategoryHref(category)}
+                  className={[
+                    "rounded-full px-4 py-2 text-sm font-semibold transition",
+                    isActive
+                      ? "bg-black text-white"
+                      : "border border-black/10 bg-white text-neutral-700 hover:bg-neutral-50 hover:text-black",
+                  ].join(" ")}
+                >
+                  {category}
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 text-sm text-neutral-500">
+            Showing:{" "}
+            <span className="font-semibold text-black">{activeCategory}</span>
+          </div>
+        </div>
+
         {/* FEATURED */}
-        {featured && (
+        {featured ? (
           <section className="mb-14 grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
             <Link
               href={`/news/${featured.slug}`}
               className="group block overflow-hidden rounded-3xl border border-black/10 bg-white transition hover:shadow-lg"
             >
-              {/* IMAGE */}
               <div className="overflow-hidden bg-neutral-100">
                 {featured.coverImage ? (
                   <img
@@ -69,7 +115,6 @@ export default async function NewsHomepage() {
                 )}
               </div>
 
-              {/* CONTENT */}
               <div className="p-6 sm:p-8">
                 <div className="mb-4 flex flex-wrap items-center gap-3">
                   <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium">
@@ -83,7 +128,7 @@ export default async function NewsHomepage() {
                   )}
                 </div>
 
-                <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
+                <h2 className="max-w-2xl text-2xl font-bold leading-tight sm:text-3xl">
                   {featured.title}
                 </h2>
 
@@ -93,7 +138,7 @@ export default async function NewsHomepage() {
                   </p>
                 )}
 
-                <p className="mt-5 text-sm font-semibold text-black">
+                <p className="mt-5 text-sm font-semibold text-neutral-700 transition group-hover:text-black">
                   Read article
                 </p>
               </div>
@@ -101,7 +146,6 @@ export default async function NewsHomepage() {
 
             {/* RIGHT COLUMN */}
             <div className="space-y-6">
-              {/* SIGNAL */}
               <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
                   SneakPrice Signal
@@ -115,7 +159,6 @@ export default async function NewsHomepage() {
                 </p>
               </div>
 
-              {/* SECONDARY ARTICLES */}
               {secondary.map((article) => (
                 <Link
                   key={article.id}
@@ -123,11 +166,13 @@ export default async function NewsHomepage() {
                   className="group block overflow-hidden rounded-3xl border border-black/10 bg-white transition hover:shadow-md"
                 >
                   {article.coverImage && (
-                    <img
-                      src={article.coverImage}
-                      alt={article.title}
-                      className="h-40 w-full object-cover"
-                    />
+                    <div className="overflow-hidden">
+                      <img
+                        src={article.coverImage}
+                        alt={article.title}
+                        className="h-40 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                      />
+                    </div>
                   )}
 
                   <div className="p-5">
@@ -147,11 +192,13 @@ export default async function NewsHomepage() {
                       {article.title}
                     </h3>
 
-                    <p className="mt-3 text-sm text-neutral-600">
-                      {article.excerpt}
-                    </p>
+                    {article.excerpt && (
+                      <p className="mt-3 text-sm text-neutral-600">
+                        {article.excerpt}
+                      </p>
+                    )}
 
-                    <p className="mt-4 text-sm font-semibold text-black">
+                    <p className="mt-4 text-sm font-semibold text-neutral-700 transition group-hover:text-black">
                       Read more
                     </p>
                   </div>
@@ -159,15 +206,25 @@ export default async function NewsHomepage() {
               ))}
             </div>
           </section>
+        ) : (
+          <section className="rounded-3xl border border-dashed border-black/10 bg-neutral-50 px-6 py-16 text-center">
+            <p className="text-sm uppercase tracking-[0.25em] text-neutral-500">
+              SneakPrice News
+            </p>
+            <h2 className="mt-3 text-3xl font-bold">No published articles yet</h2>
+            <p className="mt-3 text-neutral-600">
+              {activeCategory === "All"
+                ? "Publish your first story to populate the homepage feed."
+                : `No published articles found in ${activeCategory}.`}
+            </p>
+          </section>
         )}
 
-        {/* LATEST STORIES (UPDATED 🔥) */}
+        {/* LATEST STORIES */}
         {latest.length > 0 && (
           <section className="mt-10">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold sm:text-3xl">
-                Latest stories
-              </h2>
+              <h2 className="text-2xl font-bold sm:text-3xl">Latest stories</h2>
               <p className="text-sm text-neutral-500">
                 Market signals, resale shifts, and fashion momentum
               </p>
@@ -181,13 +238,12 @@ export default async function NewsHomepage() {
                   className="group overflow-hidden rounded-3xl border border-black/10 bg-white transition hover:shadow-lg"
                 >
                   <div className="grid md:grid-cols-[220px_minmax(0,1fr)]">
-                    {/* IMAGE LEFT */}
-                    <div className="bg-neutral-100">
+                    <div className="overflow-hidden bg-neutral-100">
                       {article.coverImage ? (
                         <img
                           src={article.coverImage}
                           alt={article.title}
-                          className="h-full w-full object-cover md:h-[200px]"
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] md:h-[200px]"
                         />
                       ) : (
                         <div className="flex h-full min-h-[160px] items-center justify-center bg-gradient-to-r from-neutral-100 to-neutral-200">
@@ -198,7 +254,6 @@ export default async function NewsHomepage() {
                       )}
                     </div>
 
-                    {/* CONTENT RIGHT */}
                     <div className="p-5 md:p-6">
                       <div className="mb-3 flex items-center gap-2">
                         <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium">
@@ -216,20 +271,20 @@ export default async function NewsHomepage() {
                         {article.title}
                       </h3>
 
-                      <p className="mt-3 text-sm text-neutral-600">
-                        {article.excerpt}
-                      </p>
+                      {article.excerpt && (
+                        <p className="mt-3 text-sm text-neutral-600">
+                          {article.excerpt}
+                        </p>
+                      )}
 
                       <div className="mt-4 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-black">
+                        <span className="text-sm font-semibold text-neutral-700 transition group-hover:text-black">
                           Read article
                         </span>
 
                         {article.publishedAt && (
                           <span className="text-xs text-neutral-500">
-                            {new Date(
-                              article.publishedAt
-                            ).toLocaleDateString("en-US", {
+                            {new Date(article.publishedAt).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
