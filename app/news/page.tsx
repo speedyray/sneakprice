@@ -1,44 +1,91 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-const CATEGORY_OPTIONS = ["All", "Sneakers", "Fashion", "Market", "Flip Watch"];
+/** Prisma + driver adapter can omit nullable scalars from findMany inference; DB has `sector`. */
+type NewsListItem = Awaited<
+  ReturnType<typeof prisma.newsArticle.findMany>
+>[number] & {
+  sector?: string | null;
+};
+
+const SECTOR_OPTIONS = [
+  "All",
+  "Sneakers",
+  "Fashion",
+  "Leather Goods",
+  "Watches",
+  "Jewelry",
+  "Beauty",
+  "Sport & Lifestyle",
+];
+
+const CATEGORY_OPTIONS = [
+  "All",
+  "Market",
+  "Trend",
+  "Editorial",
+  "Flip Watch",
+  "Buyer Guide",
+  "Report",
+];
 
 type NewsPageProps = {
   searchParams?: Promise<{
+    sector?: string;
     category?: string;
   }>;
 };
 
+function isValidOption(value: string, options: string[]) {
+  return value === "All" || options.includes(value);
+}
+
 export default async function NewsHomepage({ searchParams }: NewsPageProps) {
   const resolvedSearchParams = await searchParams;
+
+  const selectedSector = resolvedSearchParams?.sector?.trim() || "All";
   const selectedCategory = resolvedSearchParams?.category?.trim() || "All";
 
-  const isValidCategory =
-    selectedCategory === "All" || CATEGORY_OPTIONS.includes(selectedCategory);
+  const activeSector = isValidOption(selectedSector, SECTOR_OPTIONS)
+    ? selectedSector
+    : "All";
 
-  const activeCategory = isValidCategory ? selectedCategory : "All";
+  const activeCategory = isValidOption(selectedCategory, CATEGORY_OPTIONS)
+    ? selectedCategory
+    : "All";
 
-  const articles = await prisma.newsArticle.findMany({
+  const articles = (await prisma.newsArticle.findMany({
     where: {
       isPublished: true,
+      ...(activeSector !== "All" ? { sector: activeSector } : {}),
       ...(activeCategory !== "All" ? { category: activeCategory } : {}),
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    take: 12,
-  });
+    take: 20,
+  })) as NewsListItem[];
 
   const featured = articles[0];
   const secondary = articles.slice(1, 3);
   const latest = articles.slice(3);
 
-  function getCategoryHref(category: string) {
-    return category === "All" ? "/news" : `/news?category=${encodeURIComponent(category)}`;
+  function getFilterHref(sector: string, category: string) {
+    const params = new URLSearchParams();
+
+    if (sector !== "All") {
+      params.set("sector", sector);
+    }
+
+    if (category !== "All") {
+      params.set("category", category);
+    }
+
+    const query = params.toString();
+    return query ? `/news?${query}` : "/news";
   }
 
   return (
     <main className="min-h-screen bg-white px-4 py-8 text-black sm:px-6 md:py-10">
       <div className="mx-auto max-w-7xl">
-        {/* HEADER */}
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-neutral-500">
@@ -63,8 +110,40 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
           </div>
         </div>
 
+        {/* SECTOR FILTERS */}
+        <div className="mb-5">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+            Sectors
+          </p>
+
+          <div className="flex flex-wrap gap-3">
+            {SECTOR_OPTIONS.map((sector) => {
+              const isActive = activeSector === sector;
+
+              return (
+                <Link
+                  key={sector}
+                  href={getFilterHref(sector, activeCategory)}
+                  className={[
+                    "rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200",
+                    isActive
+                      ? "bg-black text-white"
+                      : "border border-black/10 bg-white text-neutral-700 hover:bg-neutral-50 hover:text-black",
+                  ].join(" ")}
+                >
+                  {sector}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
         {/* CATEGORY FILTERS */}
         <div className="mb-10">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+            Categories
+          </p>
+
           <div className="flex flex-wrap gap-3">
             {CATEGORY_OPTIONS.map((category) => {
               const isActive = activeCategory === category;
@@ -72,9 +151,9 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
               return (
                 <Link
                   key={category}
-                  href={getCategoryHref(category)}
+                  href={getFilterHref(activeSector, category)}
                   className={[
-                    "rounded-full px-4 py-2 text-sm font-semibold transition",
+                    "rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200",
                     isActive
                       ? "bg-black text-white"
                       : "border border-black/10 bg-white text-neutral-700 hover:bg-neutral-50 hover:text-black",
@@ -88,11 +167,12 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
 
           <div className="mt-3 text-sm text-neutral-500">
             Showing:{" "}
+            <span className="font-semibold text-black">{activeSector}</span>
+            {" / "}
             <span className="font-semibold text-black">{activeCategory}</span>
           </div>
         </div>
 
-        {/* FEATURED */}
         {featured ? (
           <section className="mb-14 grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
             <Link
@@ -117,6 +197,12 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
 
               <div className="p-6 sm:p-8">
                 <div className="mb-4 flex flex-wrap items-center gap-3">
+                  {featured.sector ? (
+                    <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium">
+                      {featured.sector}
+                    </span>
+                  ) : null}
+
                   <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium">
                     {featured.category}
                   </span>
@@ -144,7 +230,6 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
               </div>
             </Link>
 
-            {/* RIGHT COLUMN */}
             <div className="space-y-6">
               <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
@@ -176,7 +261,13 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                   )}
 
                   <div className="p-5">
-                    <div className="mb-3 flex items-center gap-3">
+                    <div className="mb-3 flex flex-wrap items-center gap-3">
+                      {article.sector ? (
+                        <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium">
+                          {article.sector}
+                        </span>
+                      ) : null}
+
                       <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium">
                         {article.category}
                       </span>
@@ -213,14 +304,11 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
             </p>
             <h2 className="mt-3 text-3xl font-bold">No published articles yet</h2>
             <p className="mt-3 text-neutral-600">
-              {activeCategory === "All"
-                ? "Publish your first story to populate the homepage feed."
-                : `No published articles found in ${activeCategory}.`}
+              No published articles found for this filter combination.
             </p>
           </section>
         )}
 
-        {/* LATEST STORIES */}
         {latest.length > 0 && (
           <section className="mt-10">
             <div className="mb-8">
@@ -255,7 +343,13 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                     </div>
 
                     <div className="p-5 md:p-6">
-                      <div className="mb-3 flex items-center gap-2">
+                      <div className="mb-3 flex flex-wrap items-center gap-2">
+                        {article.sector ? (
+                          <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium">
+                            {article.sector}
+                          </span>
+                        ) : null}
+
                         <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium">
                           {article.category}
                         </span>

@@ -109,7 +109,9 @@ model NewsArticle {
   title        String
   slug         String   @unique
   excerpt      String?
-  category     String
+  sector       String?  // Sneakers, Fashion, Watches, Beauty, Leather Goods, Jewelry
+  category     String   // Market, Trend, Editorial, Flip Watch, Buyer Guide, Report
+  contentType  String?  // article, guide, roundup, report, watchlist
   coverImage   String?
   images       Json?
   author       String?
@@ -120,10 +122,14 @@ model NewsArticle {
   flipScore    Int?
   actionLabel  String?
   actionNote   String?
+  tags         Json?
+  region       String?  // Global, US, Europe, Asia, Middle East
+  brandFocus   String?
   isPublished  Boolean  @default(false)
   publishedAt  DateTime?
+  scheduledFor DateTime?
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now()) @updatedAt
+  updatedAt    DateTime @updatedAt
 }
 
 enum ListingStatus {
