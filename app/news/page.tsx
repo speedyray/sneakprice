@@ -1,13 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-/** Prisma + driver adapter can omit nullable scalars from findMany inference; DB has `sector`. */
-type NewsListItem = Awaited<
-  ReturnType<typeof prisma.newsArticle.findMany>
->[number] & {
-  sector?: string | null;
-};
-
 const SECTOR_OPTIONS = [
   "All",
   "Sneakers",
@@ -54,7 +47,7 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
     ? selectedCategory
     : "All";
 
-  const articles = (await prisma.newsArticle.findMany({
+  const articles = await prisma.newsArticle.findMany({
     where: {
       isPublished: true,
       ...(activeSector !== "All" ? { sector: activeSector } : {}),
@@ -62,7 +55,7 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take: 20,
-  })) as NewsListItem[];
+  });
 
   const featured = articles[0];
   const secondary = articles.slice(1, 3);
@@ -110,7 +103,6 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
           </div>
         </div>
 
-        {/* SECTOR FILTERS */}
         <div className="mb-5">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
             Sectors
@@ -138,7 +130,6 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
           </div>
         </div>
 
-        {/* CATEGORY FILTERS */}
         <div className="mb-10">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
             Categories
@@ -174,7 +165,7 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
         </div>
 
         {featured ? (
-          <section className="mb-14 grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
+         <section className="mb-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
             <Link
               href={`/news/${featured.slug}`}
               className="group block overflow-hidden rounded-3xl border border-black/10 bg-white transition hover:shadow-lg"
@@ -184,10 +175,10 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                   <img
                     src={featured.coverImage}
                     alt={featured.title}
-                    className="h-[240px] w-full object-cover transition duration-300 group-hover:scale-[1.02] sm:h-[300px] lg:h-[380px]"
+                    className="h-[240px] w-full object-cover transition duration-300 group-hover:scale-[1.02] sm:h-[300px] lg:h-[360px]"
                   />
                 ) : (
-                  <div className="flex h-[240px] items-center justify-center bg-gradient-to-r from-neutral-100 to-neutral-200 sm:h-[300px] lg:h-[380px]">
+                  <div className="flex h-[240px] items-center justify-center bg-gradient-to-r from-neutral-100 to-neutral-200 sm:h-[300px] lg:h-[360px]">
                     <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
                       SneakPrice News
                     </p>
@@ -195,7 +186,7 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                 )}
               </div>
 
-              <div className="p-6 sm:p-8">
+              <div className="flex flex-col p-6 sm:p-8">
                 <div className="mb-4 flex flex-wrap items-center gap-3">
                   {featured.sector ? (
                     <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium">
@@ -207,26 +198,132 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                     {featured.category}
                   </span>
 
-                  {typeof featured.flipScore === "number" && (
+                  {typeof featured.flipScore === "number" ? (
                     <span className="text-sm font-semibold text-emerald-700">
                       Flip Score {featured.flipScore}/100
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
                 <h2 className="max-w-2xl text-2xl font-bold leading-tight sm:text-3xl">
                   {featured.title}
                 </h2>
 
-                {featured.excerpt && (
+                {featured.excerpt ? (
                   <p className="mt-4 text-base leading-7 text-neutral-600">
                     {featured.excerpt}
                   </p>
-                )}
+                ) : null}
 
-                <p className="mt-5 text-sm font-semibold text-neutral-700 transition group-hover:text-black">
-                  Read article
-                </p>
+                <div className="mt-6 rounded-2xl border border-black/10 bg-neutral-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+                    Featured Signal
+                  </p>
+
+                  {featured.marketAngle ? (
+                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                      {featured.marketAngle.length > 190
+                        ? `${featured.marketAngle.slice(0, 190)}...`
+                        : featured.marketAngle}
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                      Strong demand is forming around recognizable products with
+                      better wearability, cleaner styling, and stronger price
+                      discipline.
+                    </p>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-500">
+                    {featured.actionLabel ? (
+                      <span>
+                        <span className="font-semibold text-black">Action:</span>{" "}
+                        {featured.actionLabel}
+                      </span>
+                    ) : null}
+
+                    {featured.publishedAt ? (
+                      <span>
+                        {new Date(featured.publishedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+               <div className="mt-6 rounded-2xl border border-black/10 bg-white p-4">
+  <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
+    {featured.contentType ? (
+      <span className="rounded-full bg-neutral-100 px-3 py-1 font-medium text-neutral-700">
+        {featured.contentType}
+      </span>
+    ) : null}
+
+    {featured.region ? (
+      <span>{featured.region}</span>
+    ) : null}
+
+    {featured.brandFocus ? (
+      <span>
+        <span className="font-semibold text-black">Brand:</span> {featured.brandFocus}
+      </span>
+    ) : null}
+
+    {featured.publishedAt ? (
+      <span>
+        {new Date(featured.publishedAt).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })}
+      </span>
+    ) : null}
+  </div>
+
+  {Array.isArray(featured.tags) && featured.tags.length > 0 ? (
+    <div className="mt-4 flex flex-wrap gap-2">
+      {featured.tags.slice(0, 4).map((tag, i) => (
+        <span
+          key={`${tag}-${i}`}
+          className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700"
+        >
+        
+        </span>
+      ))}
+    </div>
+  ) : null}
+
+  <div className="mt-4">
+    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+      Why it matters
+    </p>
+    <p className="mt-2 text-sm leading-6 text-neutral-700">
+      This story signals where buyer demand is strengthening and what SneakPrice
+      users should watch next across product, pricing, and market momentum.
+    </p>
+  </div>
+
+  <div className="mt-5 flex items-center justify-between">
+    <p className="text-sm font-semibold text-neutral-700 transition group-hover:text-black">
+      Read article
+    </p>
+
+    {typeof featured.flipScore === "number" ? (
+      <span className="text-sm font-semibold text-emerald-700">
+        {featured.flipScore}/100
+      </span>
+    ) : null}
+  </div>
+</div>
+
+
+
               </div>
             </Link>
 
@@ -250,7 +347,7 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                   href={`/news/${article.slug}`}
                   className="group block overflow-hidden rounded-3xl border border-black/10 bg-white transition hover:shadow-md"
                 >
-                  {article.coverImage && (
+                  {article.coverImage ? (
                     <div className="overflow-hidden">
                       <img
                         src={article.coverImage}
@@ -258,7 +355,7 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                         className="h-40 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                       />
                     </div>
-                  )}
+                  ) : null}
 
                   <div className="p-5">
                     <div className="mb-3 flex flex-wrap items-center gap-3">
@@ -272,22 +369,22 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                         {article.category}
                       </span>
 
-                      {typeof article.flipScore === "number" && (
+                      {typeof article.flipScore === "number" ? (
                         <span className="text-xs font-semibold text-emerald-700">
                           {article.flipScore}/100
                         </span>
-                      )}
+                      ) : null}
                     </div>
 
                     <h3 className="text-lg font-bold leading-snug">
                       {article.title}
                     </h3>
 
-                    {article.excerpt && (
+                    {article.excerpt ? (
                       <p className="mt-3 text-sm text-neutral-600">
                         {article.excerpt}
                       </p>
-                    )}
+                    ) : null}
 
                     <p className="mt-4 text-sm font-semibold text-neutral-700 transition group-hover:text-black">
                       Read more
@@ -309,8 +406,8 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
           </section>
         )}
 
-        {latest.length > 0 && (
-          <section className="mt-10">
+        {latest.length > 0 ? (
+          <section className="mt-6">
             <div className="mb-8">
               <h2 className="text-2xl font-bold sm:text-3xl">Latest stories</h2>
               <p className="text-sm text-neutral-500">
@@ -354,37 +451,40 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
                           {article.category}
                         </span>
 
-                        {typeof article.flipScore === "number" && (
+                        {typeof article.flipScore === "number" ? (
                           <span className="text-xs font-semibold text-emerald-700">
                             Flip Score {article.flipScore}/100
                           </span>
-                        )}
+                        ) : null}
                       </div>
 
                       <h3 className="text-xl font-bold leading-snug">
                         {article.title}
                       </h3>
 
-                      {article.excerpt && (
+                      {article.excerpt ? (
                         <p className="mt-3 text-sm text-neutral-600">
                           {article.excerpt}
                         </p>
-                      )}
+                      ) : null}
 
                       <div className="mt-4 flex items-center justify-between">
                         <span className="text-sm font-semibold text-neutral-700 transition group-hover:text-black">
                           Read article
                         </span>
 
-                        {article.publishedAt && (
+                        {article.publishedAt ? (
                           <span className="text-xs text-neutral-500">
-                            {new Date(article.publishedAt).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                            {new Date(article.publishedAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -392,7 +492,7 @@ export default async function NewsHomepage({ searchParams }: NewsPageProps) {
               ))}
             </div>
           </section>
-        )}
+        ) : null}
       </div>
     </main>
   );
