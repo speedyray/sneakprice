@@ -24,6 +24,18 @@ type GeneratedArticle = {
   isPublished: boolean;
 };
 
+type IdeaSuggestion = {
+  topic: string;
+  sector: string;
+  category: string;
+  contentType: string;
+  angle: string;
+  targetKeyword: string;
+  flipScoreHint: string;
+  actionLabelHint: string;
+  tags: string[];
+};
+
 const SECTOR_OPTIONS = [
   "Sneakers",
   "Fashion",
@@ -68,9 +80,59 @@ export default function NewsGeneratorPage() {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [ideasLoading, setIdeasLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [generated, setGenerated] = useState<GeneratedArticle | null>(null);
+  const [ideas, setIdeas] = useState<IdeaSuggestion[]>([]);
+
+  async function handleGenerateIdeas() {
+    setIdeasLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const res = await fetch("/api/admin/news-generator", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mode: "ideas",
+          sector,
+          category,
+          region,
+          brandFocus,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate ideas.");
+      }
+
+      setIdeas(data.ideas || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate ideas.");
+    } finally {
+      setIdeasLoading(false);
+    }
+  }
+
+  function applyIdea(idea: IdeaSuggestion) {
+    setTopic(idea.topic);
+    setSector(idea.sector);
+    setCategory(idea.category);
+    setContentType(idea.contentType);
+    setAngle(idea.angle);
+    setTargetKeyword(idea.targetKeyword);
+    setFlipScoreHint(idea.flipScoreHint);
+    setActionLabelHint(idea.actionLabelHint);
+    setTagsInput(idea.tags.join(", "));
+    setGenerated(null);
+    setSuccess("Idea applied to form.");
+  }
 
   async function handleGenerate() {
     setLoading(true);
@@ -151,7 +213,7 @@ export default function NewsGeneratorPage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 px-4 py-8 text-black sm:px-6 md:py-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-neutral-500">
             SneakPrice Admin
@@ -160,13 +222,23 @@ export default function NewsGeneratorPage() {
             News Generator
           </h1>
           <p className="mt-4 max-w-3xl text-base text-neutral-600 sm:text-lg">
-            Generate structured draft articles for multiple marketplace sectors.
+            Generate article ideas, build structured drafts, and schedule content.
           </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[420px_minmax(0,1fr)]">
+        <div className="grid gap-8 xl:grid-cols-[420px_minmax(0,1fr)_340px]">
           <section className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold">Article Inputs</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-bold">Article Inputs</h2>
+              <button
+                type="button"
+                onClick={handleGenerateIdeas}
+                disabled={ideasLoading}
+                className="rounded-2xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold transition hover:bg-neutral-50 disabled:opacity-50"
+              >
+                {ideasLoading ? "Generating..." : "Generate 3 Ideas"}
+              </button>
+            </div>
 
             <div className="mt-6 space-y-5">
               <div>
@@ -312,9 +384,6 @@ export default function NewsGeneratorPage() {
                   onChange={(e) => setScheduledFor(e.target.value)}
                   className="w-full rounded-2xl border border-black/10 px-4 py-3 outline-none transition focus:border-black"
                 />
-                <p className="mt-2 text-xs text-neutral-500">
-                  Leave blank to save as an unscheduled draft.
-                </p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -394,7 +463,7 @@ export default function NewsGeneratorPage() {
                   No article generated yet
                 </h3>
                 <p className="mt-3 text-neutral-600">
-                  Fill in the form and generate a structured draft.
+                  Pick an idea or fill in the form to generate a structured draft.
                 </p>
               </div>
             ) : (
@@ -497,6 +566,79 @@ export default function NewsGeneratorPage() {
                     })}
                   </div>
                 </div>
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-bold">Idea Generator</h2>
+              <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+                3 ideas
+              </span>
+            </div>
+
+            {ideas.length === 0 ? (
+              <div className="mt-6 rounded-3xl border border-dashed border-black/10 bg-neutral-50 px-6 py-12 text-center">
+                <p className="text-sm uppercase tracking-[0.25em] text-neutral-500">
+                  SneakPrice Ideas
+                </p>
+                <h3 className="mt-3 text-xl font-bold">
+                  No ideas generated yet
+                </h3>
+                <p className="mt-3 text-neutral-600">
+                  Click “Generate 3 Ideas” to create article concepts for this sector.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6 space-y-4">
+                {ideas.map((idea, index) => (
+                  <div
+                    key={`${idea.topic}-${index}`}
+                    className="rounded-3xl border border-black/10 bg-neutral-50 p-5"
+                  >
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium">
+                        {idea.sector}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium">
+                        {idea.category}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium">
+                        {idea.contentType}
+                      </span>
+                    </div>
+
+                    <h3 className="text-lg font-bold leading-snug">{idea.topic}</h3>
+
+                    <p className="mt-3 text-sm leading-6 text-neutral-600">
+                      {idea.angle}
+                    </p>
+
+                    <div className="mt-4 space-y-1 text-sm text-neutral-500">
+                      <div>
+                        <span className="font-semibold text-black">Keyword:</span>{" "}
+                        {idea.targetKeyword}
+                      </div>
+                      <div>
+                        <span className="font-semibold text-black">Flip score:</span>{" "}
+                        {idea.flipScoreHint}
+                      </div>
+                      <div>
+                        <span className="font-semibold text-black">Action:</span>{" "}
+                        {idea.actionLabelHint}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => applyIdea(idea)}
+                      className="mt-4 rounded-2xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                    >
+                      Use this idea
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </section>

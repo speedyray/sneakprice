@@ -132,6 +132,8 @@ model NewsArticle {
   updatedAt    DateTime @updatedAt
 }
 
+
+
 enum ListingStatus {
   ACTIVE
   SOLD
