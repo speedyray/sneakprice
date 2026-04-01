@@ -217,12 +217,26 @@ export default async function NewsSchedulePage() {
 
                         <td className="px-6 py-5">
                           <div className="flex flex-wrap gap-2">
-                            <Link
-                              href={`/news/${article.slug}`}
-                              className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-50"
-                            >
-                              View
-                            </Link>
+
+
+{article.isPublished ? (
+  <Link
+    href={`/news/${article.slug}`}
+    className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-50"
+  >
+    View
+  </Link>
+) : (
+  <Link
+    href={`/admin/news-schedule/${article.id}`}
+    className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-50"
+  >
+    Preview
+  </Link>
+)}
+
+
+
 
                             <Link
   href={`/admin/news-schedule/${article.id}`}
