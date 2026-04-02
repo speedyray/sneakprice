@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSignedInUser } from "@/lib/session";
+import { getCurrentDbUser } from "@/lib/current-user";
 
 export async function POST(req: Request) {
   try {
-    const currentUser = await getSignedInUser();
+    const currentUser = await getCurrentDbUser();
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     const item = await prisma.inventoryItem.create({
       data: {
-        userId: currentUser.email,
+        sellerId: currentUser.id,
         name: body.name,
         brand: body.brand,
         model: body.model,
@@ -22,16 +22,19 @@ export async function POST(req: Request) {
         size: body.size,
         condition: body.condition,
         source: body.source ?? "discover",
-        status: body.status ?? "unlisted",
-        purchasePrice: body.purchasePrice,
-        marketPrice: body.marketPrice,
-        listedPrice: body.listedPrice,
+        status: body.status ?? "IN_INVENTORY",
+        purchasePrice: Number(body.purchasePrice ?? 0),
+        estimatedMarketValue: Number(body.marketPrice ?? 0),
+        primaryImageUrl: body.primaryImageUrl ?? null,
       },
     });
 
     return NextResponse.json(item);
   } catch (error) {
     console.error("Inventory create error:", error);
-    return NextResponse.json({ error: "Failed to create inventory item" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create inventory item" },
+      { status: 500 }
+    );
   }
 }

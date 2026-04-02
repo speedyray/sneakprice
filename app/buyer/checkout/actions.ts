@@ -1,67 +1,39 @@
-import { HoldStatus } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
-import { getSignedInUser } from "@/lib/session";
+"use server";
+
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { getSignedInUser } from "@/lib/session";
 
-export async function captureBuyerInfoAction(formData: FormData) {
-  "use server";
-
+export async function captureBuyerInfoAction(formData: FormData): Promise<void> {
   const signedInUser = await getSignedInUser();
+
   if (!signedInUser) {
     redirect("/login");
   }
 
-  const listingId = Number(formData.get("listingId"));
+  const listingId = String(formData.get("listingId") ?? "");
+  const fullName = String(formData.get("fullName") ?? "");
+  const email = String(formData.get("email") ?? "");
+  const shippingAddress = String(formData.get("shippingAddress") ?? "");
+  const shippingCity = String(formData.get("shippingCity") ?? "");
+  const shippingRegion = String(formData.get("shippingRegion") ?? "");
+  const shippingCountry = String(formData.get("shippingCountry") ?? "");
+  const buyerNotes = String(formData.get("buyerNotes") ?? "");
+
   if (!listingId) {
-    return;
+    throw new Error("Missing listingId");
   }
 
-  const existing = await prisma.listingHold.findFirst({
-    where: {
-      listingId,
-      buyerId: signedInUser.email,
-    },
-    orderBy: { createdAt: "desc" },
+  console.log("Buyer info captured", {
+    listingId,
+    signedInUserEmail: signedInUser.email,
+    fullName,
+    email,
+    shippingAddress,
+    shippingCity,
+    shippingRegion,
+    shippingCountry,
+    buyerNotes,
   });
 
-  const normalize = (value: FormDataEntryValue | null) =>
-    typeof value === "string" ? value.trim() : "";
-
-  const fullName = normalize(formData.get("fullName")) || signedInUser.name;
-  const email = normalize(formData.get("email")) || signedInUser.email;
-  const shippingAddress = normalize(formData.get("shippingAddress"));
-  const shippingCity = normalize(formData.get("shippingCity"));
-  const shippingRegion = normalize(formData.get("shippingRegion"));
-  const shippingCountry = normalize(formData.get("shippingCountry"));
-  const buyerNotes = normalize(formData.get("buyerNotes"));
-
-  const now = new Date();
-  const data = {
-    listingId,
-    buyerName: fullName,
-    buyerEmail: email,
-    shippingAddress: shippingAddress || null,
-    shippingCity: shippingCity || null,
-    shippingRegion: shippingRegion || null,
-    shippingCountry: shippingCountry || null,
-    buyerNotes: buyerNotes || null,
-    expiresAt: existing?.expiresAt ?? now,
-    status: HoldStatus.ACTIVE,
-  };
-
-  if (existing) {
-    await prisma.listingHold.update({
-      where: { id: existing.id },
-      data,
-    });
-  } else {
-    await prisma.listingHold.create({
-      data,
-    });
-  }
-
-  revalidatePath(`/buyer/checkout/${listingId}`);
-  revalidatePath(`/marketplace/${listingId}`);
-  revalidatePath("/buyer");
+  redirect(`/buyer/checkout/${listingId}?saved=1`);
 }

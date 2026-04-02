@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getSignedInUser } from "@/lib/session";
+import { getCurrentDbUser } from "@/lib/current-user";
 import { ListingForm } from "@/components/ListingForm";
 import { updateListing } from "@/app/marketplace/actions";
 
@@ -10,18 +10,17 @@ export default async function EditListingPage({
 }: {
   params: Promise<{ listingId: string }>;
 }) {
-  const { listingId: rawListingId } = await params;
-  const listingId = Number(rawListingId);
-  const signedInUser = await getSignedInUser();
+  const { listingId } = await params;
+  const currentUser = await getCurrentDbUser();
 
-  if (!signedInUser) {
+  if (!currentUser) {
     redirect("/login");
   }
 
   const listing = await prisma.marketplaceListing.findFirst({
     where: {
       id: listingId,
-      sellerId: signedInUser.email,
+      sellerId: currentUser.id,
     },
     include: {
       sneaker: true,
@@ -77,17 +76,15 @@ export default async function EditListingPage({
             submitLabel="Save changes"
             listingId={listing.id}
             initialValues={{
-              brand: listing.sneaker.brand,
-              model: listing.sneaker.model,
-              colorway: listing.sneaker.colorway,
-              sku: listing.sneaker.sku,
-              size: listing.size,
+              brand: listing.sneaker.brand ?? "",
+              model: listing.sneaker.model ?? "",
+              colorway: listing.sneaker.colorway ?? "",
+              sku: listing.sneaker.sku ?? "",
+              size: listing.size ?? "",
               price: String(listing.price),
-              retailPrice: listing.sneaker.retailPrice
-                ? String(listing.sneaker.retailPrice)
-                : "",
-              condition: listing.condition,
-              imageUrl: listing.sneaker.imageUrl ?? "",
+              retailPrice: "",
+              condition: String(listing.condition),
+              imageUrl: listing.sneaker.primaryImageUrl ?? "",
             }}
           />
         </section>
@@ -95,3 +92,4 @@ export default async function EditListingPage({
     </main>
   );
 }
+

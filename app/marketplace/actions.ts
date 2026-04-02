@@ -11,7 +11,7 @@ import {
   type ListingFormState,
   type ListingFormValues,
 } from "@/lib/marketplace-form";
-import { getSignedInUser } from "@/lib/session";
+import { getCurrentDbUser } from "@/lib/current-user";
 
 function buildValues(formData: FormData): ListingFormValues {
   return {
@@ -22,7 +22,7 @@ function buildValues(formData: FormData): ListingFormValues {
     size: formData.get("size")?.toString().trim() ?? "",
     price: formData.get("price")?.toString().trim() ?? "",
     retailPrice: formData.get("retailPrice")?.toString().trim() ?? "",
-    condition: formData.get("condition")?.toString().trim() || "Deadstock",
+    condition: formData.get("condition")?.toString().trim() || "NEW",
     imageUrl: formData.get("imageUrl")?.toString().trim() ?? "",
   };
 }
@@ -33,13 +33,16 @@ function generateFallbackSku(values: ListingFormValues) {
     .replace(/[^A-Z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 10);
+
   const modelSlug = values.model
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 16);
 
-  return `${brandSlug || "SNEAK"}-${modelSlug || "LISTING"}-${Date.now().toString(36).toUpperCase()}`;
+  return `${brandSlug || "SNEAK"}-${modelSlug || "LISTING"}-${Date.now()
+    .toString(36)
+    .toUpperCase()}`;
 }
 
 async function uploadImageFromFormData(
@@ -73,7 +76,9 @@ async function uploadImageFromFormData(
 
   const bytes = Buffer.from(await imageFile.arrayBuffer());
   const uploadsDirectory = path.join(process.cwd(), "public", "uploads");
-  const fileName = `listing-${Date.now()}-${Math.random().toString(36).slice(2, 10)}.webp`;
+  const fileName = `listing-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}.webp`;
   const filePath = path.join(uploadsDirectory, fileName);
 
   await mkdir(uploadsDirectory, { recursive: true });
@@ -123,27 +128,28 @@ function validateListingValues(values: ListingFormValues) {
 }
 
 async function ensureSignedInUser() {
-  const signingUser = await getSignedInUser();
+  const currentUser = await getCurrentDbUser();
 
-  if (!signingUser) {
+  if (!currentUser) {
     redirect("/login");
   }
 
-  return signingUser;
+  return currentUser;
 }
 
 export async function createListing(
   _prevState: ListingFormState,
   formData: FormData
 ): Promise<ListingFormState> {
-  const signingUser = await ensureSignedInUser();
+  const currentUser = await ensureSignedInUser();
+
   const values = buildValues(formData);
   const finalValues = {
     ...values,
     sku: values.sku || generateFallbackSku(values),
   };
-  const { fieldErrors, hasErrors, priceValue, retailPriceValue } =
-    validateListingValues(finalValues);
+
+  const { fieldErrors, hasErrors, priceValue } = validateListingValues(finalValues);
   const imageUpload = await uploadImageFromFormData(formData);
 
   if (imageUpload.error) {
@@ -159,34 +165,72 @@ export async function createListing(
     };
   }
 
-  const sneaker = await prisma.sneaker.upsert({
-    where: { sku: finalValues.sku },
-    update: {
-      brand: finalValues.brand,
-      model: finalValues.model,
-      colorway: finalValues.colorway,
-      imageUrl: imageUpload.imageUrl,
-      retailPrice: retailPriceValue,
-    },
-    create: {
-      brand: finalValues.brand,
-      model: finalValues.model,
-      colorway: finalValues.colorway,
+  const existingInventoryItem = await prisma.inventoryItem.findFirst({
+    where: {
+      sellerId: currentUser.id,
       sku: finalValues.sku,
-      imageUrl: imageUpload.imageUrl,
-      retailPrice: retailPriceValue,
     },
   });
 
+  const sneakerName = `${finalValues.brand} ${finalValues.model}`.trim();
+
+  const sneaker = existingInventoryItem
+    ? await prisma.inventoryItem.update({
+        where: { id: existingInventoryItem.id },
+        data: {
+          name: sneakerName,
+          brand: finalValues.brand,
+          model: finalValues.model,
+          colorway: finalValues.colorway,
+          sku: finalValues.sku,
+          size: finalValues.size,
+          condition: finalValues.condition as never,
+          primaryImageUrl: imageUpload.imageUrl ?? null,
+          estimatedMarketValue: priceValue,
+          status: "LISTED",
+          source: "marketplace",
+        },
+      })
+    : await prisma.inventoryItem.create({
+        data: {
+          sellerId: currentUser.id,
+          name: sneakerName,
+          brand: finalValues.brand,
+          model: finalValues.model,
+          colorway: finalValues.colorway,
+          sku: finalValues.sku,
+          size: finalValues.size,
+          condition: finalValues.condition as never,
+          purchasePrice: 0,
+          estimatedMarketValue: priceValue,
+          primaryImageUrl: imageUpload.imageUrl ?? null,
+          source: "marketplace",
+          status: "LISTED",
+        },
+      });
+
+  const listingSlug = `${finalValues.brand}-${finalValues.model}-${finalValues.size}-${Date.now()}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120);
+
   await prisma.marketplaceListing.create({
     data: {
-      sneakerId: sneaker.id,
-      sellerName: signingUser.name,
-      sellerId: signingUser.email,
+      sellerId: currentUser.id,
+      inventoryItemId: sneaker.id,
+      title: sneakerName,
+      slug: listingSlug || `${finalValues.sku.toLowerCase()}-${Date.now()}`,
+      brand: finalValues.brand,
+      model: finalValues.model,
+      colorway: finalValues.colorway,
       size: finalValues.size,
-      condition: finalValues.condition,
+      sku: finalValues.sku,
+      condition: finalValues.condition as never,
       price: priceValue,
       status: "ACTIVE",
+      primaryImageUrl: imageUpload.imageUrl ?? null,
+      publishedAt: new Date(),
     },
   });
 
@@ -201,8 +245,8 @@ export async function updateListing(
   _prevState: ListingFormState,
   formData: FormData
 ): Promise<ListingFormState> {
-  const signingUser = await ensureSignedInUser();
-  const listingId = Number(formData.get("listingId"));
+  const currentUser = await ensureSignedInUser();
+  const listingId = String(formData.get("listingId") ?? "");
 
   if (!listingId) {
     return {
@@ -213,8 +257,13 @@ export async function updateListing(
   }
 
   const existingListing = await prisma.marketplaceListing.findFirst({
-    where: { id: listingId, sellerId: signingUser.email },
-    include: { sneaker: true },
+    where: {
+      id: listingId,
+      sellerId: currentUser.id,
+    },
+    include: {
+      sneaker: true,
+    },
   });
 
   if (!existingListing) {
@@ -230,11 +279,11 @@ export async function updateListing(
     ...values,
     sku: values.sku || existingListing.sneaker.sku || generateFallbackSku(values),
   };
-  const { fieldErrors, hasErrors, priceValue, retailPriceValue } =
-    validateListingValues(finalValues);
+
+  const { fieldErrors, hasErrors, priceValue } = validateListingValues(finalValues);
   const imageUpload = await uploadImageFromFormData(
     formData,
-    existingListing.sneaker.imageUrl
+    existingListing.primaryImageUrl ?? existingListing.sneaker.primaryImageUrl
   );
 
   if (imageUpload.error) {
@@ -250,15 +299,20 @@ export async function updateListing(
     };
   }
 
-  await prisma.sneaker.update({
-    where: { id: existingListing.sneakerId },
+  await prisma.inventoryItem.update({
+    where: { id: existingListing.sneaker.id },
     data: {
+      name: `${finalValues.brand} ${finalValues.model}`.trim(),
       brand: finalValues.brand,
       model: finalValues.model,
       colorway: finalValues.colorway,
       sku: finalValues.sku,
-      imageUrl: imageUpload.imageUrl,
-      retailPrice: retailPriceValue,
+      size: finalValues.size,
+      condition: finalValues.condition as never,
+      primaryImageUrl: imageUpload.imageUrl ?? null,
+      estimatedMarketValue: priceValue,
+      status: "LISTED",
+      source: "marketplace",
     },
   });
 
@@ -266,8 +320,9 @@ export async function updateListing(
     where: { id: existingListing.id },
     data: {
       size: finalValues.size,
-      condition: finalValues.condition,
+      condition: finalValues.condition as never,
       price: priceValue,
+      primaryImageUrl: imageUpload.imageUrl ?? null,
     },
   });
 
@@ -280,15 +335,18 @@ export async function updateListing(
 }
 
 export async function deleteListing(formData: FormData) {
-  const signingUser = await ensureSignedInUser();
-  const listingId = Number(formData.get("listingId"));
+  const currentUser = await ensureSignedInUser();
+  const listingId = String(formData.get("listingId") ?? "");
 
   if (!listingId) {
     return;
   }
 
   const listing = await prisma.marketplaceListing.findFirst({
-    where: { id: listingId, sellerId: signingUser.email },
+    where: {
+      id: listingId,
+      sellerId: currentUser.id,
+    },
   });
 
   if (!listing) {
@@ -305,9 +363,12 @@ export async function deleteListing(formData: FormData) {
   redirect("/marketplace/my-listings?deleted=1");
 }
 
-async function updateListingStatus(formData: FormData, status: "ACTIVE" | "SOLD" | "DRAFT") {
-  const signingUser = await ensureSignedInUser();
-  const listingId = Number(formData.get("listingId"));
+async function updateListingStatus(
+  formData: FormData,
+  status: "ACTIVE" | "SOLD" | "DRAFT"
+) {
+  const currentUser = await ensureSignedInUser();
+  const listingId = String(formData.get("listingId") ?? "");
 
   if (!listingId) {
     return;
@@ -316,7 +377,7 @@ async function updateListingStatus(formData: FormData, status: "ACTIVE" | "SOLD"
   const listing = await prisma.marketplaceListing.findFirst({
     where: {
       id: listingId,
-      sellerId: signingUser.email,
+      sellerId: currentUser.id,
     },
   });
 
@@ -335,11 +396,7 @@ async function updateListingStatus(formData: FormData, status: "ACTIVE" | "SOLD"
   revalidatePath(`/marketplace/${listing.id}`);
 
   const statusParam =
-    status === "SOLD"
-      ? "sold=1"
-      : status === "DRAFT"
-        ? "unlisted=1"
-        : "relisted=1";
+    status === "SOLD" ? "sold=1" : status === "DRAFT" ? "unlisted=1" : "relisted=1";
 
   redirect(`/marketplace/my-listings?${statusParam}`);
 }

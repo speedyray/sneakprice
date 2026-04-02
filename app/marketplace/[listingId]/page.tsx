@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
+import { decimalToNumber } from "@/lib/money";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -14,10 +15,9 @@ export default async function ListingPage({
 }: {
   params: Promise<{ listingId: string }>;
 }) {
-  const { listingId: rawListingId } = await params;
-  const listingId = Number(rawListingId);
+  const { listingId } = await params;
 
-  if (!Number.isInteger(listingId) || listingId <= 0) {
+  if (!listingId) {
     notFound();
   }
 
@@ -25,6 +25,11 @@ export default async function ListingPage({
     where: { id: listingId },
     include: {
       sneaker: true,
+      seller: {
+        include: {
+          sellerProfile: true,
+        },
+      },
     },
   });
 
@@ -47,7 +52,11 @@ export default async function ListingPage({
     take: 6,
   });
 
-  const marketDelta = listing.price - (listing.sneaker.retailPrice ?? 0);
+ const listingPrice = decimalToNumber(listing.price);
+const retailPrice = 0;
+const marketDelta = listingPrice - retailPrice;
+  const sellerName =
+    listing.seller.sellerProfile?.storeName ?? "SneakPrice Seller";
 
   return (
     <main className="min-h-screen bg-white px-6 py-10 text-black">
@@ -58,14 +67,15 @@ export default async function ListingPage({
               Home
             </Link>
             <span>/</span>
-            <Link href="/" className="transition hover:text-black">
+            <Link href="/marketplace" className="transition hover:text-black">
               Marketplace
             </Link>
             <span>/</span>
             <span className="text-neutral-700">{listing.sneaker.brand}</span>
           </div>
+
           <Link
-            href="/"
+            href="/marketplace"
             className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-700"
           >
             Back to listings
@@ -74,10 +84,10 @@ export default async function ListingPage({
 
         <section className="grid gap-10 xl:grid-cols-[minmax(0,1.25fr)_420px]">
           <div className="space-y-6">
-            <div className="rounded-[2rem] border border-neutral-800 bg-white p-6 text-neutral-950 shadow-[0_25px_80px_rgba(0,0,0,0.35)]">
+            <div className="rounded-[2rem] border border-neutral-200 bg-white p-6 shadow-[0_25px_80px_rgba(0,0,0,0.08)]">
               <div className="relative mx-auto aspect-square max-w-4xl overflow-hidden rounded-[1.5rem] bg-white">
                 <MarketplaceListingImage
-                  src={listing.sneaker.imageUrl}
+                  src={listing.primaryImageUrl ?? ""}
                   alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
                 />
               </div>
@@ -89,23 +99,25 @@ export default async function ListingPage({
                   SKU
                 </p>
                 <p className="mt-2 text-sm font-medium text-neutral-700">
-                  {listing.sneaker.sku}
+                  {listing.sneaker.sku ?? "—"}
                 </p>
               </div>
+
               <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
                 <p className="text-[0.7rem] uppercase tracking-[0.3em] text-neutral-500">
                   Condition
                 </p>
                 <p className="mt-2 text-sm font-medium text-neutral-700">
-                  {listing.condition}
+                  {String(listing.condition).replaceAll("_", " ")}
                 </p>
               </div>
+
               <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
                 <p className="text-[0.7rem] uppercase tracking-[0.3em] text-neutral-500">
                   Seller
                 </p>
                 <p className="mt-2 text-sm font-medium text-neutral-700">
-                  {listing.sellerName}
+                  {sellerName}
                 </p>
               </div>
             </div>
@@ -119,17 +131,21 @@ export default async function ListingPage({
               <h1 className="text-4xl font-bold tracking-tight text-black">
                 {listing.sneaker.model}
               </h1>
-              <p className="text-xl text-neutral-600">{listing.sneaker.colorway}</p>
+              <p className="text-xl text-neutral-600">
+                {listing.sneaker.colorway}
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <div className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-neutral-600">
-                Size: <span className="font-semibold text-black">{listing.size}</span>
+                Size:{" "}
+                <span className="font-semibold text-black">{listing.size}</span>
               </div>
+
               <div className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-neutral-600">
                 Retail:{" "}
                 <span className="font-semibold text-black">
-                  {currencyFormatter.format(listing.sneaker.retailPrice ?? 0)}
+                  {currencyFormatter.format(retailPrice)}
                 </span>
               </div>
             </div>
@@ -137,11 +153,14 @@ export default async function ListingPage({
             <div className="rounded-[2rem] border border-black/10 bg-white p-6 shadow-[0_18px_45px_rgba(0,0,0,0.06)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-neutral-700">Buy now for</p>
+                  <p className="text-sm font-semibold text-neutral-700">
+                    Buy now for
+                  </p>
                   <p className="mt-2 text-5xl font-bold text-black">
-                    {currencyFormatter.format(listing.price)}
+                    {currencyFormatter.format(listingPrice)}
                   </p>
                 </div>
+
                 <div className="rounded-2xl bg-emerald-500/10 px-4 py-3 text-right">
                   <p className="text-[0.7rem] uppercase tracking-[0.3em] text-emerald-700">
                     {marketDelta >= 0 ? "Above retail" : "Below retail"}
@@ -163,49 +182,58 @@ export default async function ListingPage({
 
               <div className="mt-5 space-y-3 border-t border-black/10 pt-5 text-sm text-neutral-600">
                 <p>
-                  Buyer protection and verified sellers keep the market safe. We no longer support
-                  holds—proceed with Buy It Now or ask the seller about deposit options.
+                  Buyer protection and verified sellers keep the market safe. We
+                  no longer support holds—proceed with Buy It Now or ask the
+                  seller about deposit options.
                 </p>
                 <p>
                   Last sale estimate:{" "}
                   <span className="font-semibold text-black">
-                    {currencyFormatter.format(listing.price + 28)}
+                    {currencyFormatter.format(listingPrice + 28)}
                   </span>
                 </p>
               </div>
             </div>
 
             <div className="rounded-3xl border border-black/10 bg-white p-5 text-sm text-neutral-600 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-              This listing is available now. Complete the buy flow or place an offer before someone else secures it.
+              This listing is available now. Complete the buy flow or place an
+              offer before someone else secures it.
             </div>
 
             <div className="space-y-3 rounded-3xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-black">Product details</h2>
+                <h2 className="text-lg font-semibold text-black">
+                  Product details
+                </h2>
                 <span className="text-xs uppercase tracking-[0.3em] text-neutral-500">
                   Marketplace spec
                 </span>
               </div>
+
               <div className="space-y-3 text-sm text-neutral-700">
                 <div className="flex items-center justify-between gap-4 border-b border-black/10 pb-3">
                   <span className="text-neutral-500">Brand</span>
                   <span>{listing.sneaker.brand}</span>
                 </div>
+
                 <div className="flex items-center justify-between gap-4 border-b border-black/10 pb-3">
                   <span className="text-neutral-500">Colorway</span>
                   <span>{listing.sneaker.colorway}</span>
                 </div>
+
                 <div className="flex items-center justify-between gap-4 border-b border-black/10 pb-3">
                   <span className="text-neutral-500">Size</span>
                   <span>{listing.size}</span>
                 </div>
+
                 <div className="flex items-center justify-between gap-4 border-b border-black/10 pb-3">
                   <span className="text-neutral-500">Condition</span>
-                  <span>{listing.condition}</span>
+                  <span>{String(listing.condition).replaceAll("_", " ")}</span>
                 </div>
+
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-neutral-500">Seller</span>
-                  <span>{listing.sellerName}</span>
+                  <span>{sellerName}</span>
                 </div>
               </div>
             </div>
@@ -216,13 +244,16 @@ export default async function ListingPage({
           <section className="space-y-5 border-t border-black/10 pt-10">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold text-black">Related listings</h2>
+                <h2 className="text-2xl font-semibold text-black">
+                  Related listings
+                </h2>
                 <p className="text-sm text-neutral-600">
                   More pairs from the {listing.sneaker.brand} catalog.
                 </p>
               </div>
+
               <Link
-                href="/"
+                href="/marketplace"
                 className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-700"
               >
                 See all
@@ -235,13 +266,17 @@ export default async function ListingPage({
                   key={relatedListing.id}
                   className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-[0_15px_35px_rgba(0,0,0,0.05)]"
                 >
-                  <Link href={`/marketplace/${relatedListing.id}`} className="block h-full">
+                  <Link
+                    href={`/marketplace/${relatedListing.id}`}
+                    className="block h-full"
+                  >
                     <div className="relative aspect-square overflow-hidden bg-white">
                       <MarketplaceListingImage
-                        src={relatedListing.sneaker.imageUrl}
+                        src={relatedListing.primaryImageUrl ?? ""}
                         alt={`${relatedListing.sneaker.brand} ${relatedListing.sneaker.model}`}
                       />
                     </div>
+
                     <div className="space-y-2 p-3">
                       <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
                         {relatedListing.sneaker.brand}
@@ -252,7 +287,9 @@ export default async function ListingPage({
                       <div className="flex items-center justify-between gap-2 text-xs text-neutral-500">
                         <span>Size {relatedListing.size}</span>
                         <span className="font-semibold text-emerald-700">
-                          {currencyFormatter.format(relatedListing.price)}
+                          {currencyFormatter.format(
+                            decimalToNumber(relatedListing.price)
+                          )}
                         </span>
                       </div>
                     </div>

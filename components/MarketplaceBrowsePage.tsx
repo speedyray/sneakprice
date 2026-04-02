@@ -124,7 +124,6 @@ export default async function MarketplacePage({
                         <MarketplaceListingImage
                           src={listing.primaryImageUrl}
                           alt={`${listing.brand ?? "Sneaker"} ${listing.model ?? ""}`.trim()}
-                          variant="plain"
                         />
                         <div className="absolute left-2 top-2 rounded-full border border-emerald-200 bg-white/80 px-1.5 py-1 text-[0.52rem] font-semibold uppercase tracking-[0.25em] text-emerald-700 shadow-sm">
                           {listing.status}
@@ -206,3 +205,4 @@ export default async function MarketplacePage({
     </main>
   );
 }
+

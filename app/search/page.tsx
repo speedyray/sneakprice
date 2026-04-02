@@ -84,9 +84,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 className="overflow-hidden rounded-2xl border border-black/10 bg-white transition hover:border-black/20"
               >
                 <div className="aspect-[4/3] bg-neutral-50">
-                  {listing.sneaker.imageUrl ? (
+                  {listing.sneaker.primaryImageUrl ? (
                     <img
-                      src={listing.sneaker.imageUrl}
+                      src={listing.sneaker.primaryImageUrl}
                       alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
                       className="h-full w-full object-contain"
                     />
@@ -110,7 +110,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         Lowest Ask
                       </p>
                       <p className="text-2xl font-bold text-black">
-                        {formatCurrency(listing.price)}
+                        {formatCurrency(Number(listing.price))}
                       </p>
                     </div>
                     <p className="text-sm text-neutral-500">
@@ -126,3 +126,4 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     </main>
   );
 }
+
