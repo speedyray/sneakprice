@@ -3,8 +3,6 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { normalizeDatabaseUrl } from "@/lib/database-url";
 
-
-
 const rawConnectionString = process.env.DATABASE_URL;
 
 if (!rawConnectionString) {
@@ -41,22 +39,25 @@ const connectionString = normalizeDatabaseUrl(
   inferSupabaseDirectUrlIfPooler(rawConnectionString),
 );
 
+type PrismaPgPool = ConstructorParameters<typeof PrismaPg>[0];
+
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient | undefined;
-  pool: Pool | undefined;
+  pool: PrismaPgPool | undefined;
   adapter: PrismaPg | undefined;
 };
 
 const pool =
   globalForPrisma.pool ??
-  new Pool({
+  (new Pool({
     connectionString,
     // Supabase "session mode" connections are limited; in dev, hot reloads can
     // otherwise spin up pools fast. Keep this small and reuse the same pool.
     max: process.env.NODE_ENV === "production" ? 5 : 1,
-  });
+  }) as unknown as PrismaPgPool);
 
-const adapter = globalForPrisma.adapter ?? new PrismaPg(pool);
+const adapter =
+  globalForPrisma.adapter ?? new PrismaPg(pool as unknown as PrismaPgPool);
 
 export const prisma =
   globalForPrisma.prisma ??
