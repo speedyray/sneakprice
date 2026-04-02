@@ -1,10 +1,17 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default clerkMiddleware((auth, request: NextRequest) => {
+const isProtectedRoute = createRouteMatcher([
+  "/seller(.*)",
+  "/dashboard(.*)",
+  "/inventory(.*)",
+  "/marketplace/my-listings(.*)",
+  "/marketplace/create-listing(.*)",
+]);
 
-  // Keep your existing admin basic auth
+export default clerkMiddleware(async (auth, request: NextRequest) => {
+  // Keep admin basic auth
   if (request.nextUrl.pathname.startsWith("/admin")) {
     const authHeader = request.headers.get("authorization");
 
@@ -29,11 +36,16 @@ export default clerkMiddleware((auth, request: NextRequest) => {
     });
   }
 
+  if (isProtectedRoute(request)) {
+    await auth.protect();
+  }
+
   return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    "/((?!_next|.*\\..*).*)",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
   ],
 };

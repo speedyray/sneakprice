@@ -6,7 +6,7 @@ export default async function Page({
   searchParams?: Promise<{ redirect_url?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const redirectUrl = resolvedSearchParams?.redirect_url || "/marketplace";
+  const redirectUrl = resolvedSearchParams?.redirect_url || "/seller";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6 py-10">
