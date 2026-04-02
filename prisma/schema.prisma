@@ -6,102 +6,266 @@ datasource db {
   provider = "postgresql"
 }
 
-/// This model contains row level security and requires additional setup for migrations.
-model deals {
-  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  sneaker      String?
-  buy_price    Decimal?  @db.Decimal
-  market_price Decimal?  @db.Decimal
-  profit       Decimal?  @db.Decimal
-  roi          Decimal?  @db.Decimal
-  source       String?
-  created_at   DateTime? @default(now()) @db.Timestamp(6)
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
 }
 
-/// This model contains row level security and requires additional setup for migrations.
-model scans {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  brand      String?
-  model      String?
-  colorway   String?
-  confidence Int?
-  created_at DateTime? @default(now()) @db.Timestamp(6)
+enum InventoryStatus {
+  IN_INVENTORY
+  LISTED
+  SOLD
+  ARCHIVED
 }
 
-/// This model contains row level security and requires additional setup for migrations.
-model waitlist {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  email      String    @unique(map: "unique_email")
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  RESERVED
+  SOLD
+  EXPIRED
+  REMOVED
 }
 
-model Sneaker {
-  id          Int                  @id @default(autoincrement())
-  brand       String
-  model       String
-  colorway    String
-  sku         String               @unique
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum ShipmentStatus {
+  LABEL_NEEDED
+  LABEL_CREATED
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  DELAYED
+  RETURNED
+}
+
+enum SneakerCondition {
+  NEW
+  NEW_WITH_BOX
+  USED
+}
+
+model User {
+  id          String   @id @default(cuid())
+  clerkUserId String   @unique
+  email       String   @unique
+  username    String?  @unique
+  firstName   String?
+  lastName    String?
   imageUrl    String?
-  retailPrice Float?
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-  listings    MarketplaceListing[]
+  role        UserRole @default(BUYER)
+  isSeller    Boolean  @default(false)
+  isBuyer     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sellerProfile SellerProfile?
+  buyerProfile  BuyerProfile?
+
+  inventoryItems InventoryItem[]      @relation("SellerInventoryItems")
+  listings       MarketplaceListing[] @relation("SellerListings")
+  buyerOrders    Order[]              @relation("BuyerOrders")
+  sellerOrders   Order[]              @relation("SellerOrders")
 }
 
-model MarketplaceListing {
-  id           Int           @id @default(autoincrement())
-  sellerName   String
-  sellerId     String?
-  size         String
-  condition    String
-  price        Float
-  status       ListingStatus @default(ACTIVE)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  sneakerId    Int
-  listingHolds ListingHold[]
-  sneaker      Sneaker       @relation(fields: [sneakerId], references: [id], onDelete: Cascade)
+model SellerProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  displayName   String
+  storeName     String?  @unique
+  bio           String?
+  avatarUrl     String?
+  bannerUrl     String?
+  payoutEmail   String?
+  ratingAverage Float    @default(0)
+  totalSales    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  @@index([status, createdAt])
-  @@index([sneakerId])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model ListingHold {
-  id              Int                @id @default(autoincrement())
-  listingId       Int
-  buyerName       String
-  buyerId         String?
-  expiresAt       DateTime
-  status          HoldStatus         @default(ACTIVE)
-  createdAt       DateTime           @default(now())
-  buyerEmail      String?
-  buyerNotes      String?
-  shippingAddress String?
-  shippingCity    String?
-  shippingCountry String?
-  shippingRegion  String?
-  listing         MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+model BuyerProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  displayName     String?
+  avatarUrl       String?
+  defaultAddress1 String?
+  defaultAddress2 String?
+  city            String?
+  state           String?
+  postalCode      String?
+  country         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  @@index([listingId])
-  @@index([buyerId])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model InventoryItem {
-  id            Int      @id @default(autoincrement())
-  userId        String?
-  name          String
-  brand         String?
-  model         String?
-  colorway      String?
-  size          String?
-  condition     String?
-  source        String?
-  status        String   @default("unlisted")
-  purchasePrice Float?
-  marketPrice   Float?
-  listedPrice   Float?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                   String           @id @default(cuid())
+  sellerId             String
+  name                 String
+  slug                 String?          @unique
+  brand                String?
+  model                String?
+  colorway             String?
+  size                 String?
+  sku                  String?
+  condition            SneakerCondition @default(NEW)
+  gender               String?
+  purchasePrice        Decimal          @db.Decimal(10, 2)
+  estimatedMarketValue Decimal          @db.Decimal(10, 2)
+  notes                String?
+  source               String?
+  acquiredAt           DateTime?
+  status               InventoryStatus  @default(IN_INVENTORY)
+  primaryImageUrl      String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  seller  User                @relation("SellerInventoryItems", fields: [sellerId], references: [id], onDelete: Cascade)
+  images  InventoryImage[]
+  listing MarketplaceListing?
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([brand])
+  @@index([model])
+}
+
+model InventoryImage {
+  id              String   @id @default(cuid())
+  inventoryItemId String
+  imageUrl        String
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@index([inventoryItemId])
+}
+
+model MarketplaceListing {
+  id              String           @id @default(cuid())
+  sellerId        String
+  inventoryItemId String           @unique
+  title           String
+  slug            String           @unique
+  description     String?
+  brand           String?
+  model           String?
+  colorway        String?
+  size            String?
+  sku             String?
+  condition       SneakerCondition @default(NEW)
+  price           Decimal          @db.Decimal(10, 2)
+  status          ListingStatus    @default(DRAFT)
+  primaryImageUrl String?
+  publishedAt     DateTime?
+  expiresAt       DateTime?
+  viewsCount      Int              @default(0)
+  favoritesCount  Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  seller        User           @relation("SellerListings", fields: [sellerId], references: [id], onDelete: Cascade)
+  sneaker       InventoryItem  @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  images        ListingImage[]
+  holds         ListingHold[]
+  order         Order?
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([brand])
+  @@index([model])
+  @@index([price])
+  @@index([publishedAt])
+}
+
+model ListingImage {
+  id        String   @id @default(cuid())
+  listingId String
+  imageUrl  String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  listing MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  listingId   String      @unique
+  sellerId    String
+  buyerId     String
+  orderNumber String      @unique
+  status      OrderStatus @default(PENDING)
+
+  salePrice    Decimal @db.Decimal(10, 2)
+  fees         Decimal @default(0) @db.Decimal(10, 2)
+  shippingCost Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount    Decimal @default(0) @db.Decimal(10, 2)
+  payout       Decimal @db.Decimal(10, 2)
+
+  buyerEmail         String?
+  buyerFirstName     String?
+  buyerLastName      String?
+  shippingAddress1   String?
+  shippingAddress2   String?
+  shippingCity       String?
+  shippingState      String?
+  shippingPostalCode String?
+  shippingCountry    String?
+
+  paidAt      DateTime?
+  shippedAt   DateTime?
+  deliveredAt DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  listing  MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Restrict)
+  seller   User               @relation("SellerOrders", fields: [sellerId], references: [id], onDelete: Restrict)
+  buyer    User               @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Restrict)
+  shipment Shipment?
+
+  @@index([sellerId])
+  @@index([buyerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Shipment {
+  id                String         @id @default(cuid())
+  orderId           String         @unique
+  status            ShipmentStatus @default(LABEL_NEEDED)
+  carrier           String?
+  serviceLevel      String?
+  trackingNumber    String?        @unique
+  trackingUrl       String?
+  buyerAddressState String?
+  labelUrl          String?
+  labelCreatedAt    DateTime?
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([carrier])
 }
 
 model NewsArticle {
@@ -109,40 +273,69 @@ model NewsArticle {
   title        String
   slug         String   @unique
   excerpt      String?
-  sector       String?  // Sneakers, Fashion, Watches, Beauty, Leather Goods, Jewelry
-  category     String   // Market, Trend, Editorial, Flip Watch, Buyer Guide, Report
-  contentType  String?  // article, guide, roundup, report, watchlist
+  sector       String?
+  category     String
+  contentType  String?
   coverImage   String?
-  images       Json?
-  author       String?
-  sourceName   String?
+  sourceName   String   @default("SneakPrice Editorial")
   sourceUrl    String?
   body         String
   marketAngle  String?
   flipScore    Int?
   actionLabel  String?
   actionNote   String?
-  tags         Json?
-  region       String?  // Global, US, Europe, Asia, Middle East
+  tags         String[] @default([])
+  region       String?
   brandFocus   String?
   isPublished  Boolean  @default(false)
-  publishedAt  DateTime?
   scheduledFor DateTime?
+  publishedAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
-
-
-enum ListingStatus {
-  ACTIVE
-  SOLD
-  DRAFT
-  HELD
+model Scan {
+  id         String   @id @default(cuid())
+  brand      String?
+  model      String?
+  colorway   String?
+  confidence Int?
+  created_at DateTime @default(now())
 }
 
 enum HoldStatus {
   ACTIVE
-  RELEASED
-  COMPLETED
+  CANCELLED
+  EXPIRED
 }
+
+model Deal {
+  id         String   @id @default(cuid())
+  sneaker    String?
+  roi        Float?
+  profit     Float?
+  created_at DateTime @default(now())
+}
+
+model ListingHold {
+  id              String     @id @default(cuid())
+  listingId       String
+  buyerId         String
+  buyerName       String
+  buyerEmail      String
+  shippingAddress String?
+  shippingCity    String?
+  shippingRegion  String?
+  shippingCountry String?
+  buyerNotes      String?
+  expiresAt       DateTime?
+  status          HoldStatus @default(ACTIVE)
+  createdAt       DateTime   @default(now())
+
+  listing MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([buyerId])
+}
+
+

@@ -16,7 +16,11 @@ const modelSuggestions = [
   "Campus 00s",
   "990v6",
 ];
-const formConditions = ["Deadstock", "Excellent", "Very Good", "Good", "Fair"];
+const formConditions = [
+  { value: "NEW", label: "New" },
+  { value: "NEW_WITH_BOX", label: "New With Box" },
+  { value: "USED", label: "Used" },
+];
 const formInputClassName =
   "w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-black transition placeholder:text-neutral-500 focus:border-emerald-500/70 focus:outline-none";
 const MAX_IMAGE_FILE_SIZE = 2 * 1024 * 1024;
@@ -51,7 +55,7 @@ type ListingFormProps = {
   action: (state: ListingFormState, formData: FormData) => Promise<ListingFormState>;
   submitLabel: string;
   initialValues: ListingFormValues;
-  listingId?: number;
+  listingId?: string;
 };
 
 export function ListingForm({
@@ -182,11 +186,11 @@ export function ListingForm({
         <select
           name="condition"
           className={formInputClassName}
-          defaultValue={values.condition || "Deadstock"}
+          defaultValue={values.condition || "NEW"}
         >
           {formConditions.map((condition) => (
-            <option key={condition} value={condition}>
-              {condition}
+            <option key={condition.value} value={condition.value}>
+              {condition.label}
             </option>
           ))}
         </select>

@@ -25,7 +25,7 @@ export const initialListingFormValues: ListingFormValues = {
   size: "",
   price: "",
   retailPrice: "",
-  condition: "Deadstock",
+  condition: "NEW",
   imageUrl: "",
 };
 

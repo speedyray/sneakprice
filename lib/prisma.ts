@@ -3,6 +3,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { normalizeDatabaseUrl } from "@/lib/database-url";
 
+
+
 const rawConnectionString = process.env.DATABASE_URL;
 
 if (!rawConnectionString) {

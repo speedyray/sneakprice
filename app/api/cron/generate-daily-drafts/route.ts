@@ -555,7 +555,7 @@ async function buildTrendInjectedIdeas(): Promise<IdeaSuggestion[]> {
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
   const [recentScans, recentDeals, recentArticles] = await Promise.all([
-    prisma.scans.findMany({
+    prisma.scan.findMany({
       where: {
         created_at: {
           gte: fourteenDaysAgo,
@@ -573,7 +573,7 @@ async function buildTrendInjectedIdeas(): Promise<IdeaSuggestion[]> {
       },
       take: 100,
     }),
-    prisma.deals.findMany({
+    prisma.deal.findMany({
       where: {
         created_at: {
           gte: fourteenDaysAgo,

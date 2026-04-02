@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ListingStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getSignedInUser } from "@/lib/session";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
+import { decimalToNumber } from "@/lib/money";
+import { formatSneakerCondition, getSellerDisplayName } from "@/lib/marketplace-utils";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -18,8 +21,14 @@ export default async function BuyerPage() {
   }
 
   const listings = await prisma.marketplaceListing.findMany({
-    where: { status: "ACTIVE" },
-    include: { sneaker: true },
+    where: { status: ListingStatus.ACTIVE },
+    include: {
+      seller: {
+        include: {
+          sellerProfile: true,
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
     take: 30,
   });
@@ -36,8 +45,8 @@ export default async function BuyerPage() {
               Straightforward purchases only
             </h1>
             <p className="text-sm text-neutral-600">
-              Sign-in verified buyers can view the freshest listings. Hold requests have been retired to keep the marketplace fair.
-              Use Buy It Now, leave a note for the seller, or request a deposit if you need extra time.
+              Sign-in verified buyers can view the freshest listings and move straight into
+              checkout.
             </p>
             <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
               Signed in as <span className="font-semibold text-black">{signedInUser.name}</span>
@@ -60,51 +69,57 @@ export default async function BuyerPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {listings.map((listing) => (
-            <article
-              key={listing.id}
-              className="flex h-full flex-col justify-between gap-4 rounded-3xl border border-black/10 bg-white p-5 shadow-[0_15px_30px_rgba(0,0,0,0.08)]"
-            >
-              <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-white">
-                <MarketplaceListingImage
-                  src={listing.sneaker.imageUrl}
-                  alt={`${listing.sneaker.brand} ${listing.sneaker.model}`}
-                />
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-neutral-500">
-                  <span>{listing.sneaker.brand}</span>
-                  <span>{listing.condition}</span>
-                </div>
-                <h2 className="mt-3 text-xl font-semibold text-black">{listing.sneaker.model}</h2>
-                <p className="text-sm text-neutral-600">{listing.sneaker.colorway}</p>
-                <div className="mt-4 flex items-center justify-between text-sm text-neutral-700">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Ask</p>
-                    <p className="text-2xl font-bold text-emerald-600">
-                      {currencyFormatter.format(listing.price)}
-                    </p>
-                  </div>
-                  <div className="text-right text-xs text-neutral-500">
-                    <p>Size {listing.size}</p>
-                    <p className="text-neutral-500">Seller: {listing.sellerName}</p>
-                  </div>
-                </div>
-              </div>
+          {listings.map((listing) => {
+            const price = decimalToNumber(listing.price);
 
-              <div className="space-y-2 text-sm">
-                <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
-                  Ready to buy
-                </p>
-                <Link
-                  href={`/buyer/checkout/${listing.id}`}
-                  className="block w-full rounded-full bg-emerald-500 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-emerald-400"
-                >
-                  Buy now
-                </Link>
-              </div>
-            </article>
-          ))}
+            return (
+              <article
+                key={listing.id}
+                className="flex h-full flex-col justify-between gap-4 rounded-3xl border border-black/10 bg-white p-5 shadow-[0_15px_30px_rgba(0,0,0,0.08)]"
+              >
+                <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-white">
+                  <MarketplaceListingImage
+                    src={listing.primaryImageUrl}
+                    alt={`${listing.brand ?? "Sneaker"} ${listing.model ?? ""}`.trim()}
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-neutral-500">
+                    <span>{listing.brand ?? "Sneaker"}</span>
+                    <span>{formatSneakerCondition(listing.condition)}</span>
+                  </div>
+                  <h2 className="mt-3 text-xl font-semibold text-black">{listing.title}</h2>
+                  <p className="text-sm text-neutral-600">{listing.colorway ?? "Marketplace listing"}</p>
+                  <div className="mt-4 flex items-center justify-between text-sm text-neutral-700">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Ask</p>
+                      <p className="text-2xl font-bold text-emerald-600">
+                        {currencyFormatter.format(price)}
+                      </p>
+                    </div>
+                    <div className="text-right text-xs text-neutral-500">
+                      <p>Size {listing.size ?? "N/A"}</p>
+                      <p className="text-neutral-500">
+                        Seller: {getSellerDisplayName(listing.seller)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
+                    Ready to buy
+                  </p>
+                  <Link
+                    href={`/buyer/checkout/${listing.id}`}
+                    className="block w-full rounded-full bg-emerald-500 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-emerald-400"
+                  >
+                    Buy now
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </main>

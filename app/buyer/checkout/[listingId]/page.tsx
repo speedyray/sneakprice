@@ -16,8 +16,7 @@ export default async function BuyerCheckoutPage({
 }: {
   params: Promise<{ listingId: string }>;
 }) {
-  const { listingId: rawListingId } = await params;
-  const listingId = Number(rawListingId);
+  const { listingId } = await params;
   const signedInUser = await getSignedInUser();
 
   if (!signedInUser) {
@@ -28,6 +27,11 @@ export default async function BuyerCheckoutPage({
     where: { id: listingId },
     include: {
       sneaker: true,
+      seller: {
+        include: {
+          sellerProfile: true,
+        },
+      },
     },
   });
 
@@ -120,7 +124,7 @@ export default async function BuyerCheckoutPage({
                   <p className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-500">
                     Seller
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-black">{listing.sellerName}</p>
+                  <p className="mt-2 text-sm font-semibold text-black">{listing.seller.sellerProfile?.storeName ?? "SneakPrice Seller"}</p>
                 </div>
               </div>
             </div>
