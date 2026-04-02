@@ -7,6 +7,9 @@ import { LiveListingBadge } from "@/components/LiveListingBadge";
 import { decimalToNumber } from "@/lib/money";
 import { formatSneakerCondition } from "@/lib/marketplace-utils";
 
+
+
+
 const PAGE_SIZE = 60;
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -203,6 +206,7 @@ export default async function MarketplacePage({
         )}
       </div>
     </main>
+    
   );
 }
 

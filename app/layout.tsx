@@ -3,6 +3,8 @@ import "./globals.css";
 import Nav from "../components/Nav";
 import { ClerkProvider } from "@clerk/nextjs";
 
+
+
 export const metadata: Metadata = {
   title: "SneakPrice",
   description: "Sneaker Market Intelligence Platform",
