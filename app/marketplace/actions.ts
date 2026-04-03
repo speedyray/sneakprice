@@ -1,10 +1,9 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
+import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
 import {
   initialListingFormState,
@@ -47,6 +46,7 @@ function generateFallbackSku(values: ListingFormValues) {
 
 async function uploadImageFromFormData(
   formData: FormData,
+  sellerId: string,
   existingImageUrl?: string | null
 ) {
   const imageFile = formData.get("imageFile");
@@ -74,14 +74,19 @@ async function uploadImageFromFormData(
     };
   }
 
-  const bytes = Buffer.from(await imageFile.arrayBuffer());
-  const uploadsDirectory = path.join(process.cwd(), "public", "uploads");
-  const fileName = `listing-${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2, 10)}.webp`;
-  const filePath = path.join(uploadsDirectory, fileName);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  await mkdir(uploadsDirectory, { recursive: true });
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    return {
+      imageUrl: fallbackImageUrl || imageUrl || null,
+      error: "Supabase environment variables are missing.",
+    };
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+  const bytes = Buffer.from(await imageFile.arrayBuffer());
 
   const optimizedImage = await sharp(bytes)
     .rotate()
@@ -89,10 +94,32 @@ async function uploadImageFromFormData(
     .webp({ quality: 82 })
     .toBuffer();
 
-  await writeFile(filePath, optimizedImage);
+  const fileName = `listing-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}.webp`;
+
+  const filePath = `listings/${sellerId}/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("listing-images")
+    .upload(filePath, optimizedImage, {
+      contentType: "image/webp",
+      upsert: false,
+    });
+
+  if (uploadError) {
+    return {
+      imageUrl: fallbackImageUrl || imageUrl || null,
+      error: uploadError.message || "Failed to upload image.",
+    };
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from("listing-images")
+    .getPublicUrl(filePath);
 
   return {
-    imageUrl: `/uploads/${fileName}`,
+    imageUrl: publicUrlData.publicUrl,
     error: null as string | null,
   };
 }
@@ -150,7 +177,7 @@ export async function createListing(
   };
 
   const { fieldErrors, hasErrors, priceValue } = validateListingValues(finalValues);
-  const imageUpload = await uploadImageFromFormData(formData);
+  const imageUpload = await uploadImageFromFormData(formData, currentUser.id);
 
   if (imageUpload.error) {
     fieldErrors.imageFile = imageUpload.error;
@@ -238,6 +265,7 @@ export async function createListing(
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/sell");
   revalidatePath("/marketplace/my-listings");
+  revalidatePath("/storefront");
   redirect("/marketplace/my-listings?created=1");
 }
 
@@ -283,6 +311,7 @@ export async function updateListing(
   const { fieldErrors, hasErrors, priceValue } = validateListingValues(finalValues);
   const imageUpload = await uploadImageFromFormData(
     formData,
+    currentUser.id,
     existingListing.primaryImageUrl ?? existingListing.sneaker.primaryImageUrl
   );
 
@@ -329,6 +358,7 @@ export async function updateListing(
   revalidatePath("/");
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/my-listings");
+  revalidatePath("/storefront");
   revalidatePath(`/marketplace/${existingListing.id}`);
   revalidatePath(`/marketplace/my-listings/${existingListing.id}/edit`);
   redirect("/marketplace/my-listings?updated=1");
@@ -360,6 +390,7 @@ export async function deleteListing(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/my-listings");
+  revalidatePath("/storefront");
   redirect("/marketplace/my-listings?deleted=1");
 }
 
@@ -393,6 +424,7 @@ async function updateListingStatus(
   revalidatePath("/");
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/my-listings");
+  revalidatePath("/storefront");
   revalidatePath(`/marketplace/${listing.id}`);
 
   const statusParam =

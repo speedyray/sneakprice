@@ -60,10 +60,58 @@ function pickRemoteFallback(alt: string) {
   return "https://commons.wikimedia.org/wiki/Special:FilePath/Nike%20Air%20Ship.jpg";
 }
 
+const SUPABASE_LISTING_BUCKET = "listing-images";
+
+export function normalizeMarketplaceImageSrc(src: string | null) {
+  if (!src) {
+    return null;
+  }
+
+  const trimmed = src.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:") ||
+    trimmed.startsWith("/")
+  ) {
+    return trimmed;
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "");
+
+  if (!supabaseUrl) {
+    return trimmed;
+  }
+
+  const normalizedPath = trimmed.replace(/^\/+/, "");
+
+  if (normalizedPath.startsWith("storage/v1/")) {
+    return `${supabaseUrl}/${normalizedPath}`;
+  }
+
+  if (normalizedPath.startsWith("object/public/")) {
+    return `${supabaseUrl}/storage/v1/${normalizedPath}`;
+  }
+
+  if (normalizedPath.startsWith(`${SUPABASE_LISTING_BUCKET}/`)) {
+    return `${supabaseUrl}/storage/v1/object/public/${normalizedPath}`;
+  }
+
+  return `${supabaseUrl}/storage/v1/object/public/${SUPABASE_LISTING_BUCKET}/${normalizedPath}`;
+}
+
 export function getMarketplaceImageCandidates(src: string | null, alt: string) {
-  const candidates = [src, pickLocalFallback(alt), pickRemoteFallback(alt)].filter(
-    (value): value is string => Boolean(value)
-  );
+  const candidates = [
+    normalizeMarketplaceImageSrc(src),
+    pickLocalFallback(alt),
+    pickRemoteFallback(alt),
+  ].filter((value): value is string => Boolean(value));
 
   return [...new Set(candidates)];
 }
