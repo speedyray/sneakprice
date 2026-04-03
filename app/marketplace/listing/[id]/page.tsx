@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 import { prisma } from "@/lib/prisma";
 
 type ListingDetailPageProps = {
@@ -53,19 +54,8 @@ export default async function ListingDetailPage({
 
         <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <section className="rounded-3xl border border-black/10 bg-white p-5 shadow-[0_18px_45px_rgba(0,0,0,0.06)]">
-            <div className="overflow-hidden rounded-2xl bg-neutral-100">
-              {listing.primaryImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={listing.primaryImageUrl}
-                  alt={title}
-                  className="h-full w-full object-contain"
-                />
-              ) : (
-                <div className="flex aspect-square items-center justify-center text-sm text-neutral-400">
-                  No Image
-                </div>
-              )}
+            <div className="aspect-square overflow-hidden rounded-2xl bg-neutral-100">
+              <MarketplaceListingImage src={listing.primaryImageUrl} alt={title} />
             </div>
           </section>
 

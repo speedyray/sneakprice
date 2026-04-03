@@ -1,19 +1,23 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import type { MarketplaceListing } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getCurrentDbUser } from "@/lib/current-user";
 
 export default async function SellerPage() {
-  const { userId } = await auth();
+  const currentUser = await getCurrentDbUser();
 
-  if (!userId) {
-    redirect("/login");
+  if (!currentUser) {
+    redirect("/login?redirect_url=/seller");
   }
 
-  let listings: any[] = [];
+  let listings: MarketplaceListing[] = [];
 
   try {
     listings = await prisma.marketplaceListing.findMany({
+      where: {
+        sellerId: currentUser.id,
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -49,7 +53,7 @@ export default async function SellerPage() {
 
           <div className="flex gap-3">
             <Link
-              href="/inventory"
+              href="/seller/inventory"
               className="rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-medium hover:bg-black/5"
             >
               View Inventory
@@ -162,7 +166,7 @@ export default async function SellerPage() {
               <h3 className="text-xl font-semibold">Quick Actions</h3>
               <div className="mt-4 grid gap-3">
                 <Link
-                  href="/marketplace/create-listing"
+                  href="/marketplace/sell"
                   className="rounded-xl bg-black px-4 py-3 text-center text-sm font-semibold text-white hover:opacity-90"
                 >
                   Add New Listing

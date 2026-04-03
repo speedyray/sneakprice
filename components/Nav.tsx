@@ -18,8 +18,7 @@ export default function Nav() {
 
   const isHomePage = pathname === "/";
   const isDiscoverPage = pathname === "/discover";
-  const isDashboardPage = pathname === "/app";
-  const isInventoryPage = pathname === "/inventory";
+  const isDashboardPage = pathname === "/seller" || pathname.startsWith("/seller/");
   const isMarketplacePage = pathname.startsWith("/marketplace");
 
   const linkClass = (active: boolean) =>
@@ -77,12 +76,8 @@ export default function Nav() {
 
           {signedInUserName ? (
             <>
-              <Link href="/app" className={linkClass(isDashboardPage)}>
+              <Link href="/seller" className={linkClass(isDashboardPage)}>
                 Dashboard
-              </Link>
-
-              <Link href="/inventory" className={linkClass(isInventoryPage)}>
-                Inventory
               </Link>
 
               <Link href="/marketplace" className={linkClass(isMarketplacePage)}>

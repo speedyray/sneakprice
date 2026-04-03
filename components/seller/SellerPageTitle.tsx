@@ -10,11 +10,11 @@ export default function SellerPageTitle({
   action,
 }: SellerPageTitleProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 rounded-3xl border border-black/10 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 className="text-xl font-semibold text-white">{title}</h2>
+        <h2 className="text-xl font-semibold text-neutral-950">{title}</h2>
         {subtitle ? (
-          <p className="mt-1 text-sm text-neutral-400">{subtitle}</p>
+          <p className="mt-1 text-sm text-neutral-600">{subtitle}</p>
         ) : null}
       </div>
 

@@ -14,7 +14,7 @@ export default async function SellPage({
   const signedInUser = await getSignedInUser();
 
   if (!signedInUser) {
-    redirect("/login");
+    redirect(`/login?redirect_url=${encodeURIComponent("/marketplace/sell")}`);
   }
 
   return (

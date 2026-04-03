@@ -179,11 +179,19 @@ export async function createListing(
   const { fieldErrors, hasErrors, priceValue } = validateListingValues(finalValues);
   const imageUpload = await uploadImageFromFormData(formData, currentUser.id);
 
+
   if (imageUpload.error) {
     fieldErrors.imageFile = imageUpload.error;
   }
 
   if (hasErrors || imageUpload.error) {
+    console.log("CREATE LISTING FAILED", {
+      hasErrors,
+      fieldErrors,
+      imageUploadError: imageUpload.error,
+      values: finalValues,
+    });
+  
     return {
       status: "error",
       message: "Fix the highlighted fields and try again.",
@@ -191,6 +199,19 @@ export async function createListing(
       values: finalValues,
     };
   }
+
+
+
+
+
+  // if (hasErrors || imageUpload.error) {
+  //   return {
+  //     status: "error",
+  //     message: "Fix the highlighted fields and try again.",
+  //     fieldErrors,
+  //     values: finalValues,
+  //   };
+  // }
 
   const existingInventoryItem = await prisma.inventoryItem.findFirst({
     where: {
@@ -242,7 +263,10 @@ export async function createListing(
     .replace(/^-+|-+$/g, "")
     .slice(0, 120);
 
-  await prisma.marketplaceListing.create({
+
+
+
+     await prisma.marketplaceListing.create({
     data: {
       sellerId: currentUser.id,
       inventoryItemId: sneaker.id,
@@ -266,7 +290,7 @@ export async function createListing(
   revalidatePath("/marketplace/sell");
   revalidatePath("/marketplace/my-listings");
   revalidatePath("/storefront");
-  redirect("/marketplace/my-listings?created=1");
+  redirect("/?created=1#all-listings");
 }
 
 export async function updateListing(

@@ -29,6 +29,7 @@ export type SellerListingRow = {
   slug: string;
   price: number;
   status: string;
+  condition: string;
   size: string | null;
   brand: string | null;
   model: string | null;

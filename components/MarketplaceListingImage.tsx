@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { getMarketplaceImageCandidates } from "@/lib/marketplace-image-fallbacks";
 
 type MarketplaceListingImageProps = {
@@ -13,12 +13,13 @@ export function MarketplaceListingImage({
   alt,
 }: MarketplaceListingImageProps) {
   const imageCandidates = useMemo(() => getMarketplaceImageCandidates(src, alt), [alt, src]);
-  const [imageIndex, setImageIndex] = useState(0);
+  const sourceKey = imageCandidates.join("|");
+  const [imageState, setImageState] = useState({
+    sourceKey: "",
+    imageIndex: 0,
+  });
+  const imageIndex = imageState.sourceKey === sourceKey ? imageState.imageIndex : 0;
   const currentSrc = imageCandidates[imageIndex] ?? null;
-
-  useEffect(() => {
-    setImageIndex(0);
-  }, [imageCandidates]);
 
   if (!currentSrc) {
     return (
@@ -32,15 +33,25 @@ export function MarketplaceListingImage({
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-[0.9rem] bg-white">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={currentSrc}
         alt={alt}
         className="absolute inset-0 h-full w-full object-contain p-2"
         loading="lazy"
         onError={() => {
-          setImageIndex((current) =>
-            current + 1 < imageCandidates.length ? current + 1 : current
-          );
+          setImageState((current) => {
+            const currentIndex = current.sourceKey === sourceKey ? current.imageIndex : 0;
+
+            if (currentIndex + 1 >= imageCandidates.length) {
+              return current;
+            }
+
+            return {
+              sourceKey,
+              imageIndex: currentIndex + 1,
+            };
+          });
         }}
       />
     </div>

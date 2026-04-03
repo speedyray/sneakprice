@@ -20,6 +20,7 @@ export async function getSellerListings(
     slug: listing.slug,
     price: decimalToNumber(listing.price),
     status: listing.status,
+    condition: listing.condition,
     size: listing.size,
     brand: listing.brand,
     model: listing.model,

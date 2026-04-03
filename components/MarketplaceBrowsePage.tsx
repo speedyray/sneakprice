@@ -28,7 +28,7 @@ function getSoldCountSeed(id: string) {
 export default async function MarketplacePage({
   searchParams,
 }: {
-  searchParams?: Promise<{ page?: string }>;
+  searchParams?: Promise<{ page?: string; created?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const requestedPage = Number(resolvedSearchParams?.page ?? "1");
@@ -106,6 +106,12 @@ export default async function MarketplacePage({
           </div>
         </div>
 
+        {resolvedSearchParams?.created === "1" ? (
+          <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-800">
+            Listing created successfully. It is now live in the marketplace feed.
+          </div>
+        ) : null}
+
         {listings.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-neutral-200 bg-neutral-50 px-8 py-16 text-center">
             <h2 className="text-2xl font-semibold">No listings yet</h2>
@@ -122,58 +128,65 @@ export default async function MarketplacePage({
 
                 return (
                   <article key={listing.id} className="overflow-hidden rounded-2xl">
-                    <Link href={`/marketplace/${listing.id}`} className="block h-full">
-                      <div className="relative aspect-[2/1] overflow-hidden">
-                        <MarketplaceListingImage
-                          src={listing.primaryImageUrl}
-                          alt={`${listing.brand ?? "Sneaker"} ${listing.model ?? ""}`.trim()}
-                        />
-                        <div className="absolute left-2 top-2 rounded-full border border-emerald-200 bg-white/80 px-1.5 py-1 text-[0.52rem] font-semibold uppercase tracking-[0.25em] text-emerald-700 shadow-sm">
-                          {listing.status}
-                        </div>
-                      </div>
+  <Link href={`/marketplace/listing/${listing.id}`} className="block h-full">
+    <div className="relative aspect-[2/1] overflow-hidden">
+      <MarketplaceListingImage
+        src={listing.primaryImageUrl}
+        alt={`${listing.brand ?? "Sneaker"} ${listing.model ?? ""}`.trim()}
+      />
+      <div className="absolute left-2 top-2 rounded-full border border-emerald-200 bg-white/80 px-1.5 py-1 text-[0.52rem] font-semibold uppercase tracking-[0.25em] text-emerald-700 shadow-sm">
+        {listing.status}
+      </div>
+    </div>
 
-                      <div className="space-y-1 px-1 pb-1 pt-1.5">
-                        <div className="space-y-1">
-                          <p className="text-[0.5rem] uppercase tracking-[0.24em] text-neutral-500">
-                            {listing.brand ?? "Sneaker"}
-                          </p>
-                          <h3 className="line-clamp-2 text-[0.72rem] font-semibold leading-snug text-neutral-900">
-                            {listing.title}
-                          </h3>
-                          <p className="line-clamp-1 text-[0.6rem] text-neutral-600">
-                            {listing.colorway ?? "Marketplace listing"}
-                          </p>
-                        </div>
+    <div className="space-y-1 px-1 pb-1 pt-1.5">
+      <div className="space-y-1">
+        <p className="text-[0.5rem] uppercase tracking-[0.24em] text-neutral-500">
+          {listing.brand ?? "Sneaker"}
+        </p>
+        <h3 className="line-clamp-2 text-[0.72rem] font-semibold leading-snug text-neutral-900">
+          {listing.title}
+        </h3>
+        <p className="line-clamp-1 text-[0.6rem] text-neutral-600">
+          {listing.colorway ?? "Marketplace listing"}
+        </p>
+      </div>
 
-                        <div className="space-y-0.5">
-                          <p className="text-[0.55rem] font-medium text-neutral-500">
-                            Lowest Ask
-                          </p>
-                          <div className="flex items-end justify-between gap-3">
-                            <p className="text-lg font-bold text-neutral-900">
-                              {currencyFormatter.format(price)}
-                            </p>
-                            <p className="text-[0.55rem] text-neutral-500">
-                              Size {listing.size ?? "N/A"}
-                            </p>
-                          </div>
-                        </div>
+      <div className="space-y-0.5">
+        <p className="text-[0.55rem] font-medium text-neutral-500">
+          Lowest Ask
+        </p>
+        <div className="flex items-end justify-between gap-3">
+          <p className="text-lg font-bold text-neutral-900">
+            {currencyFormatter.format(price)}
+          </p>
+          <p className="text-[0.55rem] text-neutral-500">
+            Size {listing.size ?? "N/A"}
+          </p>
+        </div>
+      </div>
 
-                        <div className="flex flex-wrap items-center gap-1 text-[0.55rem] text-neutral-500">
-                          <span className="rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-neutral-700">
-                            {formatSneakerCondition(listing.condition)}
-                          </span>
-                          <span className="rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-neutral-700">
-                            Seller verified
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                    <div className="border-t border-neutral-200 px-3 py-3">
-                      <LiveListingBadge baseSold={soldCount} />
-                    </div>
-                  </article>
+      <div className="flex flex-wrap items-center gap-1 text-[0.55rem] text-neutral-500">
+        <span className="rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-neutral-700">
+          {formatSneakerCondition(listing.condition)}
+        </span>
+        <span className="rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-neutral-700">
+          Seller verified
+        </span>
+      </div>
+    </div>
+  </Link>
+  <div className="border-t border-neutral-200 px-3 py-3">
+    <LiveListingBadge baseSold={soldCount} />
+  </div>
+</article>
+
+
+
+
+
+
+
                 );
               })}
             </div>
@@ -209,4 +222,3 @@ export default async function MarketplacePage({
     
   );
 }
-
