@@ -2,6 +2,18 @@ import { OrderStatus } from "@prisma/client";
 import { formatCurrency } from "@/lib/money";
 import { getAdminOrders } from "@/lib/admin/platform";
 
+const paidLikeStatuses: OrderStatus[] = [
+  OrderStatus.PAID,
+  OrderStatus.PROCESSING,
+  OrderStatus.SHIPPED,
+  OrderStatus.DELIVERED,
+];
+
+const cancelledLikeStatuses: OrderStatus[] = [
+  OrderStatus.CANCELLED,
+  OrderStatus.REFUNDED,
+];
+
 function formatDateTime(value: string) {
   return new Date(value).toLocaleString("en-US", {
     month: "short",
@@ -15,13 +27,9 @@ function formatDateTime(value: string) {
 export default async function AdminOrdersPage() {
   const orders = await getAdminOrders();
 
-  const paidCount = orders.filter((order) =>
-    [OrderStatus.PAID, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.DELIVERED].includes(
-      order.orderStatus
-    )
-  ).length;
+  const paidCount = orders.filter((order) => paidLikeStatuses.includes(order.orderStatus)).length;
   const cancelledCount = orders.filter((order) =>
-    [OrderStatus.CANCELLED, OrderStatus.REFUNDED].includes(order.orderStatus)
+    cancelledLikeStatuses.includes(order.orderStatus)
   ).length;
   const shipmentIssueCount = orders.filter((order) =>
     ["DELAYED", "RETURNED"].includes(order.shipmentStatus ?? "")

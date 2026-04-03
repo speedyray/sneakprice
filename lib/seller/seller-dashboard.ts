@@ -186,6 +186,7 @@ export async function getSellerActiveListingsSnapshot(
     slug: listing.slug,
     price: decimalToNumber(listing.price),
     status: listing.status,
+    condition: listing.condition,
     size: listing.size,
     brand: listing.brand,
     model: listing.model,
