@@ -117,3 +117,13 @@ export async function getCurrentDbUser() {
     },
   });
 }
+
+export async function getCurrentAdminUser() {
+  const currentUser = await getCurrentDbUser();
+
+  if (!currentUser || currentUser.role !== "ADMIN") {
+    return null;
+  }
+
+  return currentUser;
+}

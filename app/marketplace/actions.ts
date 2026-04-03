@@ -299,6 +299,7 @@ export async function updateListing(
 ): Promise<ListingFormState> {
   const currentUser = await ensureSignedInUser();
   const listingId = String(formData.get("listingId") ?? "");
+  const redirectTo = String(formData.get("redirectTo") ?? "").trim();
 
   if (!listingId) {
     return {
@@ -311,7 +312,11 @@ export async function updateListing(
   const existingListing = await prisma.marketplaceListing.findFirst({
     where: {
       id: listingId,
-      sellerId: currentUser.id,
+      ...(currentUser.role === "ADMIN"
+        ? {}
+        : {
+            sellerId: currentUser.id,
+          }),
     },
     include: {
       sneaker: true,
@@ -383,9 +388,14 @@ export async function updateListing(
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/my-listings");
   revalidatePath("/storefront");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/listings");
   revalidatePath(`/marketplace/${existingListing.id}`);
+  revalidatePath(`/marketplace/listing/${existingListing.id}`);
   revalidatePath(`/marketplace/my-listings/${existingListing.id}/edit`);
-  redirect("/marketplace/my-listings?updated=1");
+  redirect(
+    redirectTo || (currentUser.role === "ADMIN" ? "/admin/listings?updated=1" : "/marketplace/my-listings?updated=1")
+  );
 }
 
 export async function deleteListing(formData: FormData) {

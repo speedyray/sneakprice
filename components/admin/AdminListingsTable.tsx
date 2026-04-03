@@ -140,12 +140,20 @@ export default function AdminListingsTable({
               </td>
 
               <td className="px-6 py-5">
-                <Link
-                  href={`/marketplace/listing/${listing.id}`}
-                  className="inline-flex rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-50"
-                >
-                  View Listing
-                </Link>
+                <div className="flex min-w-[180px] flex-wrap gap-2">
+                  <Link
+                    href={`/marketplace/listing/${listing.id}`}
+                    className="inline-flex rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-50"
+                  >
+                    View Listing
+                  </Link>
+                  <Link
+                    href={`/admin/listings/${listing.id}/edit`}
+                    className="inline-flex rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:border-emerald-400"
+                  >
+                    Edit Listing
+                  </Link>
+                </div>
               </td>
             </tr>
           ))}

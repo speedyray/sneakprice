@@ -1,8 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
+  "/admin(.*)",
   "/seller(.*)",
   "/dashboard(.*)",
   "/inventory(.*)",
@@ -10,32 +10,7 @@ const isProtectedRoute = createRouteMatcher([
   "/marketplace/create-listing(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, request: NextRequest) => {
-  // Keep admin basic auth
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    const authHeader = request.headers.get("authorization");
-
-    if (authHeader) {
-      const token = authHeader.split(" ")[1];
-      const decoded = Buffer.from(token, "base64").toString("utf-8");
-      const [user, pass] = decoded.split(":");
-
-      if (
-        user === process.env.ADMIN_USER &&
-        pass === process.env.ADMIN_PASSWORD
-      ) {
-        return NextResponse.next();
-      }
-    }
-
-    return new NextResponse("Authentication required", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Secure Area"',
-      },
-    });
-  }
-
+export default clerkMiddleware(async (auth, request) => {
   if (isProtectedRoute(request)) {
     await auth.protect();
   }

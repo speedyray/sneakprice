@@ -56,6 +56,7 @@ type ListingFormProps = {
   submitLabel: string;
   initialValues: ListingFormValues;
   listingId?: string;
+  hiddenFields?: Record<string, string>;
 };
 
 export function ListingForm({
@@ -63,6 +64,7 @@ export function ListingForm({
   submitLabel,
   initialValues,
   listingId,
+  hiddenFields,
 }: ListingFormProps) {
   const [state, formAction] = useActionState(action, {
     status: "idle",
@@ -86,6 +88,11 @@ export function ListingForm({
       }}
     >
       {listingId ? <input type="hidden" name="listingId" value={listingId} /> : null}
+      {hiddenFields
+        ? Object.entries(hiddenFields).map(([name, value]) => (
+            <input key={name} type="hidden" name={name} value={value} />
+          ))
+        : null}
 
       <div className="col-span-full flex items-center justify-between gap-4 rounded-2xl border border-black/10 bg-white px-4 py-3">
         <p className="text-xs uppercase tracking-[0.3em] text-neutral-600">
