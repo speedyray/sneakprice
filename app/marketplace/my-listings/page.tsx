@@ -48,7 +48,6 @@ export default async function MyListingsPage({
   const activeCount = listings.filter((listing) => listing.status === "ACTIVE").length;
   const reservedCount = listings.filter((listing) => listing.status === "RESERVED").length;
   const soldCount = listings.filter((listing) => listing.status === "SOLD").length;
-  const draftCount = listings.filter((listing) => listing.status === "DRAFT").length;
   const totalValue = listings.reduce(
     (sum, listing) => sum + Number(listing.price),
     0,
@@ -83,59 +82,61 @@ export default async function MyListingsPage({
 
   function renderListingActions(listing: (typeof listings)[number]) {
     return (
-      <div className="flex flex-wrap items-center gap-2 border-t border-black/10 px-4 py-3">
+      <div className="space-y-3 border-t border-black/10 px-4 py-4">
         <Link
           href={`/marketplace/my-listings/${listing.id}/edit`}
-          className="inline-flex items-center justify-center rounded-full border border-black/15 bg-white px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black transition hover:border-black/30"
+          className="inline-flex w-full items-center justify-center rounded-2xl border border-black/20 bg-black px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-neutral-800"
         >
-          Edit
+          Edit Listing
         </Link>
 
-        {listing.status !== "SOLD" ? (
-          <form action={markListingSold}>
+        <div className="flex flex-wrap items-center gap-2">
+          {listing.status !== "SOLD" ? (
+            <form action={markListingSold}>
+              <input type="hidden" name="listingId" value={listing.id} />
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-full border border-emerald-600/30 bg-emerald-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-emerald-700 transition hover:border-emerald-600/50"
+              >
+                Mark sold
+              </button>
+            </form>
+          ) : null}
+
+          {listing.status === "ACTIVE" || listing.status === "RESERVED" ? (
+            <form action={unlistListing}>
+              <input type="hidden" name="listingId" value={listing.id} />
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-amber-700 transition hover:border-amber-500/50"
+              >
+                Unlist
+              </button>
+            </form>
+          ) : null}
+
+          {listing.status === "DRAFT" || listing.status === "SOLD" ? (
+            <form action={relistListing}>
+              <input type="hidden" name="listingId" value={listing.id} />
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-sky-700 transition hover:border-sky-500/50"
+              >
+                Relist
+              </button>
+            </form>
+          ) : null}
+
+          <form action={deleteListing}>
             <input type="hidden" name="listingId" value={listing.id} />
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-full border border-emerald-600/30 bg-emerald-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-emerald-700 transition hover:border-emerald-600/50"
+              className="inline-flex items-center justify-center rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-rose-700 transition hover:border-rose-500/50"
             >
-              Mark sold
+              Delete
             </button>
           </form>
-        ) : null}
-
-        {listing.status === "ACTIVE" || listing.status === "RESERVED" ? (
-          <form action={unlistListing}>
-            <input type="hidden" name="listingId" value={listing.id} />
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-amber-700 transition hover:border-amber-500/50"
-            >
-              Unlist
-            </button>
-          </form>
-        ) : null}
-
-        {listing.status === "DRAFT" || listing.status === "SOLD" ? (
-          <form action={relistListing}>
-            <input type="hidden" name="listingId" value={listing.id} />
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-sky-700 transition hover:border-sky-500/50"
-            >
-              Relist
-            </button>
-          </form>
-        ) : null}
-
-        <form action={deleteListing}>
-          <input type="hidden" name="listingId" value={listing.id} />
-          <button
-            type="submit"
-            className="inline-flex items-center justify-center rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-rose-700 transition hover:border-rose-500/50"
-          >
-            Delete
-          </button>
-        </form>
+        </div>
       </div>
     );
   }

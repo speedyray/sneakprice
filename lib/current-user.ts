@@ -1,6 +1,19 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 
+function getAdminEmailAllowlist() {
+  return [
+    process.env.ADMIN_EMAIL,
+    ...(process.env.ADMIN_EMAILS?.split(",") ?? []),
+  ]
+    .map((value) => value?.trim().toLowerCase())
+    .filter((value): value is string => Boolean(value));
+}
+
+function isAdminEmail(email: string) {
+  return getAdminEmailAllowlist().includes(email.trim().toLowerCase());
+}
+
 function getPrimaryEmailAddress(
   user: Awaited<ReturnType<typeof currentUser>>
 ) {
@@ -34,6 +47,9 @@ export async function getCurrentDbUser() {
     return null;
   }
 
+  const clerkUser = await currentUser();
+  const email = getPrimaryEmailAddress(clerkUser);
+
   const existingUser = await prisma.user.findUnique({
     where: {
       clerkUserId: userId,
@@ -45,11 +61,23 @@ export async function getCurrentDbUser() {
   });
 
   if (existingUser) {
+    if (email && existingUser.role !== "ADMIN" && isAdminEmail(email)) {
+      return prisma.user.update({
+        where: {
+          id: existingUser.id,
+        },
+        data: {
+          role: "ADMIN",
+        },
+        include: {
+          sellerProfile: true,
+          buyerProfile: true,
+        },
+      });
+    }
+
     return existingUser;
   }
-
-  const clerkUser = await currentUser();
-  const email = getPrimaryEmailAddress(clerkUser);
 
   if (!email) {
     return null;
@@ -79,7 +107,10 @@ export async function getCurrentDbUser() {
         imageUrl: clerkUser?.imageUrl ?? existingUserByEmail.imageUrl,
         isSeller: true,
         isBuyer: true,
-        role: existingUserByEmail.role === "ADMIN" ? "ADMIN" : "SELLER",
+        role:
+          existingUserByEmail.role === "ADMIN" || isAdminEmail(email)
+            ? "ADMIN"
+            : "SELLER",
         sellerProfile: existingUserByEmail.sellerProfile
           ? undefined
           : {
@@ -102,7 +133,7 @@ export async function getCurrentDbUser() {
       firstName: clerkUser?.firstName ?? null,
       lastName: clerkUser?.lastName ?? null,
       imageUrl: clerkUser?.imageUrl ?? null,
-      role: "SELLER",
+      role: isAdminEmail(email) ? "ADMIN" : "SELLER",
       isSeller: true,
       isBuyer: true,
       sellerProfile: {
