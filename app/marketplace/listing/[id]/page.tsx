@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ListingStatus, type SellerProfile, type User } from "@prisma/client";
+import { AddToCartButton } from "@/components/marketplace/AddToCartButton";
 import { ListingDetailGallery } from "@/components/marketplace/ListingDetailGallery";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 import { decimalToNumber } from "@/lib/money";
@@ -361,6 +362,18 @@ export default async function ListingDetailPage({
                 </div>
 
                 <div className="mt-6 space-y-3">
+                  <AddToCartButton
+                    item={{
+                      id: listing.id,
+                      title,
+                      price: listingPrice,
+                      imageUrl: listing.primaryImageUrl,
+                      brand: listing.brand,
+                      model: listing.model,
+                      size: listing.size,
+                    }}
+                    className="inline-flex w-full items-center justify-center rounded-full bg-amber-300 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-amber-200"
+                  />
                   <Link
                     href={`/buyer/checkout/${listing.id}`}
                     className="inline-flex w-full items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-emerald-400"

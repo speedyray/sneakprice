@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AddToCartButton } from "@/components/marketplace/AddToCartButton";
 import { prisma } from "@/lib/prisma";
 import { MarketplaceListingImage } from "@/components/MarketplaceListingImage";
 import { decimalToNumber } from "@/lib/money";
@@ -172,6 +173,18 @@ const marketDelta = listingPrice - retailPrice;
               </div>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <AddToCartButton
+                  item={{
+                    id: listing.id,
+                    title: listing.title,
+                    price: listingPrice,
+                    imageUrl: listing.primaryImageUrl,
+                    brand: listing.sneaker.brand,
+                    model: listing.sneaker.model,
+                    size: listing.size,
+                  }}
+                  className="inline-flex items-center justify-center rounded-full bg-amber-300 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-amber-200"
+                />
                 <Link
                   href={`/buyer/checkout/${listing.id}`}
                   className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-emerald-400"
