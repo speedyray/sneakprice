@@ -1,6 +1,8 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 
+type ClerkUser = Awaited<ReturnType<typeof currentUser>>;
+
 function getAdminEmailAllowlist() {
   return [
     process.env.ADMIN_EMAIL,
@@ -14,9 +16,87 @@ function isAdminEmail(email: string) {
   return getAdminEmailAllowlist().includes(email.trim().toLowerCase());
 }
 
-function getPrimaryEmailAddress(
-  user: Awaited<ReturnType<typeof currentUser>>
-) {
+function normalizeRoleValue(value: unknown) {
+  if (typeof value === "string") {
+    return value.trim().toUpperCase();
+  }
+
+  return null;
+}
+
+function hasAdminFlag(user: ClerkUser) {
+  if (!user) return false;
+
+  const metadataSources = [
+    user.publicMetadata,
+    user.privateMetadata,
+    user.unsafeMetadata,
+  ];
+
+  for (const metadata of metadataSources) {
+    if (!metadata || typeof metadata !== "object") continue;
+
+    const role =
+      normalizeRoleValue((metadata as Record<string, unknown>).role) ??
+      normalizeRoleValue((metadata as Record<string, unknown>).userRole);
+
+    if (role === "ADMIN") {
+      return true;
+    }
+
+    const roles = (metadata as Record<string, unknown>).roles;
+
+    if (Array.isArray(roles) && roles.some((value) => normalizeRoleValue(value) === "ADMIN")) {
+      return true;
+    }
+
+    if ((metadata as Record<string, unknown>).isAdmin === true) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function shouldGrantAdminRole({
+  email,
+  clerkUser,
+  currentUserId,
+}: {
+  email: string | null;
+  clerkUser: ClerkUser;
+  currentUserId?: string;
+}) {
+  if (email && isAdminEmail(email)) {
+    return true;
+  }
+
+  if (hasAdminFlag(clerkUser)) {
+    return true;
+  }
+
+  const hasConfiguredAdmins = getAdminEmailAllowlist().length > 0;
+
+  if (process.env.NODE_ENV === "production" || hasConfiguredAdmins) {
+    return false;
+  }
+
+  const existingAdmin = await prisma.user.findFirst({
+    where: {
+      role: "ADMIN",
+      ...(currentUserId ? { id: { not: currentUserId } } : {}),
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  // In local development, bootstrap the first signed-in account as admin so
+  // the admin toolchain is usable without extra env setup.
+  return !existingAdmin;
+}
+
+function getPrimaryEmailAddress(user: ClerkUser) {
   if (!user) return null;
 
   return (
@@ -28,7 +108,7 @@ function getPrimaryEmailAddress(
   );
 }
 
-function getDisplayName(user: Awaited<ReturnType<typeof currentUser>>, email: string) {
+function getDisplayName(user: ClerkUser, email: string) {
   if (!user) return email.split("@")[0] ?? "SneakPrice Seller";
 
   return (
@@ -61,7 +141,15 @@ export async function getCurrentDbUser() {
   });
 
   if (existingUser) {
-    if (email && existingUser.role !== "ADMIN" && isAdminEmail(email)) {
+    const shouldBeAdmin =
+      existingUser.role === "ADMIN" ||
+      (await shouldGrantAdminRole({
+        email,
+        clerkUser,
+        currentUserId: existingUser.id,
+      }));
+
+    if (shouldBeAdmin && existingUser.role !== "ADMIN") {
       return prisma.user.update({
         where: {
           id: existingUser.id,
@@ -96,6 +184,14 @@ export async function getCurrentDbUser() {
   });
 
   if (existingUserByEmail) {
+    const shouldBeAdmin =
+      existingUserByEmail.role === "ADMIN" ||
+      (await shouldGrantAdminRole({
+        email,
+        clerkUser,
+        currentUserId: existingUserByEmail.id,
+      }));
+
     return prisma.user.update({
       where: {
         id: existingUserByEmail.id,
@@ -107,10 +203,7 @@ export async function getCurrentDbUser() {
         imageUrl: clerkUser?.imageUrl ?? existingUserByEmail.imageUrl,
         isSeller: true,
         isBuyer: true,
-        role:
-          existingUserByEmail.role === "ADMIN" || isAdminEmail(email)
-            ? "ADMIN"
-            : "SELLER",
+        role: shouldBeAdmin ? "ADMIN" : "SELLER",
         sellerProfile: existingUserByEmail.sellerProfile
           ? undefined
           : {
@@ -133,7 +226,7 @@ export async function getCurrentDbUser() {
       firstName: clerkUser?.firstName ?? null,
       lastName: clerkUser?.lastName ?? null,
       imageUrl: clerkUser?.imageUrl ?? null,
-      role: isAdminEmail(email) ? "ADMIN" : "SELLER",
+      role: (await shouldGrantAdminRole({ email, clerkUser })) ? "ADMIN" : "SELLER",
       isSeller: true,
       isBuyer: true,
       sellerProfile: {
