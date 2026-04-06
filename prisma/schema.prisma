@@ -311,11 +311,62 @@ enum HoldStatus {
 }
 
 model Deal {
-  id         String   @id @default(cuid())
-  sneaker    String?
-  roi        Float?
-  profit     Float?
-  created_at DateTime @default(now())
+  id              String    @id @default(cuid())
+  created_at      DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt @default(now())
+
+  // Legacy fields — kept for news-generator compatibility
+  sneaker         String?   // = modelName (legacy alias)
+  roi             Float?    // = profitMargin (legacy alias)
+  profit          Float?    // = netProfit (legacy alias)
+
+  // Extended arbitrage fields
+  expiresAt       DateTime?
+  brand           String?
+  size            String?
+  imageUrl        String?
+
+  buyPlatform     String?   // "ebay" | "nike" | "footlocker"
+  buyPrice        Float?
+  buyUrl          String?
+  buyListingId    String?
+
+  sellPlatform    String?   // "stockx" | "goat" | "ebay"
+  sellPrice       Float?
+  sellUrl         String?
+
+  platformSellFee Float?
+  paymentFee      Float?
+  shippingBuy     Float?
+  shippingSell    Float?
+  authFee         Float?
+  netProfit       Float?
+  profitMargin    Float?
+
+  dealScore       Int?
+  dealLabel       String?   // "hot" | "good" | "watch"
+  scoredBy        String?   // "math" | "huggingface" | "openai"
+  demandTrend     Float?
+  sellThroughRate Float?
+
+  isActive        Boolean   @default(true)
+
+  @@index([dealScore])
+  @@index([created_at])
+  @@index([sneaker])
+}
+
+model SneakerPriceCache {
+  id        String   @id @default(cuid())
+  modelName String
+  platform  String
+  size      String
+  price     Float
+  url       String
+  cachedAt  DateTime @default(now())
+
+  @@unique([modelName, platform, size])
+  @@index([cachedAt])
 }
 
 model ListingHold {
