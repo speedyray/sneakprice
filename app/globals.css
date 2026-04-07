@@ -38,3 +38,28 @@ body {
     transform: translateY(-50%);
   }
 }
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUpFade 300ms ease-out forwards;
+}
+
+@keyframes flashGreen {
+  0%   { border-color: rgb(74 222 128); }
+  70%  { border-color: rgb(74 222 128); }
+  100% { border-color: rgb(55 65 81); }
+}
+
+.animate-flash-green {
+  animation: flashGreen 1500ms ease-out forwards;
+}
