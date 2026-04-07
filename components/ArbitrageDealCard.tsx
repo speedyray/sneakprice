@@ -95,9 +95,11 @@ export function ArbitrageDealCard({ deal, isNew = false, animationDelay = 0 }: A
   const [isNewVisible, setIsNewVisible] = useState(isNew);
 
   useEffect(() => {
-    if (!isNew) return;
-    const timer = setTimeout(() => setIsNewVisible(false), 3000);
-    return () => clearTimeout(timer);
+    if (isNew) {
+      setIsNewVisible(true);
+      const timer = setTimeout(() => setIsNewVisible(false), 3000);
+      return () => clearTimeout(timer);
+    }
   }, [isNew]);
 
   // Support both new schema and legacy SSE shape
@@ -121,8 +123,8 @@ export function ArbitrageDealCard({ deal, isNew = false, animationDelay = 0 }: A
 
   return (
     <div
-      className={`bg-gray-900 border rounded-2xl p-5 space-y-4 transition-colors animate-slide-up relative ${
-        isNew ? "animate-flash-green" : "border-gray-700 hover:border-gray-500"
+      className={`bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-2xl p-5 space-y-4 transition-colors animate-slide-up relative ${
+        isNew ? "animate-flash-green" : ""
       }`}
       style={{ animationDelay: `${animationDelay}ms`, animationFillMode: "both" }}
     >
@@ -194,7 +196,7 @@ export function ArbitrageDealCard({ deal, isNew = false, animationDelay = 0 }: A
         <div>
           <p className="text-gray-400 text-xs">Net Profit</p>
           <p className={`font-bold text-xl ${(netProfit ?? 0) > 0 ? "text-green-400" : "text-red-400"}`}>
-            {(netProfit ?? 0) > 0 ? "+" : ""}${animatedNetProfit.toFixed(2)}
+            {(netProfit ?? 0) >= 0 ? "+" : "-"}${animatedNetProfit.toFixed(2)}
           </p>
         </div>
         <div className="text-right">
