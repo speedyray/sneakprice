@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
+import { ArbitrageDealCard, type ArbDeal } from "@/components/ArbitrageDealCard";
 
 const trendingTitles = [
   "🔥 Trending Sneaker Scans",
@@ -61,6 +62,7 @@ const arbitrageTitles = [
   "📊 Reseller Profit Opportunities",
 ];
 
+// Legacy type for backward compat with existing SSE handler
 type LiveDeal = {
   sneaker: string;
   buy_price: number;
@@ -155,6 +157,13 @@ export default function DiscoverPage() {
   const { user } = useUser();
 
   const [deals, setDeals] = useState<LiveDeal[]>([]);
+  const [arbDeals, setArbDeals] = useState<ArbDeal[]>([]);
+  const [newDealCount, setNewDealCount] = useState(0);
+  const [activeTab, setActiveTab] = useState<"all" | "hot" | "good" | "watch">("all");
+  const [scanQuery, setScanQuery] = useState("");
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [isScanningModel, setIsScanningModel] = useState(false);
+  const [scanModalError, setScanModalError] = useState("");
   const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
   const [trending, setTrending] = useState(trendingSneakers.slice(0, 4));
   const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
@@ -178,7 +187,25 @@ export default function DiscoverPage() {
     let eventSource = new EventSource("/api/live-deals-stream");
 
     eventSource.onmessage = (event) => {
-      const deal = JSON.parse(event.data) as LiveDeal;
+      const data = JSON.parse(event.data);
+
+      // Skip status-only messages
+      if (data._status) return;
+
+      // New schema deal (has dealScore field)
+      if (data.dealScore !== undefined) {
+        const deal = data as ArbDeal;
+        setArbDeals((prev) => {
+          const exists = prev.some((d) => d.id === deal.id);
+          if (exists) return prev.map((d) => (d.id === deal.id ? deal : d));
+          setNewDealCount((c) => c + 1);
+          return [deal, ...prev].slice(0, 50);
+        });
+        return;
+      }
+
+      // Legacy schema (random deals) — keep for backward compat
+      const deal = data as LiveDeal;
       setDeals((prev) => [deal, ...prev].slice(0, 10));
       setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
     };
@@ -436,6 +463,54 @@ export default function DiscoverPage() {
 
 
 
+
+  async function handleScanModel(e: React.FormEvent) {
+    e.preventDefault();
+    if (!scanQuery.trim()) return;
+
+    setIsScanningModel(true);
+    setScanModalError("");
+
+    try {
+      const ebayRes = await fetch("/api/ebay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: scanQuery }),
+      });
+      const ebayData = await ebayRes.json();
+
+      if (ebayData.deal) {
+        const newDeal: ArbDeal = {
+          id: `scan-${Date.now()}`,
+          sneaker: scanQuery,
+          buyPlatform: "ebay",
+          buyPrice: ebayData.deal.buyPrice,
+          buyUrl: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(scanQuery)}`,
+          sellPlatform: "ebay",
+          sellPrice: ebayData.deal.marketPrice,
+          sellUrl: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(scanQuery)}`,
+          netProfit: ebayData.deal.profit,
+          profitMargin: ebayData.deal.roi,
+          dealLabel:
+            ebayData.deal.roi >= 30
+              ? "hot"
+              : ebayData.deal.roi >= 15
+              ? "good"
+              : "watch",
+        };
+        setArbDeals((prev) => [newDeal, ...prev].slice(0, 50));
+        setIsScanModalOpen(false);
+      } else {
+        setScanModalError(
+          "No arbitrage opportunity found for this model right now."
+        );
+      }
+    } catch {
+      setScanModalError("Scan failed. Please try again.");
+    } finally {
+      setIsScanningModel(false);
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-white px-6 py-6 text-center text-black">
@@ -932,6 +1007,131 @@ export default function DiscoverPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Arbitrage Deal Feed ─────────────────────────────── */}
+      <section className="space-y-4 mt-24 max-w-5xl w-full">
+        {/* Header row */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h2 className="text-white font-bold text-xl">🔥 Live Arbitrage Deals</h2>
+            <p className="text-gray-400 text-sm">
+              {arbDeals.length > 0
+                ? `${arbDeals.length} active deals · updating live`
+                : "Warming up deal engine…"}
+            </p>
+          </div>
+          <button
+            onClick={() => setIsScanModalOpen(true)}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+          >
+            <DollarSign className="w-4 h-4" /> Scan a Shoe
+          </button>
+        </div>
+
+        {/* New deals banner */}
+        {newDealCount > 0 && (
+          <button
+            onClick={() => setNewDealCount(0)}
+            className="w-full text-center bg-blue-600/20 border border-blue-500/40 text-blue-300 text-sm py-2 rounded-xl hover:bg-blue-600/30 transition-colors"
+          >
+            ↑ {newDealCount} new deal{newDealCount > 1 ? "s" : ""} · click to dismiss
+          </button>
+        )}
+
+        {/* Tab filters */}
+        <div className="flex gap-2 flex-wrap">
+          {(["all", "hot", "good", "watch"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`text-sm px-4 py-1.5 rounded-full font-medium transition-colors ${
+                activeTab === tab
+                  ? "bg-white text-black"
+                  : "bg-gray-800 text-gray-400 hover:text-white"
+              }`}
+            >
+              {tab === "all"
+                ? "All"
+                : tab === "hot"
+                ? "🔥 Hot"
+                : tab === "good"
+                ? "✅ Good"
+                : "👀 Watch"}
+            </button>
+          ))}
+        </div>
+
+        {/* Deal cards */}
+        {arbDeals.length === 0 ? (
+          <div className="text-center py-16 text-gray-500">
+            <p className="text-4xl mb-3">🔍</p>
+            <p className="font-medium">
+              No deals yet — the scanner is running in the background.
+            </p>
+            <p className="text-sm mt-1">
+              Try &quot;Scan a Shoe&quot; to find deals instantly.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {arbDeals
+              .filter((d) => activeTab === "all" || d.dealLabel === activeTab)
+              .map((deal) => (
+                <ArbitrageDealCard key={deal.id} deal={deal} />
+              ))}
+          </div>
+        )}
+      </section>
+
+      {/* ── Scan Modal ─────────────────────────────────────────── */}
+      {isScanModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-white font-bold text-lg">Scan a Specific Shoe</h2>
+              <button
+                onClick={() => {
+                  setIsScanModalOpen(false);
+                  setScanModalError("");
+                }}
+                className="text-gray-400 hover:text-white text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm">
+              Enter a sneaker model name to find arbitrage opportunities right now.
+            </p>
+            <form onSubmit={handleScanModel} className="space-y-3">
+              <input
+                type="text"
+                value={scanQuery}
+                onChange={(e) => setScanQuery(e.target.value)}
+                placeholder="e.g. Air Jordan 4 Bred"
+                className="w-full bg-gray-800 border border-gray-600 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              />
+              {scanModalError && (
+                <p className="text-red-400 text-sm">{scanModalError}</p>
+              )}
+              <button
+                type="submit"
+                disabled={isScanningModel || !scanQuery.trim()}
+                className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                {isScanningModel ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Scanning…
+                  </>
+                ) : (
+                  <>
+                    <DollarSign className="w-4 h-4" /> Find Deals
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       <footer className="mt-24 w-full max-w-5xl border-t border-black/10 pb-8 pt-12 text-center text-sm text-neutral-500">
         <div className="flex justify-center mb-6">
