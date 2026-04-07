@@ -257,8 +257,7 @@ export function ArbitrageDealCard({ deal, isNew = false, animationDelay = 0 }: A
               <div className="border-t border-gray-600 pt-1.5 flex justify-between font-bold">
                 <span className="text-white">Net Profit</span>
                 <span className={`${(netProfit ?? 0) > 0 ? "text-green-400" : "text-red-400"}`}>
-                  {(netProfit ?? 0) > 0 ? "+" : ""}
-                  {fmt(netProfit)}
+                  {(netProfit ?? 0) >= 0 ? "+" : "-"}${Math.abs(netProfit ?? 0).toFixed(2)}
                 </span>
               </div>
               {deal.scoredBy && (
