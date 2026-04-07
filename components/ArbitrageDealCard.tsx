@@ -27,6 +27,7 @@ export interface ArbDeal {
   dealLabel?: string | null;
   scoredBy?: string | null;
   demandTrend?: number | null;
+  created_at?: string | null;
   // Legacy fields
   buy_price?: number;
   market_price?: number;
@@ -49,6 +50,17 @@ function platformLabel(p?: string | null): string {
     adidas: "Adidas",
   };
   return labels[p ?? ""] ?? (p ?? "—");
+}
+
+function timeAgo(iso?: string | null): string {
+  if (!iso) return "";
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 function DealBadge({ label }: { label?: string | null }) {
@@ -94,7 +106,12 @@ export function ArbitrageDealCard({ deal }: { deal: ArbDeal }) {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <DealBadge label={label} />
+          <div className="flex items-center gap-2">
+            <DealBadge label={label} />
+            {deal.created_at && (
+              <span className="text-gray-500 text-xs">{timeAgo(deal.created_at)}</span>
+            )}
+          </div>
           <h3 className="text-white font-bold text-base leading-snug mt-1">
             {name}
           </h3>

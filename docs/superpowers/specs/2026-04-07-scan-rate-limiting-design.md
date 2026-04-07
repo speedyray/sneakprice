@@ -5,7 +5,7 @@
 
 ## Overview
 
-Limit the "Scan a Shoe" feature (`/api/ebay`) to 2 free scans per day per registered user. Anonymous users are blocked entirely and prompted to sign in. Registered users who hit the limit see an error message and upgrade options. Counts are tracked in Supabase and reset daily.
+Limit the "Scan a Shoe" feature (`/api/ebay`) to 3 free scans per day per registered user. Anonymous users are blocked entirely and prompted to sign in. Registered users who hit the limit see an error message and upgrade options. Counts are tracked in Supabase and reset daily.
 
 ---
 
