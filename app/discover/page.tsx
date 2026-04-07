@@ -16,7 +16,7 @@ import {
   Flame,
 } from "lucide-react";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/nextjs";
 import { ArbitrageDealCard, type ArbDeal } from "@/components/ArbitrageDealCard";
 
 const trendingTitles = [
@@ -155,8 +155,10 @@ function getFlipScore(data: {
 
 export default function DiscoverPage() {
   const { user } = useUser();
+  const { openSignIn } = useClerk();
 
   const [deals, setDeals] = useState<LiveDeal[]>([]);
+
   const [arbDeals, setArbDeals] = useState<ArbDeal[]>([]);
   const [newDealCount, setNewDealCount] = useState(0);
   const [activeTab, setActiveTab] = useState<"all" | "hot" | "good" | "watch">("all");
@@ -164,6 +166,7 @@ export default function DiscoverPage() {
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isScanningModel, setIsScanningModel] = useState(false);
   const [scanModalError, setScanModalError] = useState("");
+  const [scansRemaining, setScansRemaining] = useState<number | null>(null);
   const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
   const [trending, setTrending] = useState(trendingSneakers.slice(0, 4));
   const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
@@ -477,15 +480,31 @@ export default function DiscoverPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: scanQuery }),
       });
+
+      if (ebayRes.status === 401) {
+        setScanModalError("unauthenticated");
+        return;
+      }
+
+      if (ebayRes.status === 403) {
+        setScanModalError("limit_reached");
+        return;
+      }
+
       const ebayData = await ebayRes.json();
 
       if (ebayData.deal) {
+        if (ebayData.remaining !== undefined) {
+          setScansRemaining(ebayData.remaining);
+        }
         const newDeal: ArbDeal = {
           id: `scan-${Date.now()}`,
           sneaker: scanQuery,
           buyPlatform: "ebay",
           buyPrice: ebayData.deal.buyPrice,
-          buyUrl: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(scanQuery)}`,
+          buyUrl: ebayData.deal.cheapestItemId
+            ? `https://www.ebay.com/itm/${ebayData.deal.cheapestItemId}`
+            : `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(scanQuery)}`,
           sellPlatform: "ebay",
           sellPrice: ebayData.deal.marketPrice,
           sellUrl: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(scanQuery)}`,
@@ -497,6 +516,7 @@ export default function DiscoverPage() {
               : ebayData.deal.roi >= 15
               ? "good"
               : "watch",
+          created_at: new Date().toISOString(),
         };
         setArbDeals((prev) => [newDeal, ...prev].slice(0, 50));
         setIsScanModalOpen(false);
@@ -1110,8 +1130,47 @@ export default function DiscoverPage() {
                 placeholder="e.g. Air Jordan 4 Bred"
                 className="w-full bg-gray-800 border border-gray-600 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500"
               />
-              {scanModalError && (
-                <p className="text-red-400 text-sm">{scanModalError}</p>
+              {scanModalError === "unauthenticated" && (
+                <div className="text-center space-y-3 py-2">
+                  <p className="text-white font-semibold">Sign in to scan sneakers</p>
+                  <p className="text-gray-400 text-sm">Create a free account to get 3 scans per day.</p>
+                  <button
+                    onClick={() => openSignIn()}
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl transition-colors"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              )}
+
+              {scanModalError === "limit_reached" && (
+                <div className="text-center space-y-3 py-2">
+                  <p className="text-white font-semibold">You&apos;ve used your 3 free scans today</p>
+                  <p className="text-gray-400 text-sm">Your scans reset at midnight UTC.</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsScanModalOpen(false)}
+                      className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded-xl transition-colors"
+                    >
+                      Come back tomorrow
+                    </button>
+                    <a
+                      href="/pricing"
+                      className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl transition-colors text-center"
+                    >
+                      Upgrade
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {scanModalError && scanModalError !== "unauthenticated" && scanModalError !== "limit_reached" && (
+                <p className="text-red-400 text-sm text-center">{scanModalError}</p>
+              )}
+              {scansRemaining !== null && (
+                <p className="text-gray-500 text-xs text-center">
+                  {scansRemaining} scan{scansRemaining !== 1 ? "s" : ""} remaining today
+                </p>
               )}
               <button
                 type="submit"
