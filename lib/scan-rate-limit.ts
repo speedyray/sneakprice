@@ -1,14 +1,19 @@
 // lib/scan-rate-limit.ts
-// Checks and increments the daily scan count for a registered user.
+// Checks and atomically increments the daily scan count for a registered user.
+// Uses a Postgres function to avoid race conditions on concurrent requests.
 // Returns { allowed, remaining } — call this before making any eBay API calls.
 
 import { createClient } from "@supabase/supabase-js";
 
 const DAILY_SCAN_LIMIT = 3;
 
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Missing Supabase env vars in scan-rate-limit");
+}
+
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export interface ScanLimitResult {
@@ -20,41 +25,21 @@ export async function checkAndIncrementScanLimit(
   userId: string,
   ip: string
 ): Promise<ScanLimitResult> {
-  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-
-  // First check current count without incrementing
-  const { data: existing } = await supabase
-    .from("scan_usage")
-    .select("count")
-    .eq("user_id", userId)
-    .eq("scan_date", today)
-    .single();
-
-  const currentCount = existing?.count ?? 0;
-
-  if (currentCount >= DAILY_SCAN_LIMIT) {
-    return { allowed: false, remaining: 0 };
-  }
-
-  // Safe to increment — upsert atomically
-  const { data, error } = await supabase
-    .from("scan_usage")
-    .upsert(
-      { user_id: userId, ip, scan_date: today, count: currentCount + 1 },
-      { onConflict: "user_id,scan_date" }
-    )
-    .select("count")
-    .single();
+  const { data, error } = await supabase.rpc("increment_scan_usage", {
+    p_user_id: userId,
+    p_ip: ip,
+    p_limit: DAILY_SCAN_LIMIT,
+  });
 
   if (error || !data) {
-    // On DB error, fail open — don't block the user
-    console.error("[scan-rate-limit] upsert error:", error?.message);
-    return { allowed: true, remaining: DAILY_SCAN_LIMIT - currentCount - 1 };
+    // Fail open on DB error — a transient outage shouldn't block legitimate users.
+    // Accepted trade-off: prefer UX over strict enforcement during downtime.
+    console.error("[scan-rate-limit] rpc error:", error?.message);
+    return { allowed: true, remaining: DAILY_SCAN_LIMIT };
   }
 
-  const newCount = data.count as number;
   return {
-    allowed: newCount <= DAILY_SCAN_LIMIT,
-    remaining: Math.max(0, DAILY_SCAN_LIMIT - newCount),
+    allowed: data.allowed as boolean,
+    remaining: data.remaining as number,
   };
 }
