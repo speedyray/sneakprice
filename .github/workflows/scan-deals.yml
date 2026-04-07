@@ -1,0 +1,17 @@
+name: Scan Deals
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch: # allow manual trigger from GitHub UI
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deal scan
+        run: |
+          curl -s -f -X GET \
+            "https://sneakpriceapp.com/api/cron/scan-deals" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"

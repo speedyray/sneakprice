@@ -3,10 +3,6 @@
     {
       "path": "/api/cron/generate-daily-drafts",
       "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/scan-deals",
-      "schedule": "*/20 * * * *"
     }
   ]
 }
