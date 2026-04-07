@@ -1,3 +1,4 @@
+import "server-only";
 // lib/scan-rate-limit.ts
 // Checks and atomically increments the daily scan count for a registered user.
 // Uses a Postgres function to avoid race conditions on concurrent requests.

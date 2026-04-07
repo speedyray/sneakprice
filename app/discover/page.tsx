@@ -493,10 +493,11 @@ export default function DiscoverPage() {
 
       const ebayData = await ebayRes.json();
 
+      if (ebayData.remaining !== undefined) {
+        setScansRemaining(ebayData.remaining);
+      }
+
       if (ebayData.deal) {
-        if (ebayData.remaining !== undefined) {
-          setScansRemaining(ebayData.remaining);
-        }
         const newDeal: ArbDeal = {
           id: `scan-${Date.now()}`,
           sneaker: scanQuery,
@@ -1179,7 +1180,7 @@ export default function DiscoverPage() {
               )}
               <button
                 type="submit"
-                disabled={isScanningModel || !scanQuery.trim()}
+                disabled={isScanningModel || !scanQuery.trim() || scanModalError === "unauthenticated" || scanModalError === "limit_reached"}
                 className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 {isScanningModel ? (
