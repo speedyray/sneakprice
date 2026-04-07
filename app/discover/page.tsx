@@ -184,6 +184,7 @@ export default function DiscoverPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const newDealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const arbDealsRef = useRef<ArbDeal[]>([]);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState("");
 
@@ -204,9 +205,7 @@ export default function DiscoverPage() {
         const deal = data as ArbDeal;
         setLastScanAt(new Date());
         // Read current arbDeals snapshot to check existence before the setState
-        // (using a closure read is safe here — a momentary stale read only risks
-        //  a harmless duplicate flash, not data corruption)
-        const isExisting = arbDeals.some((d) => d.id === deal.id);
+        const isExisting = arbDealsRef.current.some((d) => d.id === deal.id);
         if (!isExisting) {
           setNewDealCount((c) => c + 1);
           setNewDealIds((ids) => new Set([...ids, deal.id]));
@@ -308,6 +307,7 @@ export default function DiscoverPage() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [selectedFile]);
 
+  arbDealsRef.current = arbDeals;
   const totalProfit = useMemo(
     () => arbDeals.reduce((sum, d) => sum + (d.netProfit ?? 0), 0),
     [arbDeals]
