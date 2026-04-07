@@ -1009,7 +1009,7 @@ export default function DiscoverPage() {
       </div>
 
       {/* ── Arbitrage Deal Feed ─────────────────────────────── */}
-      <section className="space-y-4 mt-24 max-w-5xl w-full">
+      <section className="space-y-4 mt-24 max-w-5xl w-full bg-gray-950 rounded-3xl p-6 border border-gray-800">
         {/* Header row */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
