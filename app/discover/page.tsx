@@ -1041,7 +1041,12 @@ export default function DiscoverPage() {
             </p>
           </div>
           <button
-            onClick={() => setIsScanModalOpen(true)}
+            onClick={() => {
+              setScanModalError("");
+              setScanQuery("");
+              setScansRemaining(null);
+              setIsScanModalOpen(true);
+            }}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
           >
             <DollarSign className="w-4 h-4" /> Scan a Shoe
