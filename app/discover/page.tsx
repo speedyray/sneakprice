@@ -215,7 +215,7 @@ export default function DiscoverPage() {
               next.delete(deal.id);
               return next;
             });
-          }, 3500);
+          }, 3000);
           newDealTimersRef.current.push(timerId);
         }
         setArbDeals((prev) => {
