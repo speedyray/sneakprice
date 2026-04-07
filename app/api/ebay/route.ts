@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { getEbayAccessToken } from "@/lib/ebay";
 import { createClient } from "@supabase/supabase-js";
+import { checkAndIncrementScanLimit } from "@/lib/scan-rate-limit";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,6 +27,21 @@ function average(arr: number[]) {
 }
 
 export async function POST(req: Request) {
+  // 1. Require authentication
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  }
+
+  // 2. Extract client IP
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+
+  // 3. Check + increment rate limit
+  const { allowed, remaining } = await checkAndIncrementScanLimit(userId, ip);
+  if (!allowed) {
+    return NextResponse.json({ error: "limit_reached", remaining: 0 }, { status: 403 });
+  }
+
   const { query } = await req.json();
 
   const base =
@@ -56,6 +73,11 @@ export async function POST(req: Request) {
   const activePrices = activeItems
     .map((item: any) => parseFloat(item.price?.value))
     .filter((p: number) => !isNaN(p));
+
+  // Track cheapest listing's itemId for direct buy link
+  const cheapestItem = activeItems
+    .filter((item: any) => !isNaN(parseFloat(item.price?.value)))
+    .sort((a: any, b: any) => parseFloat(a.price?.value) - parseFloat(b.price?.value))[0];
 
   let activeStats = null;
 
@@ -169,6 +191,7 @@ if (
     marketPrice: soldStats.overallMedian,
     profit: spread,
     roi: percent,
+    cheapestItemId: cheapestItem?.itemId ?? null,
   };
 
   // 🔥 SAVE DEAL TO SUPABASE
@@ -194,5 +217,6 @@ return NextResponse.json({
   activeMarket: activeStats,
   soldMarket: soldStats,
   deal,
+  remaining,
 });
 }
