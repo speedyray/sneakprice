@@ -183,6 +183,7 @@ export default function DiscoverPage() {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const newDealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState("");
 
@@ -202,19 +203,25 @@ export default function DiscoverPage() {
       if (data.dealScore !== undefined) {
         const deal = data as ArbDeal;
         setLastScanAt(new Date());
-        setArbDeals((prev) => {
-          const exists = prev.some((d) => d.id === deal.id);
-          if (exists) return prev.map((d) => (d.id === deal.id ? deal : d));
+        // Read current arbDeals snapshot to check existence before the setState
+        // (using a closure read is safe here — a momentary stale read only risks
+        //  a harmless duplicate flash, not data corruption)
+        const isExisting = arbDeals.some((d) => d.id === deal.id);
+        if (!isExisting) {
           setNewDealCount((c) => c + 1);
-          // Mark as new — cleared after 3s by ArbitrageDealCard itself
           setNewDealIds((ids) => new Set([...ids, deal.id]));
-          setTimeout(() => {
+          const timerId = setTimeout(() => {
             setNewDealIds((ids) => {
               const next = new Set(ids);
               next.delete(deal.id);
               return next;
             });
           }, 3500);
+          newDealTimersRef.current.push(timerId);
+        }
+        setArbDeals((prev) => {
+          const exists = prev.some((d) => d.id === deal.id);
+          if (exists) return prev.map((d) => (d.id === deal.id ? deal : d));
           return [deal, ...prev].slice(0, 50);
         });
         return;
@@ -233,7 +240,11 @@ export default function DiscoverPage() {
       }, 2000);
     };
 
-    return () => eventSource.close();
+    return () => {
+      eventSource.close();
+      newDealTimersRef.current.forEach(clearTimeout);
+      newDealTimersRef.current = [];
+    };
   }, []);
 
   useEffect(() => {
@@ -297,7 +308,10 @@ export default function DiscoverPage() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [selectedFile]);
 
-  const totalProfit = arbDeals.reduce((sum, d) => sum + (d.netProfit ?? 0), 0);
+  const totalProfit = useMemo(
+    () => arbDeals.reduce((sum, d) => sum + (d.netProfit ?? 0), 0),
+    [arbDeals]
+  );
 
   const derived = useMemo(() => {
     const soldMedian = marketData?.soldMarket?.overallMedian;
