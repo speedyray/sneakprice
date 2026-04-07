@@ -343,7 +343,7 @@ model Deal {
   netProfit       Float?
   profitMargin    Float?
 
-  dealScore       Int?
+  dealScore       Float?
   dealLabel       String?   // "hot" | "good" | "watch"
   scoredBy        String?   // "math" | "huggingface" | "openai"
   demandTrend     Float?
@@ -361,8 +361,8 @@ model SneakerPriceCache {
   modelName String
   platform  String
   size      String
-  price     Float
-  url       String
+  price     Float?
+  url       String?
   cachedAt  DateTime @default(now())
 
   @@unique([modelName, platform, size])
