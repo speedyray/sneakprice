@@ -1,11 +1,11 @@
 {
   "crons": [
     {
-      "path": "/api/cron/generate-daily-drafts?secret=super_secret_123",
+      "path": "/api/cron/generate-daily-drafts",
       "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/cron/scan-deals?secret=super_secret_123",
+      "path": "/api/cron/scan-deals",
       "schedule": "*/20 * * * *"
     }
   ]
