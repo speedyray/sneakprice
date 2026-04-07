@@ -1,104 +1,103 @@
+// app/api/live-deals-stream/route.ts
+// Streams real arbitrage deals from Postgres via Server-Sent Events.
+// On connect: immediately sends top-20 active deals sorted by dealScore desc.
+// Polling: checks for new deals every 30 seconds and pushes any found.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-
-const sneakers = [
-
-  "Nike Dunk Panda",
-  "Nike Dunk Low Grey Fog",
-  "Nike Dunk Low Retro",
-  "Nike Dunk Low Photon Dust",
-  
-  "Air Jordan 1 Chicago",
-  "Air Jordan 1 Low",
-  "Air Jordan 1 Retro High OG",
-  "Air Jordan 1 University Blue",
-  
-  "Air Jordan 4 Fire Red",
-  "Jordan 4 Military Black",
-  "Jordan 4 Bred",
-  "Jordan 4 Red Thunder",
-  
-  "Yeezy Boost 350 V2",
-  "Yeezy 350 Zebra",
-  "Yeezy 700 Wave Runner",
-  "Yeezy 700 Vanta",
-  
-  "Adidas Samba OG",
-  "Adidas Samba Vegan",
-  "Adidas ZX 500 RM",
-  
-  "New Balance 990",
-  "New Balance 550",
-  "New Balance 2002R",
-  
-  "Nike Air Force 1 Low",
-  "Nike Air Force 1 White",
-  
-  "Nike SuperRep 3"
-  
-  ];
-
-let index = 0;
-
-
+async function fetchTopDeals(since?: Date) {
+  return prisma.deal.findMany({
+    where: {
+      isActive: true,
+      dealScore: { gte: 40 },
+      ...(since ? { updatedAt: { gt: since } } : {}),
+    },
+    orderBy: { dealScore: "desc" },
+    take: since ? 5 : 20,
+    select: {
+      id: true,
+      sneaker: true,
+      brand: true,
+      size: true,
+      imageUrl: true,
+      buyPlatform: true,
+      buyPrice: true,
+      buyUrl: true,
+      sellPlatform: true,
+      sellPrice: true,
+      sellUrl: true,
+      platformSellFee: true,
+      paymentFee: true,
+      shippingBuy: true,
+      shippingSell: true,
+      authFee: true,
+      netProfit: true,
+      profitMargin: true,
+      dealScore: true,
+      dealLabel: true,
+      scoredBy: true,
+      demandTrend: true,
+      created_at: true,
+      expiresAt: true,
+    },
+  });
+}
 
 export async function GET() {
-
-  let interval: NodeJS.Timeout;
+  let pollInterval: NodeJS.Timeout;
+  let lastChecked = new Date();
 
   const stream = new ReadableStream({
-    start(controller) {
+    async start(controller) {
+      // Send top deals immediately on connect
+      try {
+        const initialDeals = await fetchTopDeals();
 
-      const sendDeal = () => {
-
-        const sneaker = sneakers[index];
-        index = (index + 1) % sneakers.length;
-
-        const buy = Math.floor(Math.random() * 120) + 40;
-        const market = buy + Math.floor(Math.random() * 80) + 20;
-
-        const profit = market - buy;
-        const roi = (profit / buy) * 100;
-
-        const deal = {
-          sneaker,
-          buy_price: buy,
-          market_price: market,
-          profit,
-          roi
-        };
-
-        try {
-          controller.enqueue(`data: ${JSON.stringify(deal)}\n\n`);
-        } catch {
-          clearInterval(interval);
+        if (initialDeals.length > 0) {
+          for (const deal of initialDeals) {
+            controller.enqueue(`data: ${JSON.stringify(deal)}\n\n`);
+          }
+        } else {
+          // No deals in DB yet — send a placeholder so the client knows we connected
+          controller.enqueue(
+            `data: ${JSON.stringify({ _status: "no_deals_yet" })}\n\n`
+          );
         }
+      } catch {
+        // DB not ready — send placeholder
+        controller.enqueue(
+          `data: ${JSON.stringify({ _status: "db_unavailable" })}\n\n`
+        );
+      }
 
-      };
+      // Poll for new deals every 30 seconds
+      pollInterval = setInterval(async () => {
+        try {
+          const newDeals = await fetchTopDeals(lastChecked);
+          lastChecked = new Date();
 
-      // send first deal immediately
-      sendDeal();
-
-      // send every 3 seconds
-      interval = setInterval(sendDeal, 3000);
-
+          for (const deal of newDeals) {
+            controller.enqueue(`data: ${JSON.stringify(deal)}\n\n`);
+          }
+        } catch {
+          clearInterval(pollInterval);
+        }
+      }, 30_000);
     },
 
     cancel() {
-      clearInterval(interval);
-    }
-
+      clearInterval(pollInterval);
+    },
   });
 
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
-      "Connection": "keep-alive",
+      Connection: "keep-alive",
       "X-Accel-Buffering": "no",
     },
   });
