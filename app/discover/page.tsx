@@ -18,6 +18,7 @@ import {
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { ArbitrageDealCard, type ArbDeal } from "@/components/ArbitrageDealCard";
+import { LiveStatsBar } from "@/components/LiveStatsBar";
 
 const trendingTitles = [
   "🔥 Trending Sneaker Scans",
@@ -161,6 +162,8 @@ export default function DiscoverPage() {
 
   const [arbDeals, setArbDeals] = useState<ArbDeal[]>([]);
   const [newDealCount, setNewDealCount] = useState(0);
+  const [lastScanAt, setLastScanAt] = useState<Date | null>(null);
+  const [newDealIds, setNewDealIds] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<"all" | "hot" | "good" | "watch">("all");
   const [scanQuery, setScanQuery] = useState("");
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
@@ -198,10 +201,20 @@ export default function DiscoverPage() {
       // New schema deal (has dealScore field)
       if (data.dealScore !== undefined) {
         const deal = data as ArbDeal;
+        setLastScanAt(new Date());
         setArbDeals((prev) => {
           const exists = prev.some((d) => d.id === deal.id);
           if (exists) return prev.map((d) => (d.id === deal.id ? deal : d));
           setNewDealCount((c) => c + 1);
+          // Mark as new — cleared after 3s by ArbitrageDealCard itself
+          setNewDealIds((ids) => new Set([...ids, deal.id]));
+          setTimeout(() => {
+            setNewDealIds((ids) => {
+              const next = new Set(ids);
+              next.delete(deal.id);
+              return next;
+            });
+          }, 3500);
           return [deal, ...prev].slice(0, 50);
         });
         return;
@@ -283,6 +296,8 @@ export default function DiscoverPage() {
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [selectedFile]);
+
+  const totalProfit = arbDeals.reduce((sum, d) => sum + (d.netProfit ?? 0), 0);
 
   const derived = useMemo(() => {
     const soldMedian = marketData?.soldMarket?.overallMedian;
@@ -1087,6 +1102,13 @@ export default function DiscoverPage() {
           ))}
         </div>
 
+        {/* Live stats bar */}
+        <LiveStatsBar
+          dealCount={arbDeals.length}
+          lastScanAt={lastScanAt}
+          totalProfit={totalProfit}
+        />
+
         {/* Deal cards */}
         {arbDeals.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
@@ -1102,8 +1124,13 @@ export default function DiscoverPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {arbDeals
               .filter((d) => activeTab === "all" || d.dealLabel === activeTab)
-              .map((deal) => (
-                <ArbitrageDealCard key={deal.id} deal={deal} />
+              .map((deal, index) => (
+                <ArbitrageDealCard
+                  key={deal.id}
+                  deal={deal}
+                  isNew={newDealIds.has(deal.id)}
+                  animationDelay={index * 50}
+                />
               ))}
           </div>
         )}
