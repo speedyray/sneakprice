@@ -1,8 +1,9 @@
 // components/ArbitrageDealCard.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, ExternalLink, Flame, TrendingUp, Eye } from "lucide-react";
+import { useCountUp } from "@/lib/hooks/useCountUp";
 
 export interface ArbDeal {
   id: string;
@@ -83,8 +84,21 @@ function DealBadge({ label }: { label?: string | null }) {
   );
 }
 
-export function ArbitrageDealCard({ deal }: { deal: ArbDeal }) {
+interface ArbitrageDealCardProps {
+  deal: ArbDeal;
+  isNew?: boolean;
+  animationDelay?: number;
+}
+
+export function ArbitrageDealCard({ deal, isNew = false, animationDelay = 0 }: ArbitrageDealCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [isNewVisible, setIsNewVisible] = useState(isNew);
+
+  useEffect(() => {
+    if (!isNew) return;
+    const timer = setTimeout(() => setIsNewVisible(false), 3000);
+    return () => clearTimeout(timer);
+  }, [isNew]);
 
   // Support both new schema and legacy SSE shape
   const name = deal.sneaker ?? "Unknown Sneaker";
@@ -101,8 +115,22 @@ export function ArbitrageDealCard({ deal }: { deal: ArbDeal }) {
     deal.platformSellFee != null &&
     deal.paymentFee != null;
 
+  const animatedBuyPrice = useCountUp(buyPrice ?? 0, 600);
+  const animatedSellPrice = useCountUp(sellPrice ?? 0, 600);
+  const animatedNetProfit = useCountUp(Math.abs(netProfit ?? 0), 800);
+
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-5 space-y-4 hover:border-gray-500 transition-colors">
+    <div
+      className={`bg-gray-900 border rounded-2xl p-5 space-y-4 transition-colors animate-slide-up relative ${
+        isNew ? "animate-flash-green" : "border-gray-700 hover:border-gray-500"
+      }`}
+      style={{ animationDelay: `${animationDelay}ms`, animationFillMode: "both" }}
+    >
+      {isNewVisible && (
+        <span className="absolute top-3 right-3 bg-green-500 text-black text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+          NEW
+        </span>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
@@ -132,7 +160,7 @@ export function ArbitrageDealCard({ deal }: { deal: ArbDeal }) {
         <div className="bg-gray-800 rounded-xl p-3 space-y-2">
           <p className="text-gray-400 text-xs uppercase tracking-wide">Buy on</p>
           <p className="text-white font-semibold">{platformLabel(deal.buyPlatform)}</p>
-          <p className="text-green-400 font-bold text-lg">{fmt(buyPrice)}</p>
+          <p className="text-green-400 font-bold text-lg">{fmt(animatedBuyPrice)}</p>
           {deal.buyUrl && (
             <a
               href={deal.buyUrl}
@@ -147,7 +175,7 @@ export function ArbitrageDealCard({ deal }: { deal: ArbDeal }) {
         <div className="bg-gray-800 rounded-xl p-3 space-y-2">
           <p className="text-gray-400 text-xs uppercase tracking-wide">Sell on</p>
           <p className="text-white font-semibold">{platformLabel(deal.sellPlatform)}</p>
-          <p className="text-blue-400 font-bold text-lg">{fmt(sellPrice)}</p>
+          <p className="text-blue-400 font-bold text-lg">{fmt(animatedSellPrice)}</p>
           {deal.sellUrl && (
             <a
               href={deal.sellUrl}
@@ -166,8 +194,7 @@ export function ArbitrageDealCard({ deal }: { deal: ArbDeal }) {
         <div>
           <p className="text-gray-400 text-xs">Net Profit</p>
           <p className={`font-bold text-xl ${(netProfit ?? 0) > 0 ? "text-green-400" : "text-red-400"}`}>
-            {netProfit != null && netProfit > 0 ? "+" : ""}
-            {fmt(netProfit)}
+            {(netProfit ?? 0) > 0 ? "+" : ""}${animatedNetProfit.toFixed(2)}
           </p>
         </div>
         <div className="text-right">
