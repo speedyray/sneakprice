@@ -889,26 +889,6 @@ export default function DiscoverPage() {
             </div>
           </div>
         </div>
-        <button
-  onClick={async () => {
-    await fetch("/api/inventory", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: identifiedSneaker,
-        marketPrice: derived.soldMedian,
-        brand: identifiedSneaker.split(" ")[0] || null,
-        source: "discover",
-        status: "unlisted",
-      }),
-    });
-  }}
-  className="mt-4 rounded-xl bg-black px-6 py-3 text-white"
->
-  Add to Inventory
-</button>
 
         {(identifiedSneaker || marketData) && (
           
