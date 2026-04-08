@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import sharp from "sharp";
 
 export async function POST(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("image") as File | null;
@@ -26,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,8 +51,8 @@ export async function POST(req: Request) {
 
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();
-      console.error(`Gemini API error ${geminiResponse.status}:`, errText.slice(0, 300));
-      throw new Error(`Gemini API error ${geminiResponse.status}`);
+      console.error(`Gemini API error ${geminiResponse.status}:`, errText.slice(0, 500));
+      throw new Error(`Gemini API error ${geminiResponse.status}: ${errText.slice(0, 200)}`);
     }
 
     const geminiData = await geminiResponse.json() as {
