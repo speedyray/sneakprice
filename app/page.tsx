@@ -29,7 +29,6 @@ const trendingTitles = [
   "🔥 Sneaker Market Momentum",
 ];
 
-
 const marketInsightTitles = [
   "Live Sneaker Market Insights",
   "Real-Time Sneaker Market Data",
@@ -242,7 +241,8 @@ export default function DiscoverPage() {
   }, [trendingData]);
 
   useEffect(() => {
-    fetch("/api/trending")
+    const controller = new AbortController();
+    fetch("/api/trending", { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (data.trending?.length) {
@@ -253,9 +253,12 @@ export default function DiscoverPage() {
           setArbitrageSignals(data.arbitrage);
         }
       })
-      .catch(() => {
-        // silently fail — widgets remain empty
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          // silently fail — widgets remain empty
+        }
       });
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
