@@ -18,6 +18,8 @@ async function fetchEbayPrice(
   token: string
 ): Promise<{ sneaker: string; medianPrice: number; totalListings: number; marketLabel: string } | null> {
   try {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 8_000);
     const res = await fetch(
       `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(sneaker)}&limit=30&filter=buyingOptions:{FIXED_PRICE}`,
       {
@@ -25,9 +27,11 @@ async function fetchEbayPrice(
           Authorization: `Bearer ${token}`,
           "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
         },
+        signal: ac.signal,
       }
-    );
+    ).finally(() => clearTimeout(timer));
 
+    if (!res.ok) throw new Error(`eBay API error: ${res.status}`);
     const data = await res.json();
     const items = data.itemSummaries ?? [];
 
@@ -44,14 +48,15 @@ async function fetchEbayPrice(
     if (trimmed.length === 0) return null;
 
     const med = median(trimmed);
+    const avg = trimmed.reduce((sum, p) => sum + p, 0) / trimmed.length;
     const spread = trimmed[trimmed.length - 1] - trimmed[0];
-    const volatility = spread / med;
+    const volatility = spread / avg;
 
     let marketLabel = "Active Market";
     if (volatility > 0.5) marketLabel = "High Volatility";
     if (volatility < 0.2) marketLabel = "Stable Blue-Chip";
 
-    return { sneaker, medianPrice: Math.round(med), totalListings: prices.length, marketLabel };
+    return { sneaker, medianPrice: Math.round(med), totalListings: trimmed.length, marketLabel };
   } catch {
     return null;
   }
@@ -80,6 +85,10 @@ export async function GET() {
     }
 
     const token = await getEbayAccessToken();
+    if (!token) {
+      console.error("[/api/market-prices] eBay token fetch returned empty");
+      return NextResponse.json({ prices: [] });
+    }
 
     const results = await Promise.all(
       sneakers.map((s) => fetchEbayPrice(s, base, token))
