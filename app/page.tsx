@@ -1100,16 +1100,7 @@ export default function DiscoverPage() {
 
             <div className="overflow-hidden h-[120px]">
               <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
-                {[
-                  { name: "Air Jordan 1 Chicago", profit: 64 },
-                  { name: "Yeezy 700 Wave Runner", profit: 48 },
-                  { name: "Nike Dunk Panda", profit: 32 },
-                  { name: "Jordan 4 Military Black", profit: 29 },
-                  { name: "Air Jordan 1 Chicago", profit: 64 },
-                  { name: "Yeezy 700 Wave Runner", profit: 48 },
-                  { name: "Nike Dunk Panda", profit: 32 },
-                  { name: "Jordan 4 Military Black", profit: 29 },
-                ].map((item, i) => (
+                {[...arbitrageSignals, ...arbitrageSignals].map((item, i) => (
                   <li key={i} className="flex justify-between">
                     <span>{item.name}</span>
                     <span className="text-black">+${item.profit}</span>
