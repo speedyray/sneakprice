@@ -1082,14 +1082,18 @@ export default function DiscoverPage() {
             </h3>
 
             <div className="overflow-hidden h-[120px]">
-              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
-                {trending.map((sneaker, i) => (
-                  <li key={i} className="flex justify-between transition-all duration-500">
-                    <span>{sneaker.name}</span>
-                    <span className="text-black">{sneaker.demand}</span>
-                  </li>
-                ))}
-              </ul>
+              {trending.length === 0 ? (
+                <p className="text-neutral-400 text-sm">Loading market data…</p>
+              ) : (
+                <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
+                  {trending.map((sneaker, i) => (
+                    <li key={i} className="flex justify-between transition-all duration-500">
+                      <span>{sneaker.name}</span>
+                      <span className="text-black">{sneaker.demand}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
@@ -1099,14 +1103,18 @@ export default function DiscoverPage() {
             </h3>
 
             <div className="overflow-hidden h-[120px]">
-              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
-                {[...arbitrageSignals, ...arbitrageSignals].map((item, i) => (
-                  <li key={i} className="flex justify-between">
-                    <span>{item.name}</span>
-                    <span className="text-black">+${item.profit}</span>
-                  </li>
-                ))}
-              </ul>
+              {arbitrageSignals.length === 0 ? (
+                <p className="text-neutral-400 text-sm">Loading arbitrage signals…</p>
+              ) : (
+                <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
+                  {[...arbitrageSignals, ...arbitrageSignals].map((item, i) => (
+                    <li key={i} className="flex justify-between">
+                      <span>{item.name}</span>
+                      <span className="text-black">+${item.profit}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>

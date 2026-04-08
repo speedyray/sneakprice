@@ -5,9 +5,8 @@ import { prisma } from "@/lib/prisma";
 function demandLabel(count: number): string {
   if (count >= 5) return "Hot";
   if (count >= 3) return "High Demand";
-  if (count === 2) return "Trending";
-  if (count === 1) return "Growing";
-  return "Moderate";
+  if (count >= 2) return "Trending";
+  return "Growing"; // count === 1 (minimum possible from groupBy)
 }
 
 export async function GET() {
@@ -46,10 +45,12 @@ export async function GET() {
     });
 
     const arbitrage = topDeals
-      .filter((d): d is typeof d & { sneaker: string } => d.sneaker !== null)
+      .filter((d): d is typeof d & { sneaker: string; netProfit: number } =>
+        d.sneaker !== null && d.netProfit !== null
+      )
       .map((d) => ({
         name: d.sneaker,
-        profit: Math.round(d.netProfit ?? 0),
+        profit: Math.round(d.netProfit),
       }));
 
     return NextResponse.json({ trending, arbitrage });
