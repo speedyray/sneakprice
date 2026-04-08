@@ -281,9 +281,8 @@ export default function DiscoverPage() {
       .then((r) => { if (r.ok) return r.json(); })
       .then((data) => { if (data) setMarketStats(data); })
       .catch((err) => {
-        if (err.name !== "AbortError") {
-          // silently fail — counters show "—"
-        }
+        if (err.name === "AbortError") return;
+        // silently fail — counters show "—"
       });
     return () => controller.abort();
   }, []);
@@ -291,14 +290,13 @@ export default function DiscoverPage() {
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/market-prices", { signal: controller.signal })
-      .then((r) => r.json())
+      .then((r) => { if (r.ok) return r.json(); })
       .then((data) => {
-        if (data.prices?.length) setMarketPrices(data.prices);
+        if (data?.prices?.length) setMarketPrices(data.prices);
       })
       .catch((err) => {
-        if (err.name !== "AbortError") {
-          // silently fail — section stays empty
-        }
+        if (err.name === "AbortError") return;
+        // silently fail — section stays empty
       });
     return () => controller.abort();
   }, []);
