@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { HfInference } from "@huggingface/inference";
 import sharp from "sharp";
 
 export async function POST(req: Request) {
@@ -19,23 +18,42 @@ export async function POST(req: Request) {
       .jpeg({ quality: 70 })
       .toBuffer();
 
-    const hf = new HfInference(process.env.HF_TOKEN ?? undefined);
+    const base64 = compressedBuffer.toString("base64");
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    const arrayBuffer = compressedBuffer.buffer.slice(
-      compressedBuffer.byteOffset,
-      compressedBuffer.byteOffset + compressedBuffer.byteLength
-    ) as ArrayBuffer;
-    const imageBlob = new Blob([arrayBuffer], { type: "image/jpeg" });
+    if (!apiKey) {
+      return NextResponse.json({ error: "Scan is not configured." }, { status: 503 });
+    }
 
-    const result = await hf.visualQuestionAnswering({
-      model: "Salesforce/blip-vqa-base",
-      inputs: {
-        image: imageBlob,
-        question: "What is the brand and model name of these sneakers?",
-      },
-    });
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: "Identify the exact sneaker brand and model name in this image. Return only the sneaker name, nothing else." },
+                { inline_data: { mime_type: "image/jpeg", data: base64 } },
+              ],
+            },
+          ],
+        }),
+      }
+    );
 
-    const sneakerName = result.answer?.trim();
+    if (!geminiResponse.ok) {
+      const errText = await geminiResponse.text();
+      console.error(`Gemini API error ${geminiResponse.status}:`, errText.slice(0, 300));
+      throw new Error(`Gemini API error ${geminiResponse.status}`);
+    }
+
+    const geminiData = await geminiResponse.json() as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+
+    const sneakerName = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!sneakerName) {
       return NextResponse.json(
@@ -48,7 +66,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("Scan error:", err);
     const message = err instanceof Error ? err.message : "Scan failed";
-    const isRateLimit = message.includes("429") || message.toLowerCase().includes("rate limit");
+    const isRateLimit = message.includes("429") || message.toLowerCase().includes("quota");
 
     return NextResponse.json(
       {
