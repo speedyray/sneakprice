@@ -16,6 +16,6 @@ export async function GET() {
     });
   } catch (err) {
     console.error("[/api/stats] query failed:", err);
-    return NextResponse.json({ sneakersAnalyzed: 0, resaleValue: 0, userCount: 0 });
+    return NextResponse.json({ sneakersAnalyzed: 0, resaleValue: 0, userCount: 0 }, { status: 503 });
   }
 }
