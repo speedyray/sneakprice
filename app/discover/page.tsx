@@ -406,6 +406,14 @@ export default function DiscoverPage() {
       const ebayJson = (await ebayRes.json()) as EbayResponse;
 
       if (!ebayRes.ok) {
+        if (ebayRes.status === 401) {
+          setScanError("unauthenticated");
+          return;
+        }
+        if (ebayRes.status === 403) {
+          setScanError("limit_reached");
+          return;
+        }
         throw new Error("Market valuation failed.");
       }
 
@@ -789,11 +797,24 @@ export default function DiscoverPage() {
 
 
 
-            {scanError ? (
+            {scanError === "unauthenticated" && (
+              <div className="mt-4 rounded-xl bg-yellow-900/30 border border-yellow-700 px-4 py-3 text-sm text-yellow-300">
+                Sign in to scan sneakers.{" "}
+                <button onClick={() => openSignIn()} className="underline font-semibold">
+                  Sign in
+                </button>
+              </div>
+            )}
+            {scanError === "limit_reached" && (
+              <p className="mt-4 rounded-xl bg-red-900/30 border border-red-700 px-4 py-3 text-sm text-red-300">
+                You&apos;ve used all your free scans for today. Come back tomorrow.
+              </p>
+            )}
+            {scanError && scanError !== "unauthenticated" && scanError !== "limit_reached" && (
               <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
                 {scanError}
               </p>
-            ) : null}
+            )}
           </div>
 
           <div className="grid gap-4">
