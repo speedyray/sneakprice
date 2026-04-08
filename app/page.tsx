@@ -45,6 +45,18 @@ const arbitrageTitles = [
   "📊 Reseller Profit Opportunities",
 ];
 
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M+`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K+`;
+  return `${n}+`;
+}
+
+function formatStatMoney(n: number): string {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${Math.round(n / 1_000)}K`;
+  return `$${Math.round(n)}`;
+}
+
 // Legacy type for backward compat with existing SSE handler
 type LiveDeal = {
   sneaker: string;
@@ -155,6 +167,8 @@ export default function DiscoverPage() {
   const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
   const [trendingData, setTrendingData] = useState<{ name: string; demand: string }[]>([]);
   const [arbitrageSignals, setArbitrageSignals] = useState<{ name: string; profit: number }[]>([]);
+  const [marketStats, setMarketStats] = useState<{ sneakersAnalyzed: number; resaleValue: number; userCount: number } | null>(null);
+  const [marketPrices, setMarketPrices] = useState<{ sneaker: string; medianPrice: number; totalListings: number; marketLabel: string }[]>([]);
   const [trending, setTrending] = useState<{ name: string; demand: string }[]>([]);
   const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
   const [marketTitle, setMarketTitle] = useState(marketInsightTitles[0]);
@@ -256,6 +270,34 @@ export default function DiscoverPage() {
       .catch((err) => {
         if (err.name !== "AbortError") {
           // silently fail — widgets remain empty
+        }
+      });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/stats", { signal: controller.signal })
+      .then((r) => { if (r.ok) return r.json(); })
+      .then((data) => { if (data) setMarketStats(data); })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          // silently fail — counters show "—"
+        }
+      });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/market-prices", { signal: controller.signal })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.prices?.length) setMarketPrices(data.prices);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          // silently fail — section stays empty
         }
       });
     return () => controller.abort();
@@ -1054,17 +1096,23 @@ export default function DiscoverPage() {
 
         <div className="grid md:grid-cols-3 gap-10">
           <div>
-            <p className="text-4xl font-bold text-black">12,000+</p>
+            <p className="text-4xl font-bold text-black">
+              {marketStats ? formatCount(marketStats.sneakersAnalyzed) : "—"}
+            </p>
             <p className="mt-2 text-neutral-600">Sneakers Analyzed</p>
           </div>
 
           <div>
-            <p className="text-4xl font-bold text-black">$3.2M</p>
+            <p className="text-4xl font-bold text-black">
+              {marketStats ? formatStatMoney(marketStats.resaleValue) : "—"}
+            </p>
             <p className="mt-2 text-neutral-600">Resale Value Calculated</p>
           </div>
 
           <div>
-            <p className="text-4xl font-bold text-black">2,500+</p>
+            <p className="text-4xl font-bold text-black">
+              {marketStats ? formatCount(marketStats.userCount) : "—"}
+            </p>
             <p className="mt-2 text-neutral-600">Resellers Using SneakPrice</p>
           </div>
         </div>
