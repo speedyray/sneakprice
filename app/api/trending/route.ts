@@ -46,9 +46,9 @@ export async function GET() {
     });
 
     const arbitrage = topDeals
-      .filter((d) => d.sneaker !== null)
+      .filter((d): d is typeof d & { sneaker: string } => d.sneaker !== null)
       .map((d) => ({
-        name: d.sneaker as string,
+        name: d.sneaker,
         profit: Math.round(d.netProfit ?? 0),
       }));
 
