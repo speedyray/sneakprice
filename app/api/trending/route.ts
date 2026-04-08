@@ -45,13 +45,16 @@ export async function GET() {
       select: { sneaker: true, netProfit: true },
     });
 
-    const arbitrage = topDeals.map((d) => ({
-      name: d.sneaker as string,
-      profit: Math.round(d.netProfit as number),
-    }));
+    const arbitrage = topDeals
+      .filter((d) => d.sneaker !== null)
+      .map((d) => ({
+        name: d.sneaker as string,
+        profit: Math.round(d.netProfit ?? 0),
+      }));
 
     return NextResponse.json({ trending, arbitrage });
-  } catch {
+  } catch (err) {
+    console.error("[/api/trending] query failed:", err);
     return NextResponse.json({ trending: [], arbitrage: [] });
   }
 }
