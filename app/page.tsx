@@ -29,23 +29,6 @@ const trendingTitles = [
   "🔥 Sneaker Market Momentum",
 ];
 
-const trendingSneakers = [
-  { name: "Yeezy Boost 350 V2", demand: "High Demand" },
-  { name: "Air Jordan 4", demand: "Trending" },
-  { name: "Nike Dunk Low", demand: "Moderate" },
-  { name: "New Balance 990", demand: "Growing" },
-  { name: "Jordan 1 Chicago", demand: "Hot" },
-  { name: "Jordan 4 Military Black", demand: "Trending" },
-  { name: "Nike Dunk Panda", demand: "High Demand" },
-  { name: "Yeezy 700 Wave Runner", demand: "Growing" },
-  { name: "Nike Air Force 1 Low", demand: "Moderate" },
-  { name: "Adidas Samba OG", demand: "Trending" },
-  { name: "New Balance 550", demand: "Growing" },
-  { name: "Jordan 3 White Cement", demand: "Hot" },
-  { name: "Nike Dunk Low Grey Fog", demand: "Trending" },
-  { name: "Adidas Campus 00s", demand: "Growing" },
-  { name: "Jordan 1 Retro High OG", demand: "High Demand" },
-];
 
 const marketInsightTitles = [
   "Live Sneaker Market Insights",
@@ -171,7 +154,9 @@ export default function DiscoverPage() {
   const [scanModalError, setScanModalError] = useState("");
   const [scansRemaining, setScansRemaining] = useState<number | null>(null);
   const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
-  const [trending, setTrending] = useState(trendingSneakers.slice(0, 4));
+  const [trendingData, setTrendingData] = useState<{ name: string; demand: string }[]>([]);
+  const [arbitrageSignals, setArbitrageSignals] = useState<{ name: string; profit: number }[]>([]);
+  const [trending, setTrending] = useState<{ name: string; demand: string }[]>([]);
   const [trendingTitle, setTrendingTitle] = useState(trendingTitles[0]);
   const [marketTitle, setMarketTitle] = useState(marketInsightTitles[0]);
   const [arbitrageTitle, setArbitrageTitle] = useState(arbitrageTitles[0]);
@@ -247,12 +232,30 @@ export default function DiscoverPage() {
   }, []);
 
   useEffect(() => {
+    if (!trendingData.length) return;
     const interval = setInterval(() => {
-      const shuffled = [...trendingSneakers].sort(() => 0.5 - Math.random());
+      const shuffled = [...trendingData].sort(() => 0.5 - Math.random());
       setTrending(shuffled.slice(0, 4));
     }, 5000);
 
     return () => clearInterval(interval);
+  }, [trendingData]);
+
+  useEffect(() => {
+    fetch("/api/trending")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.trending?.length) {
+          setTrendingData(data.trending);
+          setTrending(data.trending.slice(0, 4));
+        }
+        if (data.arbitrage?.length) {
+          setArbitrageSignals(data.arbitrage);
+        }
+      })
+      .catch(() => {
+        // silently fail — widgets remain empty
+      });
   }, []);
 
   useEffect(() => {
@@ -279,9 +282,6 @@ export default function DiscoverPage() {
     return () => clearInterval(interval);
   }, []);
 
-
-
-
   useEffect(() => {
     return () => {
       if (streamRef.current) {
@@ -289,11 +289,6 @@ export default function DiscoverPage() {
       }
     };
   }, []);
-
-
-
-
-
 
   useEffect(() => {
     if (!selectedFile) {
@@ -427,21 +422,18 @@ export default function DiscoverPage() {
     }
   }
 
-
-
-
   async function startCamera() {
     try {
       setCameraError("");
-  
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
         audio: false,
       });
-  
+
       streamRef.current = stream;
       setCameraOpen(true);
-  
+
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -452,41 +444,41 @@ export default function DiscoverPage() {
       setCameraError("Unable to access camera.");
     }
   }
-  
+
   function stopCamera() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
-  
+
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
-  
+
     setCameraOpen(false);
   }
-  
+
   function capturePhoto() {
     const video = videoRef.current;
     if (!video) return;
-  
+
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-  
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-  
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
+
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
-  
+
         const file = new File([blob], "camera-scan.jpg", {
           type: "image/jpeg",
         });
-  
+
         setSelectedFile(file);
         setScanError("");
         stopCamera();
@@ -495,14 +487,6 @@ export default function DiscoverPage() {
       0.9
     );
   }
-
-
-
-
-
-
-
-
 
   async function handleScanModel(e: React.FormEvent) {
     e.preventDefault();
@@ -635,432 +619,15 @@ export default function DiscoverPage() {
         />
       </div>
 
-      <section
-        id="scan-tool"
-        className="w-full max-w-6xl rounded-3xl border border-black/10 bg-gradient-to-b from-white to-neutral-50 p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)] md:p-8"
-      >
-        <div className="mb-8">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-neutral-500">
-            4-step scan workflow
-          </p>
-          <h2 className="text-3xl font-bold md:text-4xl">
-            Scan → Value → Profit → Flip Score
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-neutral-600">
-            Upload a sneaker photo and get a live market read on its resale potential.
-          </p>
-        </div>
-
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-2xl border border-black/10 bg-white p-6 text-left">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-full bg-black p-2 text-white">
-                <Upload size={18} />
-              </div>
-              <div>
-                <h3 className="font-semibold">Step 1 — Upload sneaker photo</h3>
-                <p className="text-sm text-neutral-500">
-                  Use a clear image for best identification.
-                </p>
-              </div>
-            </div>
-
-            <label className="flex min-h-[260px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black/15 bg-neutral-50 p-6 transition hover:border-black/30 hover:bg-neutral-100">
-              {previewUrl ? (
-                <div className="flex w-full flex-col items-center">
-                  <Image
-                    src={previewUrl}
-                    alt="Sneaker preview"
-                    width={280}
-                    height={220}
-                    className="max-h-[220px] w-auto rounded-xl object-contain"
-                    unoptimized
-                  />
-                  <p className="mt-4 text-sm text-neutral-500">
-                    {selectedFile?.name}
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
-                    <Camera size={28} />
-                  </div>
-                  <p className="font-medium">Click to upload sneaker photo</p>
-                  <p className="mt-2 text-sm text-neutral-500">
-                    We’ll identify the sneaker and calculate live market value.
-                  </p>
-                </>
-              )}
-
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] ?? null;
-                  setSelectedFile(file);
-                  setScanError("");
-                }}
-              />
-            </label>
-
-<div className="mt-5 flex flex-wrap gap-3">
-  <button
-    type="button"
-    onClick={handleAnalyze}
-    disabled={!selectedFile || isAnalyzing}
-    className="inline-flex items-center justify-center rounded-xl bg-black px-6 py-3 font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
-  >
-    {isAnalyzing ? (
-      <>
-        <Loader2 size={18} className="mr-2 animate-spin" />
-        Analyzing...
-      </>
-    ) : (
-      "Analyze Sneaker"
-    )}
-  </button>
-
-  <button
-    type="button"
-    onClick={startCamera}
-    className="rounded-xl border border-black/15 bg-white px-6 py-3 font-semibold text-black transition hover:border-black/30"
-  >
-    Use Camera
-  </button>
-
-  <button
-    type="button"
-    onClick={() => {
-      setSelectedFile(null);
-      setPreviewUrl("");
-      setIdentifiedSneaker("");
-      setMarketData(null);
-      setScanError("");
-      stopCamera();
-    }}
-    className="rounded-xl border border-black/15 bg-white px-6 py-3 font-semibold text-black transition hover:border-black/30"
-  >
-    Reset
-  </button>
-</div>
-
-
-{cameraOpen && (
-  <div className="mt-5 rounded-2xl border border-black/10 bg-neutral-50 p-4">
-    <video
-      ref={videoRef}
-      autoPlay
-      playsInline
-      muted
-      className="w-full rounded-xl"
-    />
-
-    <div className="mt-4 flex flex-wrap gap-3">
-      <button
-        type="button"
-        onClick={capturePhoto}
-        className="rounded-xl bg-black px-5 py-3 font-semibold text-white transition hover:bg-neutral-800"
-      >
-        Capture Photo
-      </button>
-
-      <button
-        type="button"
-        onClick={stopCamera}
-        className="rounded-xl border border-black/15 bg-white px-5 py-3 font-semibold text-black transition hover:border-black/30"
-      >
-        Cancel Camera
-      </button>
-    </div>
-  </div>
-)}
-
-{cameraError ? (
-  <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-    {cameraError}
-  </p>
-) : null}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            {scanError === "unauthenticated" && (
-              <div className="mt-4 rounded-xl bg-yellow-900/30 border border-yellow-700 px-4 py-3 text-sm text-yellow-300">
-                Sign in to scan sneakers.{" "}
-                <button onClick={() => openSignIn()} className="underline font-semibold">
-                  Sign in
-                </button>
-              </div>
-            )}
-            {scanError === "limit_reached" && (
-              <p className="mt-4 rounded-xl bg-red-900/30 border border-red-700 px-4 py-3 text-sm text-red-300">
-                You&apos;ve used all your free scans for today. Come back tomorrow.
-              </p>
-            )}
-            {scanError && scanError !== "unauthenticated" && scanError !== "limit_reached" && (
-              <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-                {scanError}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-4">
-            <StepCard
-              step="Step 2"
-              title="AI identifies the sneaker"
-              icon={<CheckCircle2 size={18} />}
-              value={identifiedSneaker || "Waiting for scan"}
-              helper="Detected sneaker model appears here after analysis."
-            />
-
-            <StepCard
-              step="Step 3"
-              title="Market value"
-              icon={<DollarSign size={18} />}
-              value={formatMoney(derived.soldMedian)}
-              helper={
-                derived.activeMedian
-                  ? `Active market median: ${formatMoney(derived.activeMedian)}`
-                  : "Sold and active market pricing will appear here."
-              }
-            />
-
-            <StepCard
-              step="Step 4"
-              title="Profit opportunity"
-              icon={<TrendingUp size={18} />}
-              value={
-                typeof derived.profit === "number"
-                  ? `+$${derived.profit.toFixed(0)}`
-                  : "—"
-              }
-              helper={
-                typeof derived.roi === "number"
-                  ? `Estimated ROI: ${derived.roi.toFixed(1)}%`
-                  : "Spread versus current listings will appear here."
-              }
-            />
-
-            <div className="rounded-2xl border border-green-200 bg-green-50 p-5 text-left">
-              <div className="mb-3 flex items-center gap-2 text-green-800">
-                <Flame size={18} />
-                <span className="font-semibold">Flip Score</span>
-              </div>
-
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-4xl font-extrabold text-green-900">
-                    {derived.flipScore}
-                    <span className="text-xl font-semibold">/100</span>
-                  </p>
-                  <p className="mt-2 text-sm text-green-800">
-                    Higher score means stronger resale edge and flip potential.
-                  </p>
-                </div>
-
-                <div className="min-w-[120px] rounded-xl bg-white px-4 py-3 text-center shadow-sm">
-                  <p className="text-xs uppercase tracking-wide text-neutral-500">
-                    Signal
-                  </p>
-                  <p className="mt-1 font-semibold text-black">
-                    {derived.flipScore >= 80
-                      ? "Strong Flip"
-                      : derived.flipScore >= 60
-                      ? "Watchlist"
-                      : derived.flipScore >= 40
-                      ? "Moderate"
-                      : "Low Edge"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {(identifiedSneaker || marketData) && (
-          
-          <div className="mt-8 rounded-2xl border border-black/10 bg-white p-6 text-left">
-            <h3 className="mb-4 text-xl font-bold">Scan summary</h3>
-
-            <div className="grid gap-4 md:grid-cols-4">
-              <Metric label="Sneaker" value={identifiedSneaker || "—"} />
-              <Metric label="Lowest Ask" value={formatMoney(derived.lowestPrice)} />
-              <Metric label="Sold Median" value={formatMoney(derived.soldMedian)} />
-              <Metric label="High Price" value={formatMoney(derived.highestPrice)} />
-            </div>
-
-            {derived.marketLabel ? (
-              <div className="mt-4">
-                <span className="inline-flex rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium text-black">
-                  {derived.marketLabel}
-                </span>
-              </div>
-            ) : null}
-          </div>
-        )}
-      </section>
-
-      <div className="mt-24 max-w-5xl w-full">
-        <h2 className="text-3xl font-bold mb-12 text-center">
-          How SneakPrice Works
-        </h2>
-
-        <div className="grid md:grid-cols-4 gap-6 text-center">
-          <MiniStep
-            emoji="📸"
-            title="1. Scan sneaker"
-            text="Upload a photo from your phone or desktop."
-          />
-          <MiniStep
-            emoji="🤖"
-            title="2. Identify model"
-            text="AI detects the sneaker model."
-          />
-          <MiniStep
-            emoji="💰"
-            title="3. Show market value"
-            text="Sold and active listing data are analyzed."
-          />
-          <MiniStep
-            emoji="🔥"
-            title="4. Flip Score"
-            text="Spot resale spread and profit potential."
-          />
-        </div>
-      </div>
-
-      <div className="mt-16 max-w-5xl w-full">
+      <div className="mt-16 max-w-6xl w-full">
         <h2 className="text-3xl font-bold text-center mb-2">
           🔥 Live Sneaker Deals
         </h2>
 
         <p className="text-black text-sm text-center mb-6">● Live Market Feed</p>
 
-        <div className="mb-10 overflow-hidden whitespace-nowrap border-y border-black/10 py-3">
-          <div className="animate-[scroll_35s_linear_infinite] inline-block">
-            {[...recentDeals, ...recentDeals].map((d, i) => (
-              <span key={i} className="mx-6 text-neutral-600">
-                🔥 {d.sneaker} +${d.profit.toFixed(0)}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-center">
-          {deals.length > 0 && (
-            <div className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)] overflow-hidden relative">
-              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent z-10"></div>
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-10"></div>
-
-              <div className="h-[140px] overflow-hidden">
-                <div className="animate-[scrollVertical_12s_linear_infinite] space-y-6">
-                  {[...deals, ...deals].map((deal, i) => (
-                    <div key={i} className="text-center">
-                      <h3 className="font-bold text-lg mb-2">{deal.sneaker}</h3>
-                      <p><strong>Buy Price:</strong> ${deal.buy_price.toFixed(2)}</p>
-                      <p><strong>Market Price:</strong> ${deal.market_price.toFixed(2)}</p>
-                      <p className="text-black font-semibold">
-                        Profit: +${deal.profit.toFixed(2)}
-                      </p>
-                      <p>ROI: {deal.roi.toFixed(1)}%</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-24 max-w-5xl w-full text-center">
-        <h2 className="mb-10 text-2xl font-semibold text-neutral-700">
-          Sneaker market intelligence powered by real data
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-10">
-          <div>
-            <p className="text-4xl font-bold text-black">12,000+</p>
-            <p className="mt-2 text-neutral-600">Sneakers Analyzed</p>
-          </div>
-
-          <div>
-            <p className="text-4xl font-bold text-black">$3.2M</p>
-            <p className="mt-2 text-neutral-600">Resale Value Calculated</p>
-          </div>
-
-          <div>
-            <p className="text-4xl font-bold text-black">2,500+</p>
-            <p className="mt-2 text-neutral-600">Resellers Using SneakPrice</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-24 max-w-5xl w-full">
-        <h2 className="text-3xl font-bold text-center mb-12 transition-all duration-700 ease-in-out">
-          {marketTitle}
-        </h2>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-            <h3 className="text-xl font-semibold mb-6 transition-all duration-700 ease-in-out">
-              {trendingTitle}
-            </h3>
-
-            <div className="overflow-hidden h-[120px]">
-              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
-                {trending.map((sneaker, i) => (
-                  <li key={i} className="flex justify-between transition-all duration-500">
-                    <span>{sneaker.name}</span>
-                    <span className="text-black">{sneaker.demand}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-            <h3 className="text-xl font-semibold mb-6 transition-all duration-500">
-              {arbitrageTitle}
-            </h3>
-
-            <div className="overflow-hidden h-[120px]">
-              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
-                {[
-                  { name: "Air Jordan 1 Chicago", profit: 64 },
-                  { name: "Yeezy 700 Wave Runner", profit: 48 },
-                  { name: "Nike Dunk Panda", profit: 32 },
-                  { name: "Jordan 4 Military Black", profit: 29 },
-                  { name: "Air Jordan 1 Chicago", profit: 64 },
-                  { name: "Yeezy 700 Wave Runner", profit: 48 },
-                  { name: "Nike Dunk Panda", profit: 32 },
-                  { name: "Jordan 4 Military Black", profit: 29 },
-                ].map((item, i) => (
-                  <li key={i} className="flex justify-between">
-                    <span>{item.name}</span>
-                    <span className="text-black">+${item.profit}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* ── Arbitrage Deal Feed ─────────────────────────────── */}
-      <section className="space-y-4 mt-24 max-w-5xl w-full bg-gray-950 rounded-3xl p-6 border border-gray-800">
+      <section className="space-y-4 mt-4 w-full bg-gray-950 rounded-3xl p-6 border border-gray-800">
         {/* Header row */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
@@ -1150,6 +717,406 @@ export default function DiscoverPage() {
           </div>
         )}
       </section>
+
+        <section
+          id="scan-tool"
+          className="w-full rounded-3xl border border-black/10 bg-gradient-to-b from-white to-neutral-50 p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)] md:p-8 mb-10"
+        >
+          <div className="mb-8">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-neutral-500">
+              4-step scan workflow
+            </p>
+            <h2 className="text-3xl font-bold md:text-4xl">
+              Scan → Value → Profit → Flip Score
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-neutral-600">
+              Upload a sneaker photo and get a live market read on its resale potential.
+            </p>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-2xl border border-black/10 bg-white p-6 text-left">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="rounded-full bg-black p-2 text-white">
+                  <Upload size={18} />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Step 1 — Upload sneaker photo</h3>
+                  <p className="text-sm text-neutral-500">
+                    Use a clear image for best identification.
+                  </p>
+                </div>
+              </div>
+
+              <label className="flex min-h-[260px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black/15 bg-neutral-50 p-6 transition hover:border-black/30 hover:bg-neutral-100">
+                {previewUrl ? (
+                  <div className="flex w-full flex-col items-center">
+                    <Image
+                      src={previewUrl}
+                      alt="Sneaker preview"
+                      width={280}
+                      height={220}
+                      className="max-h-[220px] w-auto rounded-xl object-contain"
+                      unoptimized
+                    />
+                    <p className="mt-4 text-sm text-neutral-500">
+                      {selectedFile?.name}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
+                      <Camera size={28} />
+                    </div>
+                    <p className="font-medium">Click to upload sneaker photo</p>
+                    <p className="mt-2 text-sm text-neutral-500">
+                      We&apos;ll identify the sneaker and calculate live market value.
+                    </p>
+                  </>
+                )}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+                    setSelectedFile(file);
+                    setScanError("");
+                  }}
+                />
+              </label>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleAnalyze}
+                  disabled={!selectedFile || isAnalyzing}
+                  className="inline-flex items-center justify-center rounded-xl bg-black px-6 py-3 font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 size={18} className="mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    "Analyze Sneaker"
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={startCamera}
+                  className="rounded-xl border border-black/15 bg-white px-6 py-3 font-semibold text-black transition hover:border-black/30"
+                >
+                  Use Camera
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl("");
+                    setIdentifiedSneaker("");
+                    setMarketData(null);
+                    setScanError("");
+                    stopCamera();
+                  }}
+                  className="rounded-xl border border-black/15 bg-white px-6 py-3 font-semibold text-black transition hover:border-black/30"
+                >
+                  Reset
+                </button>
+              </div>
+
+              {cameraOpen && (
+                <div className="mt-5 rounded-2xl border border-black/10 bg-neutral-50 p-4">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full rounded-xl"
+                  />
+
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={capturePhoto}
+                      className="rounded-xl bg-black px-5 py-3 font-semibold text-white transition hover:bg-neutral-800"
+                    >
+                      Capture Photo
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={stopCamera}
+                      className="rounded-xl border border-black/15 bg-white px-5 py-3 font-semibold text-black transition hover:border-black/30"
+                    >
+                      Cancel Camera
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {cameraError ? (
+                <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {cameraError}
+                </p>
+              ) : null}
+
+              {scanError === "unauthenticated" && (
+                <div className="mt-4 rounded-xl bg-yellow-900/30 border border-yellow-700 px-4 py-3 text-sm text-yellow-300">
+                  Sign in to scan sneakers.{" "}
+                  <button onClick={() => openSignIn()} className="underline font-semibold">
+                    Sign in
+                  </button>
+                </div>
+              )}
+              {scanError === "limit_reached" && (
+                <p className="mt-4 rounded-xl bg-red-900/30 border border-red-700 px-4 py-3 text-sm text-red-300">
+                  You&apos;ve used all your free scans for today. Come back tomorrow.
+                </p>
+              )}
+              {scanError && scanError !== "unauthenticated" && scanError !== "limit_reached" && (
+                <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {scanError}
+                </p>
+              )}
+            </div>
+
+            <div className="grid gap-4">
+              <StepCard
+                step="Step 2"
+                title="AI identifies the sneaker"
+                icon={<CheckCircle2 size={18} />}
+                value={identifiedSneaker || "Waiting for scan"}
+                helper="Detected sneaker model appears here after analysis."
+              />
+
+              <StepCard
+                step="Step 3"
+                title="Market value"
+                icon={<DollarSign size={18} />}
+                value={formatMoney(derived.soldMedian)}
+                helper={
+                  derived.activeMedian
+                    ? `Active market median: ${formatMoney(derived.activeMedian)}`
+                    : "Sold and active market pricing will appear here."
+                }
+              />
+
+              <StepCard
+                step="Step 4"
+                title="Profit opportunity"
+                icon={<TrendingUp size={18} />}
+                value={
+                  typeof derived.profit === "number"
+                    ? `+$${derived.profit.toFixed(0)}`
+                    : "—"
+                }
+                helper={
+                  typeof derived.roi === "number"
+                    ? `Estimated ROI: ${derived.roi.toFixed(1)}%`
+                    : "Spread versus current listings will appear here."
+                }
+              />
+
+              <div className="rounded-2xl border border-green-200 bg-green-50 p-5 text-left">
+                <div className="mb-3 flex items-center gap-2 text-green-800">
+                  <Flame size={18} />
+                  <span className="font-semibold">Flip Score</span>
+                </div>
+
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <p className="text-4xl font-extrabold text-green-900">
+                      {derived.flipScore}
+                      <span className="text-xl font-semibold">/100</span>
+                    </p>
+                    <p className="mt-2 text-sm text-green-800">
+                      Higher score means stronger resale edge and flip potential.
+                    </p>
+                  </div>
+
+                  <div className="min-w-[120px] rounded-xl bg-white px-4 py-3 text-center shadow-sm">
+                    <p className="text-xs uppercase tracking-wide text-neutral-500">
+                      Signal
+                    </p>
+                    <p className="mt-1 font-semibold text-black">
+                      {derived.flipScore >= 80
+                        ? "Strong Flip"
+                        : derived.flipScore >= 60
+                        ? "Watchlist"
+                        : derived.flipScore >= 40
+                        ? "Moderate"
+                        : "Low Edge"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {(identifiedSneaker || marketData) && (
+            <div className="mt-8 rounded-2xl border border-black/10 bg-white p-6 text-left">
+              <h3 className="mb-4 text-xl font-bold">Scan summary</h3>
+
+              <div className="grid gap-4 md:grid-cols-4">
+                <Metric label="Sneaker" value={identifiedSneaker || "—"} />
+                <Metric label="Lowest Ask" value={formatMoney(derived.lowestPrice)} />
+                <Metric label="Sold Median" value={formatMoney(derived.soldMedian)} />
+                <Metric label="High Price" value={formatMoney(derived.highestPrice)} />
+              </div>
+
+              {derived.marketLabel ? (
+                <div className="mt-4">
+                  <span className="inline-flex rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium text-black">
+                    {derived.marketLabel}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </section>
+
+        <div className="mb-10 overflow-hidden whitespace-nowrap border-y border-black/10 py-3">
+          <div className="animate-[scroll_35s_linear_infinite] inline-block">
+            {[...recentDeals, ...recentDeals].map((d, i) => (
+              <span key={i} className="mx-6 text-neutral-600">
+                🔥 {d.sneaker} +${d.profit.toFixed(0)}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          {deals.length > 0 && (
+            <div className="bg-white text-black p-10 rounded-2xl w-full max-w-3xl mx-auto border-2 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)] overflow-hidden relative">
+              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent z-10"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-10"></div>
+
+              <div className="h-[140px] overflow-hidden">
+                <div className="animate-[scrollVertical_12s_linear_infinite] space-y-6">
+                  {[...deals, ...deals].map((deal, i) => (
+                    <div key={i} className="text-center">
+                      <h3 className="font-bold text-lg mb-2">{deal.sneaker}</h3>
+                      <p><strong>Buy Price:</strong> ${deal.buy_price.toFixed(2)}</p>
+                      <p><strong>Market Price:</strong> ${deal.market_price.toFixed(2)}</p>
+                      <p className="text-black font-semibold">
+                        Profit: +${deal.profit.toFixed(2)}
+                      </p>
+                      <p>ROI: {deal.roi.toFixed(1)}%</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-24 max-w-5xl w-full">
+        <h2 className="text-3xl font-bold mb-12 text-center">
+          How SneakPrice Works
+        </h2>
+
+        <div className="grid md:grid-cols-4 gap-6 text-center">
+          <MiniStep
+            emoji="📸"
+            title="1. Scan sneaker"
+            text="Upload a photo from your phone or desktop."
+          />
+          <MiniStep
+            emoji="🤖"
+            title="2. Identify model"
+            text="AI detects the sneaker model."
+          />
+          <MiniStep
+            emoji="💰"
+            title="3. Show market value"
+            text="Sold and active listing data are analyzed."
+          />
+          <MiniStep
+            emoji="🔥"
+            title="4. Flip Score"
+            text="Spot resale spread and profit potential."
+          />
+        </div>
+      </div>
+
+      <div className="mt-24 max-w-5xl w-full text-center">
+        <h2 className="mb-10 text-2xl font-semibold text-neutral-700">
+          Sneaker market intelligence powered by real data
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-10">
+          <div>
+            <p className="text-4xl font-bold text-black">12,000+</p>
+            <p className="mt-2 text-neutral-600">Sneakers Analyzed</p>
+          </div>
+
+          <div>
+            <p className="text-4xl font-bold text-black">$3.2M</p>
+            <p className="mt-2 text-neutral-600">Resale Value Calculated</p>
+          </div>
+
+          <div>
+            <p className="text-4xl font-bold text-black">2,500+</p>
+            <p className="mt-2 text-neutral-600">Resellers Using SneakPrice</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-24 max-w-5xl w-full">
+        <h2 className="text-3xl font-bold text-center mb-12 transition-all duration-700 ease-in-out">
+          {marketTitle}
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
+            <h3 className="text-xl font-semibold mb-6 transition-all duration-700 ease-in-out">
+              {trendingTitle}
+            </h3>
+
+            <div className="overflow-hidden h-[120px]">
+              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
+                {trending.map((sneaker, i) => (
+                  <li key={i} className="flex justify-between transition-all duration-500">
+                    <span>{sneaker.name}</span>
+                    <span className="text-black">{sneaker.demand}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
+            <h3 className="text-xl font-semibold mb-6 transition-all duration-500">
+              {arbitrageTitle}
+            </h3>
+
+            <div className="overflow-hidden h-[120px]">
+              <ul className="animate-[scrollVertical_10s_linear_infinite] space-y-3 text-neutral-700">
+                {[
+                  { name: "Air Jordan 1 Chicago", profit: 64 },
+                  { name: "Yeezy 700 Wave Runner", profit: 48 },
+                  { name: "Nike Dunk Panda", profit: 32 },
+                  { name: "Jordan 4 Military Black", profit: 29 },
+                  { name: "Air Jordan 1 Chicago", profit: 64 },
+                  { name: "Yeezy 700 Wave Runner", profit: 48 },
+                  { name: "Nike Dunk Panda", profit: 32 },
+                  { name: "Jordan 4 Military Black", profit: 29 },
+                ].map((item, i) => (
+                  <li key={i} className="flex justify-between">
+                    <span>{item.name}</span>
+                    <span className="text-black">+${item.profit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ── Scan Modal ─────────────────────────────────────────── */}
       {isScanModalOpen && (
