@@ -17,7 +17,7 @@ const videoCards: VideoCard[] = [
     subtitle: "Actor-led city styling clips",
     src: "/videos/marketplace-street-rotation.mp4",
     poster: "/jordan-yellow.png",
-    href: "/discover",
+    href: "/",
   },
   {
     title: "On-Foot Detail",
@@ -109,7 +109,7 @@ export function MarketplaceVideoShowcase() {
           </p>
         </div>
         <Link
-          href="/discover"
+          href="/"
           className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300"
         >
           Explore stories -&gt;

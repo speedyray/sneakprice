@@ -17,7 +17,6 @@ export default function Nav() {
     null;
 
   const isHomePage = pathname === "/";
-  const isDiscoverPage = pathname === "/discover";
   const isDashboardPage =
     pathname === "/dashboard" ||
     pathname === "/seller" ||
@@ -73,10 +72,6 @@ export default function Nav() {
 
           <Link href="/" className={linkClass(isHomePage)}>
             Home
-          </Link>
-
-          <Link href="/discover" className={linkClass(isDiscoverPage)}>
-            Discover
           </Link>
 
           {signedInUserName ? (

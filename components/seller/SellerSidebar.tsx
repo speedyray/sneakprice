@@ -77,10 +77,10 @@ export default function SellerSidebar() {
           </p>
 
           <Link
-            href="/discover"
+            href="/"
             className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100 hover:text-neutral-900"
           >
-            Back to Discover
+            Back to Marketplace
           </Link>
         </div>
       </div>
