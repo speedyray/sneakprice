@@ -1,20 +1,9 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import { HfInference } from "@huggingface/inference";
 import sharp from "sharp";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
 
 export async function POST(req: Request) {
   try {
-    if (process.env.NODE_ENV === "production") {
-      return NextResponse.json(
-        { error: "Sneaker scanning is coming soon." },
-        { status: 403 }
-      );
-    }
-
     const formData = await req.formData();
     const file = formData.get("image") as File | null;
 
@@ -30,34 +19,23 @@ export async function POST(req: Request) {
       .jpeg({ quality: 70 })
       .toBuffer();
 
-    const base64 = compressedBuffer.toString("base64");
+    const hf = new HfInference(process.env.HF_TOKEN ?? undefined);
 
-    const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: [
-        {
-          role: "system",
-          content:
-            "You are a sneaker identification expert. Identify the exact sneaker model name in the image. Return only the sneaker name.",
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: "Identify this sneaker model.",
-            },
-            {
-              type: "input_image",
-              image_url: `data:image/jpeg;base64,${base64}`,
-              detail: "high",
-            },
-          ],
-        },
-      ],
+    const arrayBuffer = compressedBuffer.buffer.slice(
+      compressedBuffer.byteOffset,
+      compressedBuffer.byteOffset + compressedBuffer.byteLength
+    ) as ArrayBuffer;
+    const imageBlob = new Blob([arrayBuffer], { type: "image/jpeg" });
+
+    const result = await hf.visualQuestionAnswering({
+      model: "Salesforce/blip-vqa-base",
+      inputs: {
+        image: imageBlob,
+        question: "What is the brand and model name of these sneakers?",
+      },
     });
 
-    const sneakerName = response.output_text?.trim();
+    const sneakerName = result.answer?.trim();
 
     if (!sneakerName) {
       return NextResponse.json(
@@ -70,20 +48,17 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("Scan error:", err);
     const message = err instanceof Error ? err.message : "Scan failed";
-    const isQuotaError =
-      message.includes("429") ||
-      message.toLowerCase().includes("quota") ||
-      message.toLowerCase().includes("billing");
+    const isRateLimit = message.includes("429") || message.toLowerCase().includes("rate limit");
 
     return NextResponse.json(
       {
-        error: isQuotaError
-          ? "Sneaker scanning is temporarily unavailable because the OpenAI API quota has been exceeded."
+        error: isRateLimit
+          ? "Sneaker scanning is temporarily unavailable. Please try again in a moment."
           : process.env.NODE_ENV === "development"
             ? message
             : "Scan failed",
       },
-      { status: isQuotaError ? 429 : 500 }
+      { status: isRateLimit ? 429 : 500 }
     );
   }
 }
