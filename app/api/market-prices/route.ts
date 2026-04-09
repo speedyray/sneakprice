@@ -56,7 +56,7 @@ async function fetchEbayPrice(
     if (volatility > 0.5) marketLabel = "High Volatility";
     if (volatility < 0.2) marketLabel = "Stable Blue-Chip";
 
-    return { sneaker, medianPrice: Math.round(med), totalListings: trimmed.length, marketLabel };
+    return { sneaker, medianPrice: Math.round(med), totalListings: prices.length, marketLabel };
   } catch {
     return null;
   }
