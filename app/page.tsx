@@ -624,7 +624,7 @@ export default function DiscoverPage() {
         listings. No guessing. No hype. Just data.
       </p>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 justify-center">
         <a
           href="#scan-tool"
           className="bg-[#24262b] hover:bg-black text-white px-8 py-4 rounded-xl font-semibold transition"
@@ -632,14 +632,7 @@ export default function DiscoverPage() {
           Scan My Sneakers
         </a>
 
-        {user ? (
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-full border border-black/20 bg-white px-8 py-4 font-semibold text-black transition hover:border-black/35"
-          >
-            Go to Marketplace
-          </Link>
-        ) : (
+        {!user && (
           <Link
             href="/login"
             className="inline-flex items-center justify-center rounded-full border border-black/20 bg-white px-8 py-4 font-semibold text-black transition hover:border-black/35"
@@ -691,7 +684,7 @@ export default function DiscoverPage() {
             }}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
           >
-            <DollarSign className="w-4 h-4" /> Scan a Shoe
+            <DollarSign className="w-4 h-4" /> Enter a sneaker name to scan
           </button>
         </div>
 

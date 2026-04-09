@@ -9,7 +9,7 @@ type AdminNavItem = {
 };
 
 const primaryNav: AdminNavItem[] = [
-  { label: "Dashboard", href: "/admin/dashboard" },
+  { label: "Dashboard", href: "/admin" },
   { label: "Users", href: "/admin/users" },
   { label: "Listings", href: "/admin/listings" },
   { label: "Orders", href: "/admin/orders" },
@@ -53,7 +53,7 @@ export default function AdminSidebar() {
   return (
     <aside className="hidden w-72 shrink-0 border-r border-neutral-200 bg-white lg:flex lg:flex-col">
       <div className="border-b border-neutral-200 px-6 py-5">
-        <Link href="/admin/dashboard" className="flex items-center gap-3">
+        <Link href="/admin" className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-neutral-900 text-white shadow-sm">
             <span className="text-sm font-black">SP</span>
           </div>

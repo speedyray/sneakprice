@@ -7,11 +7,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const currentUser = await getCurrentDbUser();
 
   if (!currentUser) {
-    redirect("/login?redirect_url=/admin/dashboard");
+    redirect("/login?redirect_url=/admin");
   }
 
   if (currentUser.role !== "ADMIN") {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   return (

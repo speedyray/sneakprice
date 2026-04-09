@@ -17,14 +17,6 @@ export default function Nav() {
     null;
 
   const isHomePage = pathname === "/";
-  const isDashboardPage =
-    pathname === "/dashboard" ||
-    pathname === "/seller" ||
-    pathname.startsWith("/seller/") ||
-    pathname === "/admin" ||
-    pathname.startsWith("/admin/");
-  const isMarketplacePage = pathname.startsWith("/marketplace");
-
   const linkClass = (active: boolean) =>
     active
       ? "font-semibold text-black"
@@ -74,31 +66,6 @@ export default function Nav() {
             Home
           </Link>
 
-          {signedInUserName ? (
-            <>
-              <Link href="/dashboard" className={linkClass(isDashboardPage)}>
-                Dashboard
-              </Link>
-
-              <Link href="/marketplace" className={linkClass(isMarketplacePage)}>
-                Marketplace
-              </Link>
-
-              <Link
-                href="/marketplace/my-listings"
-                className={linkClass(pathname === "/marketplace/my-listings")}
-              >
-                My Listings
-              </Link>
-
-              <Link
-                href="/marketplace/sell"
-                className={linkClass(pathname === "/marketplace/sell")}
-              >
-                Create Listing
-              </Link>
-            </>
-          ) : null}
 
           {!signedInUserName ? (
             <Link href="/login" className="text-black">

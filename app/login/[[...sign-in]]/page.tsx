@@ -8,7 +8,7 @@ export default async function Page({
   searchParams?: Promise<{ redirect_url?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const redirectUrl = resolvedSearchParams?.redirect_url || "/dashboard";
+  const redirectUrl = resolvedSearchParams?.redirect_url || "/";
   const { userId } = await auth();
 
   if (userId) {

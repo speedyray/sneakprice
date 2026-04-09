@@ -9,8 +9,8 @@ export default async function DashboardPage() {
   }
 
   if (currentUser.role === "ADMIN") {
-    redirect("/admin/dashboard");
+    redirect("/admin");
   }
 
-  redirect("/seller");
+  redirect("/");
 }
