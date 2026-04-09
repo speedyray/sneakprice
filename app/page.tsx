@@ -947,7 +947,27 @@ export default function DiscoverPage() {
                     ? `Active market median: ${formatMoney(derived.activeMedian)}`
                     : "Sold and active market pricing will appear here."
                 }
-              />
+              >
+                {marketData && (
+                  <div className="mt-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                      Buy here
+                    </p>
+                    <a
+                      href={
+                        marketData.deal?.cheapestItemId
+                          ? `https://www.ebay.com/itm/${marketData.deal.cheapestItemId}`
+                          : `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(identifiedSneaker)}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-black hover:bg-yellow-300 transition"
+                    >
+                      eBay
+                    </a>
+                  </div>
+                )}
+              </StepCard>
 
               <StepCard
                 step="Step 4"
