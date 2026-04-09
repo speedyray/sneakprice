@@ -18,8 +18,8 @@ export default async function Page({
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6 py-10">
       <SignIn
-        fallbackRedirectUrl={redirectUrl}
-        signUpFallbackRedirectUrl={redirectUrl}
+        forceRedirectUrl={redirectUrl}
+        signUpForceRedirectUrl={redirectUrl}
       />
     </div>
   );
