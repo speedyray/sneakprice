@@ -1166,6 +1166,30 @@ export default function DiscoverPage() {
         </div>
       </div>
 
+      {marketPrices.length > 0 && (
+        <div className="mt-16 max-w-5xl w-full">
+          <h2 className="text-2xl font-bold text-center mb-8">
+            🔴 Live eBay Market Prices
+          </h2>
+          <div className="rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
+            <ul className="divide-y divide-black/5">
+              {marketPrices.map((item, i) => (
+                <li key={i} className="flex items-center justify-between py-3">
+                  <span className="font-medium text-neutral-800">{item.sneaker}</span>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-neutral-500">{item.totalListings} listings</span>
+                    <span className="inline-flex rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-600">
+                      {item.marketLabel}
+                    </span>
+                    <span className="text-xl font-bold text-black">${item.medianPrice}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* ── Scan Modal ─────────────────────────────────────────── */}
       {isScanModalOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
