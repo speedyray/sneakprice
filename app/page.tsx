@@ -94,6 +94,7 @@ type EbayResponse = {
     marketPrice?: number;
     profit?: number;
     roi?: number;
+    cheapestItemId?: string;
   } | null;
 };
 
