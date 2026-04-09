@@ -445,10 +445,6 @@ export default function DiscoverPage() {
       const ebayJson = (await ebayRes.json()) as EbayResponse;
 
       if (!ebayRes.ok) {
-        if (ebayRes.status === 401) {
-          setScanError("unauthenticated");
-          return;
-        }
         if (ebayRes.status === 403) {
           setScanError("limit_reached");
           return;
@@ -545,11 +541,6 @@ export default function DiscoverPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: scanQuery }),
       });
-
-      if (ebayRes.status === 401) {
-        setScanModalError("unauthenticated");
-        return;
-      }
 
       if (ebayRes.status === 403) {
         setScanModalError("limit_reached");
@@ -908,20 +899,12 @@ export default function DiscoverPage() {
                 </p>
               ) : null}
 
-              {scanError === "unauthenticated" && (
-                <div className="mt-4 rounded-xl bg-yellow-900/30 border border-yellow-700 px-4 py-3 text-sm text-yellow-300">
-                  Sign in to scan sneakers.{" "}
-                  <button onClick={() => openSignIn()} className="underline font-semibold">
-                    Sign in
-                  </button>
-                </div>
-              )}
               {scanError === "limit_reached" && (
                 <p className="mt-4 rounded-xl bg-red-900/30 border border-red-700 px-4 py-3 text-sm text-red-300">
                   You&apos;ve used all your free scans for today. Come back tomorrow.
                 </p>
               )}
-              {scanError && scanError !== "unauthenticated" && scanError !== "limit_reached" && (
+              {scanError && scanError !== "limit_reached" && (
                 <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
                   {scanError}
                 </p>
@@ -1280,18 +1263,7 @@ export default function DiscoverPage() {
                 placeholder="e.g. Air Jordan 4 Bred"
                 className="w-full bg-gray-800 border border-gray-600 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500"
               />
-              {scanModalError === "unauthenticated" && (
-                <div className="text-center space-y-3 py-2">
-                  <p className="text-white font-semibold">Sign in to scan sneakers</p>
-                  <p className="text-gray-400 text-sm">Create a free account to get 3 scans per day.</p>
-                  <button
-                    onClick={() => openSignIn()}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl transition-colors"
-                  >
-                    Sign In
-                  </button>
-                </div>
-              )}
+
 
               {scanModalError === "limit_reached" && (
                 <div className="text-center space-y-3 py-2">
@@ -1314,7 +1286,7 @@ export default function DiscoverPage() {
                 </div>
               )}
 
-              {scanModalError && scanModalError !== "unauthenticated" && scanModalError !== "limit_reached" && (
+              {scanModalError && scanModalError !== "limit_reached" && (
                 <p className="text-red-400 text-sm text-center">{scanModalError}</p>
               )}
               {scansRemaining !== null && (
@@ -1324,7 +1296,7 @@ export default function DiscoverPage() {
               )}
               <button
                 type="submit"
-                disabled={isScanningModel || !scanQuery.trim() || scanModalError === "unauthenticated" || scanModalError === "limit_reached"}
+                disabled={isScanningModel || !scanQuery.trim() || scanModalError === "limit_reached"}
                 className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 {isScanningModel ? (
