@@ -948,7 +948,7 @@ export default function DiscoverPage() {
                     : "Sold and active market pricing will appear here."
                 }
               >
-                {marketData && (
+                {marketData && identifiedSneaker && (
                   <div className="mt-3">
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
                       Buy here
