@@ -27,15 +27,17 @@ function average(arr: number[]) {
 }
 
 export async function POST(req: Request) {
-  // 1. Get user if signed in (optional)
+  // 1. Require authentication
   const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  }
 
   // 2. Extract client IP
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
 
-  // 3. Check + increment rate limit (use userId if available, else fall back to IP)
-  const rateLimitKey = userId ?? ip;
-  const { allowed, remaining } = await checkAndIncrementScanLimit(rateLimitKey, ip);
+  // 3. Check + increment rate limit
+  const { allowed, remaining } = await checkAndIncrementScanLimit(userId, ip);
   if (!allowed) {
     return NextResponse.json({ error: "limit_reached", remaining: 0 }, { status: 403 });
   }
