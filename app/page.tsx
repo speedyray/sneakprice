@@ -983,7 +983,49 @@ export default function DiscoverPage() {
                     ? `Estimated ROI: ${derived.roi.toFixed(1)}%`
                     : "Spread versus current listings will appear here."
                 }
-              />
+              >
+                {marketData && identifiedSneaker && (
+                  <div className="mt-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                      Sell here
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(identifiedSneaker)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-black hover:bg-yellow-300 transition"
+                      >
+                        eBay
+                      </a>
+                      <a
+                        href={`https://stockx.com/search?s=${encodeURIComponent(identifiedSneaker)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-green-400 transition"
+                      >
+                        StockX
+                      </a>
+                      <a
+                        href={`https://www.goat.com/search?query=${encodeURIComponent(identifiedSneaker)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-black px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-800 transition"
+                      >
+                        GOAT
+                      </a>
+                      <a
+                        href={`https://www.flightclub.com/catalogsearch/result/?q=${encodeURIComponent(identifiedSneaker)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-400 transition"
+                      >
+                        Flight Club
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </StepCard>
 
               <div className="rounded-2xl border border-green-200 bg-green-50 p-5 text-left">
                 <div className="mb-3 flex items-center gap-2 text-green-800">
