@@ -191,7 +191,7 @@ if (
     marketPrice: soldStats.overallMedian,
     profit: spread,
     roi: percent,
-    cheapestItemId: cheapestItem?.legacyItemId ?? null,
+    cheapestItemId: cheapestItem?.legacyItemId ?? cheapestItem?.itemId?.split("|")[1] ?? null,
   };
 
   // 🔥 SAVE DEAL TO SUPABASE
