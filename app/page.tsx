@@ -1173,8 +1173,8 @@ export default function DiscoverPage() {
           </h2>
           <div className="rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
             <ul className="divide-y divide-black/5">
-              {marketPrices.map((item, i) => (
-                <li key={i} className="flex items-center justify-between py-3">
+              {marketPrices.map((item) => (
+                <li key={item.sneaker} className="flex items-center justify-between py-3">
                   <span className="font-medium text-neutral-800">{item.sneaker}</span>
                   <div className="flex items-center gap-4 text-sm">
                     <span className="text-neutral-500">{item.totalListings} listings</span>
