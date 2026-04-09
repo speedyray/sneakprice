@@ -1330,12 +1330,14 @@ function StepCard({
   icon,
   value,
   helper,
+  children,
 }: {
   step: string;
   title: string;
   icon: React.ReactNode;
   value: string;
   helper: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="rounded-2xl border border-black/10 bg-white p-5 text-left shadow-sm">
@@ -1351,6 +1353,7 @@ function StepCard({
 
       <p className="text-2xl font-bold text-black">{value}</p>
       <p className="mt-2 text-sm text-neutral-500">{helper}</p>
+      {children}
     </div>
   );
 }
