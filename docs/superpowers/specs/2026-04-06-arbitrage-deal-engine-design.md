@@ -319,3 +319,4 @@ No existing tables are modified.
 - [ ] On-demand scan returns results in under 10 seconds
 - [ ] LLM cost per day stays under $0.10 at 1,000 deals/day volume
 - [ ] No existing pages or features broken
+
