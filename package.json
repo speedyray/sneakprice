@@ -51,6 +51,7 @@
   },
   "overrides": {
     "@types/pg": "8.11.11",
+    "@hono/node-server": ">=1.19.13",
     "@parcel/watcher": {
       "picomatch": "^4.0.4"
     },
