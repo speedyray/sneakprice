@@ -47,12 +47,11 @@ async function fetchTopDeals(since?: Date) {
 }
 
 export async function GET() {
-  let pollInterval: NodeJS.Timeout;
-  let lastChecked = new Date();
-
   const stream = new ReadableStream({
     async start(controller) {
-      // Send top deals immediately on connect
+      // Send top deals then close immediately — keeps the function well under
+      // Vercel's 30s serverless limit and avoids timeout errors.
+      // The client reconnects on a 60s interval to refresh data.
       try {
         const initialDeals = await fetchTopDeals();
 
@@ -61,35 +60,17 @@ export async function GET() {
             controller.enqueue(`data: ${JSON.stringify(deal)}\n\n`);
           }
         } else {
-          // No deals in DB yet — send a placeholder so the client knows we connected
           controller.enqueue(
             `data: ${JSON.stringify({ _status: "no_deals_yet" })}\n\n`
           );
         }
       } catch {
-        // DB not ready — send placeholder
         controller.enqueue(
           `data: ${JSON.stringify({ _status: "db_unavailable" })}\n\n`
         );
       }
 
-      // Poll for new deals every 30 seconds
-      pollInterval = setInterval(async () => {
-        try {
-          const newDeals = await fetchTopDeals(lastChecked);
-          lastChecked = new Date();
-
-          for (const deal of newDeals) {
-            controller.enqueue(`data: ${JSON.stringify(deal)}\n\n`);
-          }
-        } catch {
-          clearInterval(pollInterval);
-        }
-      }, 30_000);
-    },
-
-    cancel() {
-      clearInterval(pollInterval);
+      controller.close();
     },
   });
 

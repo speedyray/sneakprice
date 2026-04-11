@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Nav from "../components/Nav";
+import SecondaryNav from "../components/SecondaryNav";
 import { ClerkProvider } from "@clerk/nextjs";
 
 
@@ -20,6 +21,7 @@ export default function RootLayout({
       <html lang="en">
         <body className="antialiased">
           <Nav />
+          <SecondaryNav />
           {children}
         </body>
       </html>

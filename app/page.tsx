@@ -191,55 +191,68 @@ export default function DiscoverPage() {
   const [marketData, setMarketData] = useState<EbayResponse | null>(null);
 
   useEffect(() => {
-    let eventSource = new EventSource("/api/live-deals-stream");
+    let reconnectTimer: ReturnType<typeof setTimeout>;
+    let backoff = 5_000;
+    const REFRESH_INTERVAL = 60_000;
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+    function connect() {
+      const es = new EventSource("/api/live-deals-stream");
+      let receivedData = false;
 
-      // Skip status-only messages
-      if (data._status) return;
+      es.onmessage = (event) => {
+        receivedData = true;
+        backoff = 5_000; // reset on success
+        const data = JSON.parse(event.data);
 
-      // New schema deal (has dealScore field)
-      if (data.dealScore !== undefined) {
-        const deal = data as ArbDeal;
-        setLastScanAt(new Date());
-        // Read current arbDeals snapshot to check existence before the setState
-        const isExisting = arbDealsRef.current.some((d) => d.id === deal.id);
-        if (!isExisting) {
-          setNewDealCount((c) => c + 1);
-          setNewDealIds((ids) => new Set([...ids, deal.id]));
-          const timerId = setTimeout(() => {
-            setNewDealIds((ids) => {
-              const next = new Set(ids);
-              next.delete(deal.id);
-              return next;
-            });
-          }, 3000);
-          newDealTimersRef.current.push(timerId);
+        // Skip status-only messages
+        if (data._status) return;
+
+        // New schema deal (has dealScore field)
+        if (data.dealScore !== undefined) {
+          const deal = data as ArbDeal;
+          setLastScanAt(new Date());
+          const isExisting = arbDealsRef.current.some((d) => d.id === deal.id);
+          if (!isExisting) {
+            setNewDealCount((c) => c + 1);
+            setNewDealIds((ids) => new Set([...ids, deal.id]));
+            const timerId = setTimeout(() => {
+              setNewDealIds((ids) => {
+                const next = new Set(ids);
+                next.delete(deal.id);
+                return next;
+              });
+            }, 3000);
+            newDealTimersRef.current.push(timerId);
+          }
+          setArbDeals((prev) => {
+            const exists = prev.some((d) => d.id === deal.id);
+            if (exists) return prev.map((d) => (d.id === deal.id ? deal : d));
+            return [deal, ...prev].slice(0, 50);
+          });
+          return;
         }
-        setArbDeals((prev) => {
-          const exists = prev.some((d) => d.id === deal.id);
-          if (exists) return prev.map((d) => (d.id === deal.id ? deal : d));
-          return [deal, ...prev].slice(0, 50);
-        });
-        return;
-      }
 
-      // Legacy schema (random deals) — keep for backward compat
-      const deal = data as LiveDeal;
-      setDeals((prev) => [deal, ...prev].slice(0, 10));
-      setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
-    };
+        // Legacy schema (random deals) — keep for backward compat
+        const deal = data as LiveDeal;
+        setDeals((prev) => [deal, ...prev].slice(0, 10));
+        setRecentDeals((prev) => [deal, ...prev].slice(0, 20));
+      };
 
-    eventSource.onerror = () => {
-      eventSource.close();
-      setTimeout(() => {
-        eventSource = new EventSource("/api/live-deals-stream");
-      }, 2000);
-    };
+      es.onerror = () => {
+        es.close();
+        // Normal close after server sends data → refresh in 60s.
+        // No data received → error condition, use exponential backoff.
+        const delay = receivedData
+          ? REFRESH_INTERVAL
+          : Math.min((backoff *= 2), 60_000);
+        reconnectTimer = setTimeout(connect, delay);
+      };
+    }
+
+    connect();
 
     return () => {
-      eventSource.close();
+      clearTimeout(reconnectTimer);
       newDealTimersRef.current.forEach(clearTimeout);
       newDealTimersRef.current = [];
     };
