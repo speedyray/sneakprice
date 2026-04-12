@@ -37,7 +37,7 @@ export default function SoleRestorationPage() {
         <li>Check every hour — remove when the sole reaches desired whiteness</li>
         <li>Rinse thoroughly with water and dry</li>
       </ol>
-      <p className="leading-relaxed text-neutral-700 mt-2">
+      <p className="mt-2 leading-relaxed text-neutral-700">
         Repeat the process for heavily yellowed soles. Avoid getting hydrogen peroxide
         on the upper — tape or cover it with masking tape before applying.
       </p>
