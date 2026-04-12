@@ -73,7 +73,8 @@ function DropdownMenu({
 
 export default function SecondaryNav() {
   return (
-    <nav className="w-full overflow-x-auto border-b border-black/10 bg-white px-4 py-2 sm:px-6 sm:py-3">
+    <nav className="w-full border-b border-black/10 bg-white px-4 py-2 sm:px-6 sm:py-3">
+      <div className="overflow-x-auto">
       <div className="flex flex-wrap items-center justify-start gap-x-5 gap-y-2 sm:justify-center sm:gap-x-10 sm:gap-y-0">
         <Link
           href="/"
@@ -99,6 +100,7 @@ export default function SecondaryNav() {
         >
           Sneaker Blogs
         </Link>
+      </div>
       </div>
     </nav>
   );
