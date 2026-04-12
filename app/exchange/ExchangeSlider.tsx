@@ -7,7 +7,7 @@ const DASHBOARDS = [
   { src: "/exchange-arbitrage.html", label: "Arbitrage Deals" },
 ];
 
-const INTERVAL_MS = 18_000; // slide every 18 seconds
+const INTERVAL_MS = 9_000; // slide every 9 seconds
 
 export default function ExchangeSlider() {
   const [active, setActive] = useState(0);
