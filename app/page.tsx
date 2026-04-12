@@ -677,12 +677,12 @@ export default function DiscoverPage() {
         <p className="text-black text-sm text-center mb-6">● Live Market Feed</p>
 
       {/* ── Arbitrage Deal Feed ─────────────────────────────── */}
-      <section className="space-y-4 mt-4 w-full bg-gray-950 rounded-3xl p-6 border border-gray-800">
+      <section className="space-y-4 mt-4 w-full rounded-3xl p-6" style={{ background: "linear-gradient(135deg, #0a0f1c 0%, #0c1222 100%)", border: "1px solid rgba(255,255,255,0.08)" }}>
         {/* Header row */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h2 className="text-white font-bold text-xl">🔥 Live Arbitrage Deals</h2>
-            <p className="text-gray-400 text-sm">
+            <h2 className="font-bold text-xl" style={{ color: "#f0f3fa" }}>🔥 Live Arbitrage Deals</h2>
+            <p className="text-sm" style={{ color: "#8E9DB2" }}>
               {arbDeals.length > 0
                 ? `${arbDeals.length} active deals · updating live`
                 : "Warming up deal engine…"}
@@ -695,7 +695,10 @@ export default function DiscoverPage() {
               setScansRemaining(null);
               setIsScanModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+            className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all"
+            style={{ background: "#1e2a3a", color: "#facc15", border: "1px solid rgba(250,204,21,0.3)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#2c3e66"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#1e2a3a"; }}
           >
             <DollarSign className="w-4 h-4" /> Enter a sneaker name to scan
           </button>
@@ -705,7 +708,8 @@ export default function DiscoverPage() {
         {newDealCount > 0 && (
           <button
             onClick={() => setNewDealCount(0)}
-            className="w-full text-center bg-blue-600/20 border border-blue-500/40 text-blue-300 text-sm py-2 rounded-xl hover:bg-blue-600/30 transition-colors"
+            className="w-full text-center text-sm py-2 rounded-xl transition-colors"
+            style={{ background: "rgba(250,204,21,0.08)", border: "1px solid rgba(250,204,21,0.25)", color: "#facc15" }}
           >
             ↑ {newDealCount} new deal{newDealCount > 1 ? "s" : ""} · click to dismiss
           </button>
@@ -717,11 +721,12 @@ export default function DiscoverPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`text-sm px-4 py-1.5 rounded-full font-medium transition-colors ${
+              className="text-sm px-4 py-1.5 rounded-full font-medium transition-all"
+              style={
                 activeTab === tab
-                  ? "bg-white text-black"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
-              }`}
+                  ? { background: "#2c3e66", color: "#f0f3fa", border: "1px solid rgba(255,255,255,0.2)" }
+                  : { background: "rgba(20,28,40,0.8)", color: "#8E9DB2", border: "1px solid rgba(255,255,255,0.06)" }
+              }
             >
               {tab === "all"
                 ? "All"
@@ -743,9 +748,9 @@ export default function DiscoverPage() {
 
         {/* Deal cards */}
         {arbDeals.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16" style={{ color: "#8E9DB2" }}>
             <p className="text-4xl mb-3">🔍</p>
-            <p className="font-medium">
+            <p className="font-medium" style={{ color: "#b9c7d9" }}>
               No deals yet — the scanner is running in the background.
             </p>
             <p className="text-sm mt-1">

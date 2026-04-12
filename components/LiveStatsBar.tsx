@@ -44,29 +44,36 @@ export function LiveStatsBar({ dealCount, lastScanAt, totalProfit }: LiveStatsBa
   const lastScanLabel = useTimeAgo(lastScanAt);
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 bg-gray-900 border border-gray-700 rounded-xl text-xs font-mono text-gray-400 flex-wrap">
+    <div
+      className="flex items-center gap-4 px-4 py-2 rounded-xl text-xs font-mono flex-wrap"
+      style={{
+        background: "rgba(20,28,40,0.8)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        color: "#8E9DB2",
+      }}
+    >
       {/* Live indicator */}
-      <span className="flex items-center gap-1.5 text-green-400 font-semibold">
-        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+      <span className="flex items-center gap-1.5 font-semibold" style={{ color: "#2ecc71" }}>
+        <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#2ecc71" }} />
         LIVE
       </span>
 
-      <span className="text-gray-600">|</span>
+      <span style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
 
       <span>
-        <span className="text-white font-semibold">{dealCount}</span> active deal{dealCount !== 1 ? "s" : ""}
+        <span className="font-semibold" style={{ color: "#f0f3fa" }}>{dealCount}</span> active deal{dealCount !== 1 ? "s" : ""}
       </span>
 
-      <span className="text-gray-600">|</span>
+      <span style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
 
       <span>
-        Last scan: <span className="text-white font-semibold">{lastScanLabel}</span>
+        Last scan: <span className="font-semibold" style={{ color: "#f0f3fa" }}>{lastScanLabel}</span>
       </span>
 
-      <span className="text-gray-600">|</span>
+      <span style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
 
       <span>
-        <span className="text-green-400 font-semibold">
+        <span className="font-semibold" style={{ color: "#facc15" }}>
           ${animatedProfit.toFixed(2)}
         </span>{" "}
         total profit available
