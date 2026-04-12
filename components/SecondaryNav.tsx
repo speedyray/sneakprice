@@ -54,7 +54,7 @@ function DropdownMenu({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-md border border-black/10 bg-white py-1 shadow-lg">
+        <div className="absolute left-0 top-full z-50 mt-1 w-48 animate-[slideDown_150ms_ease-out] rounded-md border border-black/10 bg-white py-1 shadow-lg">
           {items.map((item) => (
             <Link
               key={item.href}
@@ -74,7 +74,6 @@ function DropdownMenu({
 export default function SecondaryNav() {
   return (
     <nav className="relative z-40 w-full border-b border-black/10 bg-white px-4 py-2 sm:px-6 sm:py-3">
-      <div className="overflow-x-auto">
       <div className="flex flex-wrap items-center justify-start gap-x-5 gap-y-2 sm:justify-center sm:gap-x-10 sm:gap-y-0">
         <Link
           href="/"
@@ -100,7 +99,6 @@ export default function SecondaryNav() {
         >
           Sneaker Blogs
         </Link>
-      </div>
       </div>
     </nav>
   );
