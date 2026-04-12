@@ -73,7 +73,7 @@ export default function CleaningTipsPage() {
       <div className="border-t border-black/10 pt-6">
         <p className="text-sm text-neutral-500">
           Know your sneaker&apos;s market value before you sell.{" "}
-          <Link href="/scan" className="font-medium text-green-600 hover:underline">
+          <Link href="/" className="font-medium text-green-600 hover:underline">
             Scan it with SneakPrice →
           </Link>
         </p>
