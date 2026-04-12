@@ -88,10 +88,10 @@ export default function SecondaryNav() {
         <DropdownMenu label="Sneaker Care Guide" items={careGuideItems} />
 
         <Link
-          href="/identify"
+          href="/exchange"
           className="text-sm text-black transition hover:text-black/60 sm:text-base"
         >
-          Identify Sneakers
+          Sneaker Exchange
         </Link>
 
         <Link

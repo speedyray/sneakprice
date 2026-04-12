@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SNEAKER MARKET DASHBOARD | Full Page | Live API Ready | 12 Charts</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0f1c 0%, #0c1222 100%);
+            padding: 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* FULL PAGE DASHBOARD - no margins, expansive grid */
+        .dashboard {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* header compact for full page */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #F5F7FF, #8B9DC3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .badge-sub {
+            color: #8E9DB2;
+            background: rgba(255,255,255,0.05);
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        .live-badge {
+            background: #ff3b30;
+            color: white;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            padding: 0.2rem 0.8rem;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; background: #e32a1f; }
+        }
+
+        /* selector row - scrollable */
+        .selector-wrapper {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+        }
+        .selector-row {
+            background: rgba(20, 28, 40, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 0.3rem;
+            display: inline-flex;
+            gap: 0.6rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .sneaker-btn {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #cbd5e6;
+            white-space: nowrap;
+        }
+        .sneaker-btn.active {
+            background: #2c3e66;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .sneaker-btn i {
+            margin-right: 8px;
+        }
+
+        /* EXPANDED GRID: 3x4 = 12 charts (more charts) */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .chart-card {
+            background: rgba(18, 25, 40, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 24px;
+            padding: 1rem 1rem 1.2rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .chart-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .card-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #f0f3fa;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .label-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            background: #1e2a3a;
+            color: #e2e8f0;
+        }
+        .label-bullish { background: #0f3b2c; color: #2ecc71; border-left: 2px solid #2ecc71; }
+        .label-cooling { background: #3e2720; color: #e67e22; border-left: 2px solid #e67e22; }
+        .label-bluechip { background: #1a2c4e; color: #5dade2; border-left: 2px solid #3498db; }
+        canvas {
+            max-height: 180px;
+            width: 100%;
+            margin: 0.2rem 0;
+        }
+        .metrics-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.7rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.5rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #b9c7d9;
+        }
+        .vol-value {
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: #facc15;
+        }
+        .trend-note {
+            font-size: 0.65rem;
+            margin-top: 8px;
+            text-align: right;
+            color: #7e8aa2;
+        }
+        hr {
+            margin: 0.4rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: #5b6f82;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 1rem;
+        }
+        .api-badge {
+            background: #1e2a3a;
+            border-radius: 20px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.7rem;
+            font-family: monospace;
+        }
+        @keyframes blink {
+            0% { opacity: 0.7; background: rgba(255,255,255,0.05);}
+            100% { opacity: 1; background: transparent;}
+        }
+        .live-update {
+            animation: blink 0.4s ease;
+        }
+        @media (max-width: 800px) {
+            body { padding: 1rem; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1><i class="fas fa-chart-line"></i> SNEAKER STOCK EXCHANGE <span class="live-badge"><i class="fas fa-circle" style="font-size: 0.45rem;"></i> LIVE SIMULATION</span> <span class="api-badge"><i class="fas fa-plug"></i> API-READY LAYER</span></h1>
+        <div class="badge-sub"><i class="fas fa-chart-pie"></i> 12 dynamic charts • Full page display • Modular data adapter</div>
+    </div>
+
+    <div class="selector-wrapper">
+        <div class="selector-row" id="sneakerSelector"></div>
+    </div>
+
+    <!-- 12 CHART GRID: price, popularity, volatility indicators spread across 12 cards -->
+    <div class="charts-grid" id="chartsGrid"></div>
+    <footer>
+        <i class="fas fa-database"></i> DATA LAYER: <strong>MockMarketAPI</strong> (simulated) • Replace <code>window.MarketDataProvider</code> with real StockX/GOAT/CampXM endpoint • Updates every 4s • Volatility & Blue Chip computed live
+    </footer>
+</div>
+
+<script>
+    // ======================== API LAYER (MODULAR) ========================
+    // This is the pluggable data interface. To use REAL data, replace the methods below with fetch() calls.
+    // The rest of the dashboard (charts, labels, volatility) will work automatically.
+    
+    window.MarketDataProvider = {
+        // Configuration: set to true when integrating real API
+        useRealAPI: false,
+        apiEndpoint: "https://api.sneakerdata.io/v1/prices", // example endpoint
+        
+        // Mock data store (simulates real-time ticks)
+        sneakerStates: null,
+        
+        // Initialize or fetch historical data for a sneaker (returns Promise)
+        async fetchHistoricalData(sneakerId) {
+            // MOCK IMPLEMENTATION - replace with real API call
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const mock = this.getMockSnapshot(sneakerId);
+                    resolve(mock);
+                }, 10);
+            });
+        },
+        
+        // Fetch latest tick for a sneaker (called every interval)
+        async fetchLatestTick(sneakerId, currentState) {
+            // MOCK: generate dynamic tick based on state parameters
+            // Replace this with: fetch(`${this.apiEndpoint}?id=${sneakerId}`).then(res => res.json())
+            if (!currentState) return null;
+            const newTick = this.generateMockTick(currentState);
+            return newTick;
+        },
+        
+        // ---- MOCK ENGINE (realistic random walk) ----
+        getMockSnapshot(id) {
+            const mockStates = {
+                aj1: { name: "AJ1 Retro High OG", priceHistory: [380,395,410,435,460,478,490,512,535,548,562,580], popularityHistory: [72,78,85,88,92,89,86,82,79,81,85,88], baseVolatility:0.025, trendBias:0.002, popTrend:0.001, blueChipBase:94, priceVolFactor:1.2, popVol:2.5, icon:"fa-shoe-prints" },
+                yeezy: { name: "Yeezy 350 V2", priceHistory: [320,305,295,278,260,245,240,238,225,215,210,205], popularityHistory:[88,85,80,74,68,62,58,55,52,48,45,42], baseVolatility:0.035, trendBias:-0.003, popTrend:-0.004, blueChipBase:67, priceVolFactor:1.5, popVol:3.0, icon:"fab fa-adn" },
+                dunk: { name: "Dunk Low Panda", priceHistory:[210,225,240,255,270,285,290,292,288,275,265,258], popularityHistory:[95,96,98,97,95,92,88,82,76,70,68,65], baseVolatility:0.028, trendBias:-0.001, popTrend:-0.003, blueChipBase:72, priceVolFactor:1.3, popVol:2.8, icon:"fa-basketball" },
+                nb: { name: "NB 990v3 Teddy", priceHistory:[195,210,228,245,265,280,295,310,325,340,355,370], popularityHistory:[55,60,68,74,80,85,88,90,91,92,93,94], baseVolatility:0.018, trendBias:0.004, popTrend:0.003, blueChipBase:88, priceVolFactor:0.9, popVol:1.8, icon:"fa-running" },
+                travis: { name: "Travis Scott AJ1 Low", priceHistory:[950,980,1020,1080,1120,1150,1180,1210,1190,1175,1160,1140], popularityHistory:[98,99,99,98,97,96,94,92,90,89,88,87], baseVolatility:0.032, trendBias:-0.002, popTrend:-0.0025, blueChipBase:96, priceVolFactor:1.4, popVol:2.2, icon:"fa-crown" },
+                asics: { name: "ASICS Gel-Kayano 14", priceHistory:[140,155,170,185,200,215,225,240,255,270,280,295], popularityHistory:[45,52,60,68,74,80,84,87,89,91,92,93], baseVolatility:0.02, trendBias:0.005, popTrend:0.004, blueChipBase:76, priceVolFactor:1.0, popVol:2.0, icon:"fa-shoe-prints" },
+                foam: { name: "Yeezy Foam Runner", priceHistory:[110,115,120,118,125,130,128,132,135,133,130,128], popularityHistory:[82,84,86,85,83,80,78,76,74,72,70,68], baseVolatility:0.04, trendBias:-0.001, popTrend:-0.002, blueChipBase:58, priceVolFactor:1.6, popVol:3.2, icon:"fa-cloud" },
+                j4: { name: "AJ4 Military Black", priceHistory:[320,335,350,365,380,395,410,425,440,455,470,485], popularityHistory:[75,79,83,87,90,92,94,93,91,90,89,88], baseVolatility:0.022, trendBias:0.003, popTrend:-0.0005, blueChipBase:85, priceVolFactor:1.1, popVol:2.3, icon:"fa-bolt" }
+            };
+            return mockStates[id] || mockStates.aj1;
+        },
+        
+        generateMockTick(state) {
+            let lastPrice = state.priceHistory[state.priceHistory.length-1];
+            let lastPop = state.popularityHistory[state.popularityHistory.length-1];
+            let volatility = state.baseVolatility * state.priceVolFactor;
+            let randomChange = (Math.random() - 0.5) * 2 * volatility;
+            let newPrice = lastPrice * (1 + state.trendBias + randomChange);
+            newPrice = Math.max(80, Math.min(2500, newPrice));
+            let popNoise = (Math.random() - 0.5) * state.popVol;
+            let newPop = lastPop + state.popTrend * 2 + popNoise;
+            newPop = Math.min(100, Math.max(12, newPop));
+            return { price: newPrice, popularity: newPop };
+        },
+        
+        // Apply tick to state (mutate history)
+        applyTick(state, tick) {
+            state.priceHistory.push(tick.price);
+            state.popularityHistory.push(tick.popularity);
+            if (state.priceHistory.length > 24) state.priceHistory.shift();
+            if (state.popularityHistory.length > 24) state.popularityHistory.shift();
+            return state;
+        }
+    };
+    
+    // ======================== DASHBOARD CORE ========================
+    const SNEAKER_IDS = ["aj1", "yeezy", "dunk", "nb", "travis", "asics", "foam", "j4"];
+    let activeSneakerId = "aj1";
+    let allCharts = {}; // store chart instances per card id
+    let updateInterval = null;
+    let currentStates = {};
+    
+    // Helper functions
+    function computeVolatility(priceArray) {
+        if (priceArray.length < 2) return 0;
+        let returns = [];
+        for (let i = 1; i < priceArray.length; i++) {
+            if (priceArray[i-1] !== 0) returns.push((priceArray[i] - priceArray[i-1]) / priceArray[i-1]);
+        }
+        if (returns.length === 0) return 0;
+        let mean = returns.reduce((a,b)=>a+b,0)/returns.length;
+        let variance = returns.reduce((sum,r)=>sum + Math.pow(r-mean,2),0)/returns.length;
+        let std = Math.sqrt(variance);
+        return std * 100;
+    }
+    
+    function getDynamicLabels(priceArr, popArr, blueChipBase) {
+        if (priceArr.length < 5) return { bullish: false, cooling: false, blueChip: false };
+        let recentPrices = priceArr.slice(-5);
+        let priceSlope = (recentPrices[recentPrices.length-1] - recentPrices[0]) / recentPrices[0];
+        let recentPop = popArr.slice(-5);
+        let popSlope = (recentPop[recentPop.length-1] - recentPop[0]);
+        let vol = computeVolatility(priceArr);
+        let currentPrice = priceArr[priceArr.length-1];
+        let bullish = (priceSlope > 0.012) || (priceSlope > 0.005 && popSlope > -1.5);
+        let cooling = (priceSlope < -0.01) || (popSlope < -2.0);
+        let blueChip = (blueChipBase >= 80 && vol < 13 && currentPrice > 200);
+        if (priceSlope < -0.02) bullish = false;
+        if (priceSlope > 0.025) cooling = false;
+        return { bullish, cooling, blueChip };
+    }
+    
+    // Build 12 CARDS (price, popularity, volatility metrics for 4 sneakers at once? Actually we show 12 cards with mixed content: 4 price, 4 popularity, 4 vol cards = total 12)
+    // To maximize usage, we create 4 sneaker spotlight cards: each card shows price+pop+vol together (that would be 8 cards only). For 12 cards, we'll create 12 distinct small widgets: 4 price-only, 4 popularity-only, 4 volatility-summary cards for different sneakers.
+    // But better: Show 8 sneakers each with 3 mini stats? Let's do 8 sneakers * 1.5 = 12? Simpler: generate 12 cards: each card = one sneaker metric group (price+pop+vol compact). That gives 8 models, but we want 12 -> we'll duplicate top 4 with extra details.
+    // Actually we design 12 unique cards: For each sneaker, we create a main card (price chart + pop spark) - that's 8. Then we create 4 additional "Market Heatmap" cards for top volatility / blue chips. Let's do 8 core sneaker cards + 4 extra insight cards = 12.
+    
+    function buildDashboardCards() {
+        const grid = document.getElementById("chartsGrid");
+        grid.innerHTML = "";
+        // 8 sneaker cards (full info)
+        SNEAKER_IDS.forEach(id => {
+            const card = document.createElement("div");
+            card.className = "chart-card";
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title"><i class="fas ${window.MarketDataProvider.getMockSnapshot(id).icon}"></i> ${window.MarketDataProvider.getMockSnapshot(id).name}</div>
+                    <div class="label-group" id="labels-${id}"></div>
+                </div>
+                <canvas id="price-${id}" width="400" height="140" style="max-height:140px;"></canvas>
+                <canvas id="pop-${id}" width="400" height="80" style="max-height:80px;"></canvas>
+                <div class="metrics-row">
+                    <span>📊 Volatility: <span id="vol-${id}" class="vol-value">--</span></span>
+                    <span>💎 Blue Chip: <span id="blue-${id}" class="vol-value">--</span></span>
+                    <span>📈 Range: <span id="range-${id}" class="vol-value">--</span></span>
+                </div>
+                <div class="trend-note" id="note-${id}">live tick every 4s</div>
+            `;
+            grid.appendChild(card);
+        });
+        // 4 extra "Market Insight" cards (volatility leaders, blue chip index, popularity surges)
+        const extraCards = [
+            { title: "🔥 HIGHEST VOLATILITY", icon: "fa-waveform", id: "extra-vol", desc: "Most unstable resale prices" },
+            { title: "💎 BLUE CHIP RANKING", icon: "fa-gem", id: "extra-blue", desc: "Top stable long-term holds" },
+            { title: "📈 MOMENTUM LEADERS", icon: "fa-rocket", id: "extra-momentum", desc: "Strongest upward trends" },
+            { title: "❄️ COOLING OFF WATCH", icon: "fa-snowflake", id: "extra-cooling", desc: "Declining hype alerts" }
+        ];
+        extraCards.forEach(extra => {
+            const card = document.createElement("div");
+            card.className = "chart-card";
+            card.id = `card-${extra.id}`;
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title"><i class="fas ${extra.icon}"></i> ${extra.title}</div>
+                    <div class="label-group"><span class="label">Live Index</span></div>
+                </div>
+                <div style="min-height: 160px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px;" id="insight-${extra.id}">
+                    <div style="font-size:2rem; color:#facc15;"><i class="fas fa-chart-line"></i></div>
+                    <div style="font-size:0.8rem; text-align:center;">${extra.desc}</div>
+                    <div id="insight-content-${extra.id}" style="font-weight:bold; font-size:0.9rem;">updating...</div>
+                </div>
+                <div class="trend-note">dynamic ranking</div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+    
+    async function loadInitialStates() {
+        for (let id of SNEAKER_IDS) {
+            const mockSnap = window.MarketDataProvider.getMockSnapshot(id);
+            currentStates[id] = {
+                ...mockSnap,
+                priceHistory: [...mockSnap.priceHistory],
+                popularityHistory: [...mockSnap.popularityHistory]
+            };
+        }
+    }
+    
+    function updateAllCards() {
+        for (let id of SNEAKER_IDS) {
+            const state = currentStates[id];
+            if (!state) continue;
+            const priceArr = state.priceHistory;
+            const popArr = state.popularityHistory;
+            const vol = computeVolatility(priceArr).toFixed(1);
+            const range = `$${Math.min(...priceArr).toFixed(0)}-$${Math.max(...priceArr).toFixed(0)}`;
+            const blueBase = state.blueChipBase;
+            let dynBlue = blueBase;
+            if (vol < 9 && priceArr[priceArr.length-1] > 200) dynBlue = Math.min(99, blueBase+4);
+            else if (vol > 18) dynBlue = Math.max(45, blueBase-6);
+            document.getElementById(`vol-${id}`).innerText = `${vol}%`;
+            document.getElementById(`blue-${id}`).innerText = Math.floor(dynBlue);
+            document.getElementById(`range-${id}`).innerText = range;
+            const labelsMap = getDynamicLabels(priceArr, popArr, state.blueChipBase);
+            const labelDiv = document.getElementById(`labels-${id}`);
+            if (labelDiv) {
+                labelDiv.innerHTML = "";
+                if (labelsMap.bullish) labelDiv.innerHTML += `<span class="label label-bullish">📈 Bullish</span>`;
+                if (labelsMap.cooling) labelDiv.innerHTML += `<span class="label label-cooling">📉 Cooling</span>`;
+                if (labelsMap.blueChip) labelDiv.innerHTML += `<span class="label label-bluechip">💎 Blue Chip</span>`;
+                if (!labelsMap.bullish && !labelsMap.cooling && !labelsMap.blueChip) labelDiv.innerHTML = `<span class="label">⚖️ Neutral</span>`;
+            }
+            document.getElementById(`note-${id}`).innerHTML = `💰 $${priceArr[priceArr.length-1].toFixed(0)} | Pop: ${popArr[popArr.length-1].toFixed(0)}`;
+            // update charts
+            updateChartForSneaker(id, priceArr, popArr);
+        }
+        // update extra insight cards
+        updateExtraInsights();
+    }
+    
+    function updateChartForSneaker(id, priceData, popData) {
+        const priceCtx = document.getElementById(`price-${id}`)?.getContext('2d');
+        const popCtx = document.getElementById(`pop-${id}`)?.getContext('2d');
+        if (!priceCtx || !popCtx) return;
+        const labels = priceData.map((_, idx) => idx+1);
+        if (window[`priceChart_${id}`]) window[`priceChart_${id}`].destroy();
+        if (window[`popChart_${id}`]) window[`popChart_${id}`].destroy();
+        window[`priceChart_${id}`] = new Chart(priceCtx, {
+            type: 'line', data: { labels, datasets: [{ label: 'Resale USD', data: priceData, borderColor: '#facc15', borderWidth: 2, pointRadius: 2, fill: true, backgroundColor: 'rgba(250,204,21,0.05)' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: (v) => '$'+v, color:'#aaa' } } } }
+        });
+        window[`popChart_${id}`] = new Chart(popCtx, {
+            type: 'line', data: { labels, datasets: [{ label: 'Popularity', data: popData, borderColor: '#e67e22', borderWidth: 2, pointRadius: 2, fill: true, backgroundColor: 'rgba(230,126,34,0.05)' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { min: 10, max: 105, ticks: { color:'#aaa' } } } }
+        });
+    }
+    
+    function updateExtraInsights() {
+        // volatility ranking
+        const volArr = SNEAKER_IDS.map(id => ({ id, vol: parseFloat(computeVolatility(currentStates[id].priceHistory).toFixed(1)) }));
+        volArr.sort((a,b) => b.vol - a.vol);
+        const topVol = volArr.slice(0,3).map(v => `${currentStates[v.id].name.split(' ')[0]} (${v.vol}%)`).join(', ');
+        document.getElementById("insight-content-extra-vol").innerHTML = `⚡ ${topVol || '—'}`;
+        // blue chip ranking
+        const blueArr = SNEAKER_IDS.map(id => ({ id, blue: currentStates[id].blueChipBase }));
+        blueArr.sort((a,b) => b.blue - a.blue);
+        const topBlue = blueArr.slice(0,3).map(b => `${currentStates[b.id].name.split(' ')[0]} (${b.blue})`).join(', ');
+        document.getElementById("insight-content-extra-blue").innerHTML = `💎 ${topBlue}`;
+        // momentum leaders (price slope last 5)
+        const momentum = SNEAKER_IDS.map(id => {
+            const p = currentStates[id].priceHistory;
+            if(p.length<5) return { id, slope:0 };
+            const slope = (p[p.length-1] - p[p.length-5]) / p[p.length-5];
+            return { id, slope };
+        });
+        momentum.sort((a,b)=>b.slope - a.slope);
+        const topMomentum = momentum.slice(0,3).map(m => `${currentStates[m.id].name.split(' ')[0]} (${(m.slope*100).toFixed(1)}%)`).join(', ');
+        document.getElementById("insight-content-extra-momentum").innerHTML = `🚀 ${topMomentum}`;
+        // cooling watch
+        const coolingArr = SNEAKER_IDS.map(id => {
+            const pop = currentStates[id].popularityHistory;
+            if(pop.length<5) return { id, drop:0 };
+            const drop = pop[pop.length-5] - pop[pop.length-1];
+            return { id, drop };
+        });
+        coolingArr.sort((a,b)=>b.drop - a.drop);
+        const topCooling = coolingArr.slice(0,3).map(c => `${currentStates[c.id].name.split(' ')[0]} (-${c.drop.toFixed(0)}pts)`).join(', ');
+        document.getElementById("insight-content-extra-cooling").innerHTML = `❄️ ${topCooling || 'stable'}`;
+    }
+    
+    async function dynamicTick() {
+        for (let id of SNEAKER_IDS) {
+            const state = currentStates[id];
+            if (!state) continue;
+            const tick = await window.MarketDataProvider.fetchLatestTick(id, state);
+            if (tick) {
+                state.priceHistory.push(tick.price);
+                state.popularityHistory.push(tick.popularity);
+                if (state.priceHistory.length > 24) state.priceHistory.shift();
+                if (state.popularityHistory.length > 24) state.popularityHistory.shift();
+            }
+        }
+        updateAllCards();
+        document.querySelectorAll('.chart-card').forEach(c => c.classList.add('live-update'));
+        setTimeout(() => document.querySelectorAll('.chart-card').forEach(c => c.classList.remove('live-update')), 300);
+    }
+    
+    function buildSelector() {
+        const container = document.getElementById("sneakerSelector");
+        container.innerHTML = "";
+        SNEAKER_IDS.forEach(id => {
+            const snap = window.MarketDataProvider.getMockSnapshot(id);
+            const btn = document.createElement("button");
+            btn.className = `sneaker-btn ${activeSneakerId === id ? 'active' : ''}`;
+            btn.innerHTML = `<i class="fas ${snap.icon}"></i> ${snap.name.split(' ').slice(0,2).join(' ')}`;
+            btn.onclick = () => {
+                document.querySelectorAll('.sneaker-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeSneakerId = id;
+                document.getElementById(`card-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+            container.appendChild(btn);
+        });
+    }
+    
+    async function init() {
+        await loadInitialStates();
+        buildDashboardCards();
+        buildSelector();
+        await updateAllCards();
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(() => dynamicTick(), 4000);
+    }
+    init();
+</script>
+</body>
+</html>
