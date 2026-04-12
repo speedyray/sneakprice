@@ -1,9 +1,11 @@
 // components/ArbitrageDealCard.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronUp, ExternalLink, Flame, TrendingUp, Eye } from "lucide-react";
+import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { useCountUp } from "@/lib/hooks/useCountUp";
+import { usePriceSimulation } from "@/lib/hooks/usePriceSimulation";
 
 export interface ArbDeal {
   id: string;
@@ -121,6 +123,27 @@ export function ArbitrageDealCard({ deal, isNew = false, animationDelay = 0 }: A
   const animatedSellPrice = useCountUp(sellPrice ?? 0, 600);
   const animatedNetProfit = useCountUp(Math.abs(netProfit ?? 0), 800);
 
+  // Derive simulation parameters from deal characteristics
+  const simVolatility = label === "hot" ? 0.04 : label === "good" ? 0.025 : 0.015;
+  const simTrendBias = (margin ?? 0) > 20 ? 0.002 : (margin ?? 0) > 0 ? 0.0005 : -0.001;
+  const priceHistory = usePriceSimulation(sellPrice ?? buyPrice ?? 100, {
+    volatility: simVolatility,
+    trendBias: simTrendBias,
+    intervalMs: 4000,
+  });
+
+  // Convert to recharts data shape; memoised so reference only changes when history does
+  const chartData = useMemo(
+    () => priceHistory.map((v, i) => ({ t: i, v })),
+    [priceHistory]
+  );
+
+  // Determine chart line colour: up-trending green, else yellow
+  const firstPrice = priceHistory[0] ?? 0;
+  const lastPrice = priceHistory[priceHistory.length - 1] ?? 0;
+  const chartColor = lastPrice >= firstPrice ? "#2ecc71" : "#facc15";
+  const chartGradientId = `spark-grad-${deal.id}`;
+
   return (
     <div
       className={`rounded-2xl p-5 space-y-4 transition-all animate-slide-up relative ${
@@ -163,6 +186,33 @@ export function ArbitrageDealCard({ deal, isNew = false, animationDelay = 0 }: A
           </div>
         )}
       </div>
+
+      {/* Live price sparkline */}
+      {chartData.length > 2 && (
+        <div style={{ height: 72, marginLeft: -4, marginRight: -4 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+              <defs>
+                <linearGradient id={chartGradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={chartColor} stopOpacity={0.25} />
+                  <stop offset="95%" stopColor={chartColor} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <Area
+                type="monotone"
+                dataKey="v"
+                stroke={chartColor}
+                strokeWidth={1.5}
+                fill={`url(#${chartGradientId})`}
+                dot={false}
+                isAnimationActive={true}
+                animationDuration={600}
+                animationEasing="ease-out"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Buy / Sell row */}
       <div className="grid grid-cols-2 gap-3">
