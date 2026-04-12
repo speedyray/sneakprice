@@ -46,7 +46,7 @@ function DropdownMenu({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <button className="flex items-center gap-1 text-base text-black transition hover:text-black/60">
+      <button className="flex items-center gap-1 text-sm text-black transition hover:text-black/60 sm:text-base">
         {label}
         <ChevronDown
           className={`h-3.5 w-3.5 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
@@ -73,11 +73,11 @@ function DropdownMenu({
 
 export default function SecondaryNav() {
   return (
-    <nav className="w-full border-b border-black/10 bg-white px-6 py-3">
-      <div className="flex items-center justify-center gap-10">
+    <nav className="w-full overflow-x-auto border-b border-black/10 bg-white px-4 py-2 sm:px-6 sm:py-3">
+      <div className="flex flex-wrap items-center justify-start gap-x-5 gap-y-2 sm:justify-center sm:gap-x-10 sm:gap-y-0">
         <Link
           href="/"
-          className="text-base text-black transition hover:text-black/60"
+          className="text-sm text-black transition hover:text-black/60 sm:text-base"
         >
           Home
         </Link>
@@ -88,14 +88,14 @@ export default function SecondaryNav() {
 
         <Link
           href="/identify"
-          className="text-base text-black transition hover:text-black/60"
+          className="text-sm text-black transition hover:text-black/60 sm:text-base"
         >
           Identify Sneakers
         </Link>
 
         <Link
           href="/blog"
-          className="text-base text-black transition hover:text-black/60"
+          className="text-sm text-black transition hover:text-black/60 sm:text-base"
         >
           Sneaker Blogs
         </Link>
