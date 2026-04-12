@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
 const encyclopediaItems = [
+  { label: "Sneaker A–Z", href: "/encyclopedia/a-z" },
   { label: "Nike", href: "/encyclopedia/nike" },
   { label: "Adidas / Yeezy", href: "/encyclopedia/adidas" },
   { label: "Jordan Brand", href: "/encyclopedia/jordan" },
