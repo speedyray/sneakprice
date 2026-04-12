@@ -1,3 +1,5 @@
+import ExchangeSlider from "./ExchangeSlider";
+
 export const metadata = {
   title: "Sneaker Exchange | SneakPrice",
   description:
@@ -5,11 +7,5 @@ export const metadata = {
 };
 
 export default function SneakerExchangePage() {
-  return (
-    <iframe
-      src="/exchange-dashboard.html"
-      className="h-[calc(100vh-120px)] w-full border-0"
-      title="Sneaker Exchange Dashboard"
-    />
-  );
+  return <ExchangeSlider />;
 }
