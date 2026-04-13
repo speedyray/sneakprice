@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
-import { ArbitrageDealCard, type ArbDeal } from "@/components/ArbitrageDealCard";
-import { LiveStatsBar } from "@/components/LiveStatsBar";
+import { type ArbDeal } from "@/components/ArbitrageDealCard";
+import SneakPriceResaleTerminal from "@/components/SneakPriceResaleTerminal";
 
 const trendingTitles = [
   "🔥 Trending Sneaker Scans",
@@ -156,15 +156,6 @@ export default function DiscoverPage() {
   const [deals, setDeals] = useState<LiveDeal[]>([]);
 
   const [arbDeals, setArbDeals] = useState<ArbDeal[]>([]);
-  const [newDealCount, setNewDealCount] = useState(0);
-  const [lastScanAt, setLastScanAt] = useState<Date | null>(null);
-  const [newDealIds, setNewDealIds] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<"all" | "hot" | "good" | "watch">("all");
-  const [scanQuery, setScanQuery] = useState("");
-  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
-  const [isScanningModel, setIsScanningModel] = useState(false);
-  const [scanModalError, setScanModalError] = useState("");
-  const [scansRemaining, setScansRemaining] = useState<number | null>(null);
   const [recentDeals, setRecentDeals] = useState<LiveDeal[]>([]);
   const [trendingData, setTrendingData] = useState<{ name: string; demand: string }[]>([]);
   const [arbitrageSignals, setArbitrageSignals] = useState<{ name: string; profit: number }[]>([]);
@@ -182,7 +173,6 @@ export default function DiscoverPage() {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const newDealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const arbDealsRef = useRef<ArbDeal[]>([]);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState("");
@@ -210,20 +200,6 @@ export default function DiscoverPage() {
         // New schema deal (has dealScore field)
         if (data.dealScore !== undefined) {
           const deal = data as ArbDeal;
-          setLastScanAt(new Date());
-          const isExisting = arbDealsRef.current.some((d) => d.id === deal.id);
-          if (!isExisting) {
-            setNewDealCount((c) => c + 1);
-            setNewDealIds((ids) => new Set([...ids, deal.id]));
-            const timerId = setTimeout(() => {
-              setNewDealIds((ids) => {
-                const next = new Set(ids);
-                next.delete(deal.id);
-                return next;
-              });
-            }, 3000);
-            newDealTimersRef.current.push(timerId);
-          }
           setArbDeals((prev) => {
             const exists = prev.some((d) => d.id === deal.id);
             if (exists) return prev.map((d) => (d.id === deal.id ? deal : d));
@@ -253,8 +229,6 @@ export default function DiscoverPage() {
 
     return () => {
       clearTimeout(reconnectTimer);
-      newDealTimersRef.current.forEach(clearTimeout);
-      newDealTimersRef.current = [];
     };
   }, []);
 
@@ -360,10 +334,6 @@ export default function DiscoverPage() {
   }, [selectedFile]);
 
   arbDealsRef.current = arbDeals;
-  const totalProfit = useMemo(
-    () => arbDeals.reduce((sum, d) => sum + (d.netProfit ?? 0), 0),
-    [arbDeals]
-  );
 
   const derived = useMemo(() => {
     const soldMedian = marketData?.soldMarket?.overallMedian;
@@ -545,72 +515,6 @@ export default function DiscoverPage() {
     );
   }
 
-  async function handleScanModel(e: React.FormEvent) {
-    e.preventDefault();
-    if (!scanQuery.trim()) return;
-
-    setIsScanningModel(true);
-    setScanModalError("");
-
-    try {
-      const ebayRes = await fetch("/api/ebay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: scanQuery }),
-      });
-
-      if (ebayRes.status === 401) {
-        setScanModalError("unauthenticated");
-        return;
-      }
-
-      if (ebayRes.status === 403) {
-        setScanModalError("limit_reached");
-        return;
-      }
-
-      const ebayData = await ebayRes.json();
-
-      if (ebayData.remaining !== undefined) {
-        setScansRemaining(ebayData.remaining);
-      }
-
-      if (ebayData.deal) {
-        const newDeal: ArbDeal = {
-          id: `scan-${Date.now()}`,
-          sneaker: scanQuery,
-          buyPlatform: "ebay",
-          buyPrice: ebayData.deal.buyPrice,
-          buyUrl: ebayData.deal.cheapestItemId
-            ? `https://www.ebay.com/itm/${ebayData.deal.cheapestItemId}`
-            : `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(scanQuery)}`,
-          sellPlatform: "ebay",
-          sellPrice: ebayData.deal.marketPrice,
-          sellUrl: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(scanQuery)}`,
-          netProfit: ebayData.deal.profit,
-          profitMargin: ebayData.deal.roi,
-          dealLabel:
-            ebayData.deal.roi >= 30
-              ? "hot"
-              : ebayData.deal.roi >= 15
-              ? "good"
-              : "watch",
-          created_at: new Date().toISOString(),
-        };
-        setArbDeals((prev) => [newDeal, ...prev].slice(0, 50));
-        setIsScanModalOpen(false);
-      } else {
-        setScanModalError(
-          "No arbitrage opportunity found for this model right now."
-        );
-      }
-    } catch {
-      setScanModalError("Scan failed. Please try again.");
-    } finally {
-      setIsScanningModel(false);
-    }
-  }
-
   return (
     <div className="flex min-h-screen flex-col items-center bg-white px-6 py-6 text-center text-black">
       <div className="mb-6">
@@ -676,102 +580,8 @@ export default function DiscoverPage() {
 
         <p className="text-black text-sm text-center mb-6">● Live Market Feed</p>
 
-      {/* ── Arbitrage Deal Feed ─────────────────────────────── */}
-      <section className="space-y-4 mt-4 w-full rounded-3xl p-6" style={{ background: "linear-gradient(135deg, #0a0f1c 0%, #0c1222 100%)", border: "1px solid rgba(255,255,255,0.08)" }}>
-        {/* Header row */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <h2 className="font-bold text-xl" style={{ color: "#f0f3fa" }}>🔥 Live Arbitrage Deals</h2>
-            <p className="text-sm" style={{ color: "#8E9DB2" }}>
-              {arbDeals.length > 0
-                ? `${arbDeals.length} active deals · updating live`
-                : "Warming up deal engine…"}
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              setScanModalError("");
-              setScanQuery("");
-              setScansRemaining(null);
-              setIsScanModalOpen(true);
-            }}
-            className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all"
-            style={{ background: "#1e2a3a", color: "#facc15", border: "1px solid rgba(250,204,21,0.3)" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#2c3e66"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#1e2a3a"; }}
-          >
-            <DollarSign className="w-4 h-4" /> Enter a sneaker name to scan
-          </button>
-        </div>
-
-        {/* New deals banner */}
-        {newDealCount > 0 && (
-          <button
-            onClick={() => setNewDealCount(0)}
-            className="w-full text-center text-sm py-2 rounded-xl transition-colors"
-            style={{ background: "rgba(250,204,21,0.08)", border: "1px solid rgba(250,204,21,0.25)", color: "#facc15" }}
-          >
-            ↑ {newDealCount} new deal{newDealCount > 1 ? "s" : ""} · click to dismiss
-          </button>
-        )}
-
-        {/* Tab filters */}
-        <div className="flex gap-2 flex-wrap">
-          {(["all", "hot", "good", "watch"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="text-sm px-4 py-1.5 rounded-full font-medium transition-all"
-              style={
-                activeTab === tab
-                  ? { background: "#2c3e66", color: "#f0f3fa", border: "1px solid rgba(255,255,255,0.2)" }
-                  : { background: "rgba(20,28,40,0.8)", color: "#8E9DB2", border: "1px solid rgba(255,255,255,0.06)" }
-              }
-            >
-              {tab === "all"
-                ? "All"
-                : tab === "hot"
-                ? "🔥 Hot"
-                : tab === "good"
-                ? "✅ Good"
-                : "👀 Watch"}
-            </button>
-          ))}
-        </div>
-
-        {/* Live stats bar */}
-        <LiveStatsBar
-          dealCount={arbDeals.length}
-          lastScanAt={lastScanAt}
-          totalProfit={totalProfit}
-        />
-
-        {/* Deal cards */}
-        {arbDeals.length === 0 ? (
-          <div className="text-center py-16" style={{ color: "#8E9DB2" }}>
-            <p className="text-4xl mb-3">🔍</p>
-            <p className="font-medium" style={{ color: "#b9c7d9" }}>
-              No deals yet — the scanner is running in the background.
-            </p>
-            <p className="text-sm mt-1">
-              Try &quot;Scan a Shoe&quot; to find deals instantly.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {arbDeals
-              .filter((d) => activeTab === "all" || d.dealLabel === activeTab)
-              .map((deal, index) => (
-                <ArbitrageDealCard
-                  key={deal.id}
-                  deal={deal}
-                  isNew={newDealIds.has(deal.id)}
-                  animationDelay={index * 50}
-                />
-              ))}
-          </div>
-        )}
-      </section>
+      {/* ── Resale Intelligence Terminal ─────────────────────── */}
+      <SneakPriceResaleTerminal />
 
         <section
           id="scan-tool"
@@ -797,7 +607,7 @@ export default function DiscoverPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold">Step 1 — Upload sneaker photo</h3>
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-neutral-700">
                     Use a clear image for best identification.
                   </p>
                 </div>
@@ -814,7 +624,7 @@ export default function DiscoverPage() {
                       className="max-h-[220px] w-auto rounded-xl object-contain"
                       unoptimized
                     />
-                    <p className="mt-4 text-sm text-neutral-500">
+                    <p className="mt-4 text-sm text-neutral-700">
                       {selectedFile?.name}
                     </p>
                   </div>
@@ -823,8 +633,8 @@ export default function DiscoverPage() {
                     <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
                       <Camera size={28} />
                     </div>
-                    <p className="font-medium">Click to upload sneaker photo</p>
-                    <p className="mt-2 text-sm text-neutral-500">
+                    <p className="font-semibold text-neutral-900">Click to upload sneaker photo</p>
+                    <p className="mt-2 text-sm text-neutral-700">
                       We&apos;ll identify the sneaker and calculate live market value.
                     </p>
                   </>
@@ -847,7 +657,7 @@ export default function DiscoverPage() {
                   type="button"
                   onClick={handleAnalyze}
                   disabled={!selectedFile || isAnalyzing}
-                  className="inline-flex items-center justify-center rounded-xl bg-black px-6 py-3 font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center rounded-xl bg-neutral-900 px-6 py-3 font-semibold text-white transition hover:bg-black disabled:cursor-not-allowed disabled:bg-neutral-600 disabled:opacity-100"
                 >
                   {isAnalyzing ? (
                     <>
@@ -1264,95 +1074,6 @@ export default function DiscoverPage() {
         </div>
       )}
 
-      {/* ── Scan Modal ─────────────────────────────────────────── */}
-      {isScanModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-white font-bold text-lg">Scan a Specific Shoe</h2>
-              <button
-                onClick={() => {
-                  setIsScanModalOpen(false);
-                  setScanModalError("");
-                }}
-                className="text-gray-400 hover:text-white text-xl"
-              >
-                ✕
-              </button>
-            </div>
-            <p className="text-gray-400 text-sm">
-              Enter a sneaker model name to find arbitrage opportunities right now.
-            </p>
-            <form onSubmit={handleScanModel} className="space-y-3">
-              <input
-                type="text"
-                value={scanQuery}
-                onChange={(e) => setScanQuery(e.target.value)}
-                placeholder="e.g. Air Jordan 4 Bred"
-                className="w-full bg-gray-800 border border-gray-600 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500"
-              />
-              {scanModalError === "unauthenticated" && (
-                <div className="text-center space-y-3 py-2">
-                  <p className="text-white font-semibold">Sign in to scan sneakers</p>
-                  <p className="text-gray-400 text-sm">Create a free account to get 3 scans per day.</p>
-                  <button
-                    onClick={() => openSignIn()}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl transition-colors"
-                  >
-                    Sign In
-                  </button>
-                </div>
-              )}
-
-              {scanModalError === "limit_reached" && (
-                <div className="text-center space-y-3 py-2">
-                  <p className="text-white font-semibold">You&apos;ve used your 3 free scans today</p>
-                  <p className="text-gray-400 text-sm">Your scans reset at midnight UTC.</p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setIsScanModalOpen(false)}
-                      className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded-xl transition-colors"
-                    >
-                      Come back tomorrow
-                    </button>
-                    <a
-                      href="/pricing"
-                      className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl transition-colors text-center"
-                    >
-                      Upgrade
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {scanModalError && scanModalError !== "unauthenticated" && scanModalError !== "limit_reached" && (
-                <p className="text-red-400 text-sm text-center">{scanModalError}</p>
-              )}
-              {scansRemaining !== null && (
-                <p className="text-gray-500 text-xs text-center">
-                  {scansRemaining} scan{scansRemaining !== 1 ? "s" : ""} remaining today
-                </p>
-              )}
-              <button
-                type="submit"
-                disabled={isScanningModel || !scanQuery.trim() || scanModalError === "unauthenticated" || scanModalError === "limit_reached"}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-              >
-                {isScanningModel ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Scanning…
-                  </>
-                ) : (
-                  <>
-                    <DollarSign className="w-4 h-4" /> Find Deals
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
       <footer className="mt-24 w-full max-w-5xl border-t border-black/10 pb-8 pt-12 text-center text-sm text-neutral-500">
         <div className="flex justify-center mb-6">
           <Image
@@ -1417,7 +1138,7 @@ function StepCard({
       <div className="mb-3 flex items-center gap-2 text-neutral-700">
         <div className="rounded-full bg-neutral-100 p-2">{icon}</div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-600">
             {step}
           </p>
           <h3 className="font-semibold">{title}</h3>
@@ -1425,7 +1146,7 @@ function StepCard({
       </div>
 
       <p className="text-2xl font-bold text-black">{value}</p>
-      <p className="mt-2 text-sm text-neutral-500">{helper}</p>
+      <p className="mt-2 text-sm text-neutral-700">{helper}</p>
       {children}
     </div>
   );
@@ -1434,7 +1155,7 @@ function StepCard({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-black/10 bg-neutral-50 p-4">
-      <p className="text-sm text-neutral-500">{label}</p>
+      <p className="text-sm text-neutral-700">{label}</p>
       <p className="mt-1 text-lg font-semibold text-black">{value}</p>
     </div>
   );
