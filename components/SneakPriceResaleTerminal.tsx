@@ -26,6 +26,7 @@ const seedOpportunities = [
     spread: 49.4,
     liquidity: "High",
     status: "LIVE",
+    buyUrl: "https://www.ebay.com/itm/298180854198",
   },
   {
     id: 2,
@@ -38,6 +39,7 @@ const seedOpportunities = [
     spread: 51.4,
     liquidity: "High",
     status: "HOT",
+    buyUrl: "https://www.ebay.com/itm/335959617833",
   },
   {
     id: 3,
@@ -50,6 +52,7 @@ const seedOpportunities = [
     spread: 56.0,
     liquidity: "Medium",
     status: "HOT",
+    buyUrl: "https://www.ebay.com/itm/137200961893",
   },
   {
     id: 4,
@@ -62,6 +65,7 @@ const seedOpportunities = [
     spread: 22.4,
     liquidity: "Medium",
     status: "WATCH",
+    buyUrl: "https://www.ebay.com/itm/117091376314",
   },
   {
     id: 5,
@@ -74,6 +78,7 @@ const seedOpportunities = [
     spread: 11.6,
     liquidity: "Medium",
     status: "WATCH",
+    buyUrl: "https://www.ebay.com/itm/358402836754",
   },
   {
     id: 6,
@@ -86,6 +91,7 @@ const seedOpportunities = [
     spread: 32.8,
     liquidity: "High",
     status: "HOT",
+    buyUrl: "https://www.ebay.com/itm/336532549598",
   },
   {
     id: 7,
@@ -98,6 +104,7 @@ const seedOpportunities = [
     spread: 16.1,
     liquidity: "Medium",
     status: "WATCH",
+    buyUrl: "https://www.ebay.com/itm/336528156030",
   },
   {
     id: 8,
@@ -110,6 +117,7 @@ const seedOpportunities = [
     spread: 51.4,
     liquidity: "High",
     status: "HOT",
+    buyUrl: "https://www.ebay.com/itm/406785309014",
   },
   {
     id: 9,
@@ -122,6 +130,7 @@ const seedOpportunities = [
     spread: 57.3,
     liquidity: "High",
     status: "HOT",
+    buyUrl: "https://www.ebay.com/itm/366342849406",
   },
 ];
 
@@ -157,7 +166,32 @@ const seedComps = [
   { size: "10", venue: "eBay", sold: 158, when: "52m ago" },
 ];
 
-type Opportunity = (typeof seedOpportunities)[number];
+type Opportunity = {
+  id: number;
+  model: string;
+  venueBuy: string;
+  venueSell: string;
+  buy: number;
+  sell: number;
+  score: number;
+  spread: number;
+  liquidity: string;
+  status: string;
+  buyUrl?: string;
+};
+
+function getBuyUrl(opp: Opportunity) {
+  if (opp.buyUrl) return opp.buyUrl;
+  return `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(opp.model)}&LH_BIN=1&_sop=15`;
+}
+
+function getSellUrl(model: string, venue: string) {
+  const q = encodeURIComponent(model);
+  if (venue === "StockX") return `https://stockx.com/search?s=${q}`;
+  if (venue === "GOAT") return `https://www.goat.com/search?query=${q}`;
+  // eBay resell or any other venue — search sold listings
+  return `https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1`;
+}
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -254,7 +288,7 @@ function TinyChart({ values }: { values: number[] }) {
   );
 }
 
-function mutateOpportunities(rows: typeof seedOpportunities) {
+function mutateOpportunities(rows: Opportunity[]) {
   return rows.map((row) => {
     const nextBuy = Math.max(20, row.buy + (Math.random() - 0.5) * 2.2);
     const nextSell = Math.max(
@@ -292,8 +326,9 @@ export default function SneakPriceResaleTerminal() {
   useUser(); // keeps Clerk context warm for openSignIn()
   const { openSignIn } = useClerk();
 
-  const [opportunities, setOpportunities] = useState(seedOpportunities);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>(seedOpportunities);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [activeFilter, setActiveFilter] = useState("ALL");
   const [tape, setTape] = useState(seedTape);
   const [watchlist] = useState(seedWatchlist);
   const [alerts, setAlerts] = useState(seedAlerts);
@@ -378,7 +413,7 @@ export default function SneakPriceResaleTerminal() {
       }
 
       const roi: number = data.deal.roi ?? 0;
-      const newOpp = {
+      const newOpp: Opportunity = {
         id: Date.now(),
         model: query,
         venueBuy: "eBay",
@@ -389,6 +424,9 @@ export default function SneakPriceResaleTerminal() {
         spread: Number(roi.toFixed(1)),
         liquidity: roi >= 30 ? "High" : "Medium",
         status: roi >= 30 ? "HOT" : roi >= 15 ? "LIVE" : "WATCH",
+        buyUrl: data.deal.cheapestItemId
+          ? `https://www.ebay.com/itm/${data.deal.cheapestItemId}`
+          : undefined,
       };
 
       setOpportunities((prev) => [newOpp, ...prev].slice(0, 12));
@@ -508,7 +546,12 @@ export default function SneakPriceResaleTerminal() {
                   {["ALL", "HOT", "LIVE", "WATCH", "HIGH LIQ"].map((label) => (
                     <button
                       key={label}
-                      className="rounded-full border border-[#28344a] bg-[#08111e] px-3 py-1.5 text-[#c4d2e8] transition hover:border-[#f59e0b] hover:text-[#f8cc66]"
+                      onClick={() => setActiveFilter(label)}
+                      className={`rounded-full border px-3 py-1.5 transition ${
+                        activeFilter === label
+                          ? "border-[#f59e0b] bg-[#221507] text-[#f8cc66]"
+                          : "border-[#28344a] bg-[#08111e] text-[#c4d2e8] hover:border-[#f59e0b] hover:text-[#f8cc66]"
+                      }`}
                     >
                       {label}
                     </button>
@@ -517,15 +560,26 @@ export default function SneakPriceResaleTerminal() {
               </div>
 
               <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                {opportunities.map((opp) => {
+                {opportunities
+                  .filter((opp) => {
+                    if (activeFilter === "ALL") return true;
+                    if (activeFilter === "HIGH LIQ") return opp.liquidity === "High";
+                    return opp.status === activeFilter;
+                  })
+                  .map((opp) => {
                   const net = opp.sell - opp.buy;
                   const isSelected =
                     selectedId != null && opp.id === selectedId;
                   return (
-                    <button
+                    <div
                       key={opp.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedId(opp.id)}
-                      className={`rounded-[22px] border p-4 text-left transition ${
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setSelectedId(opp.id);
+                      }}
+                      className={`cursor-pointer rounded-[22px] border p-4 text-left transition ${
                         isSelected
                           ? "border-[#f59e0b] bg-[linear-gradient(135deg,rgba(12,24,42,0.98),rgba(13,25,52,0.95))] shadow-[0_0_0_1px_rgba(245,158,11,0.14),0_20px_40px_rgba(0,0,0,0.35)]"
                           : "border-[#1d283a] bg-[linear-gradient(135deg,rgba(8,15,26,1),rgba(10,19,35,0.95))] hover:border-[#31415c]"
@@ -581,7 +635,29 @@ export default function SneakPriceResaleTerminal() {
                           valueClass="text-white"
                         />
                       </div>
-                    </button>
+
+                      {/* Buy / Sell action links */}
+                      <div className="mt-3 flex gap-2">
+                        <a
+                          href={getBuyUrl(opp)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 rounded-xl border border-[#f59e0b]/40 bg-[#1a0f02] px-2 py-2 text-center text-[11px] font-semibold text-[#f8cc66] transition hover:border-[#f59e0b] hover:bg-[#221507]"
+                        >
+                          Buy on {opp.venueBuy} →
+                        </a>
+                        <a
+                          href={getSellUrl(opp.model, opp.venueSell)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 rounded-xl border border-[#38bdf8]/40 bg-[#021018] px-2 py-2 text-center text-[11px] font-semibold text-[#7dd3fc] transition hover:border-[#38bdf8] hover:bg-[#031825]"
+                        >
+                          Sell on {opp.venueSell} →
+                        </a>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
