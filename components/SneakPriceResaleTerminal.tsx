@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/nextjs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const seedOpportunities = [
   {
@@ -325,6 +326,7 @@ function nextTapeItem(opportunity: Opportunity) {
 export default function SneakPriceResaleTerminal() {
   useUser(); // keeps Clerk context warm for openSignIn()
   const { openSignIn } = useClerk();
+  const { t } = useLanguage();
 
   const [opportunities, setOpportunities] = useState<Opportunity[]>(seedOpportunities);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -450,9 +452,9 @@ export default function SneakPriceResaleTerminal() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1d2738] bg-black/20 px-4 py-3 text-[11px] uppercase tracking-[0.28em] text-[#8fa4c9]">
             <div className="flex items-center gap-4">
               <span className="text-[#f59e0b]">SPT&lt;LIVE&gt;</span>
-              <span>SneakPrice Resale Intelligence Terminal</span>
+              <span>{t.terminal.title}</span>
               <span className="inline-flex items-center gap-2 text-[#4ade80]">
-                <Radio className="h-3.5 w-3.5" /> Feed Open
+                <Radio className="h-3.5 w-3.5" /> {t.terminal.feed_open}
               </span>
             </div>
             <div className="flex items-center gap-4">
@@ -495,7 +497,7 @@ export default function SneakPriceResaleTerminal() {
             <div className="relative overflow-hidden rounded-2xl border border-[#243148] bg-[#07101c] px-4 py-3">
               <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-[#8fa4c9]">
                 <Activity className="h-3.5 w-3.5 text-[#4ade80]" />
-                Top Market / Events Tape
+                {t.terminal.tape_label}
               </div>
               <div className="whitespace-nowrap text-sm text-white">
                 <div className="inline-flex min-w-full animate-[marquee_26s_linear_infinite] gap-10">
@@ -513,10 +515,10 @@ export default function SneakPriceResaleTerminal() {
             </div>
 
             <div className="grid grid-cols-3 gap-2">
-              <TopMetric label="Live Opps" value={opportunities.length} suffix="" />
-              <TopMetric label="Alert Queue" value={alerts.length} suffix="" />
+              <TopMetric label={t.terminal.live_opps} value={opportunities.length} suffix="" />
+              <TopMetric label={t.terminal.alert_queue_label} value={alerts.length} suffix="" />
               <TopMetric
-                label="Best Edge"
+                label={t.terminal.best_edge}
                 value={Math.max(...opportunities.map((o) => o.spread))}
                 suffix="%"
                 decimals={1}
@@ -531,10 +533,10 @@ export default function SneakPriceResaleTerminal() {
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="text-[11px] uppercase tracking-[0.22em] text-[#8fa4c9]">
-                    Live Feed
+                    {t.terminal.feed_open}
                   </div>
                   <h2 className="text-xl font-semibold text-white">
-                    Live Opportunities Grid
+                    {t.terminal.opportunities_grid}
                   </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -596,7 +598,7 @@ export default function SneakPriceResaleTerminal() {
                         </div>
                         <div className="text-right">
                           <div className="text-[10px] uppercase tracking-[0.18em] text-[#8fa4c9]">
-                            Score
+                            {t.common.score}
                           </div>
                           <AnimatedNumber
                             value={opp.score}
@@ -620,17 +622,17 @@ export default function SneakPriceResaleTerminal() {
 
                       <div className="mt-3 grid grid-cols-3 gap-2">
                         <MiniPanel
-                          label="Net"
+                          label={t.common.net}
                           value={formatCurrency(net)}
                           valueClass="text-[#4ade80]"
                         />
                         <MiniPanel
-                          label="Spread"
+                          label={t.common.spread}
                           value={`${opp.spread.toFixed(1)}%`}
                           valueClass="text-[#f8cc66]"
                         />
                         <MiniPanel
-                          label="Liq"
+                          label={t.terminal.liq}
                           value={opp.liquidity}
                           valueClass="text-white"
                         />
@@ -645,7 +647,7 @@ export default function SneakPriceResaleTerminal() {
                           onClick={(e) => e.stopPropagation()}
                           className="flex-1 rounded-xl border border-[#f59e0b]/40 bg-[#1a0f02] px-2 py-2 text-center text-[11px] font-semibold text-[#f8cc66] transition hover:border-[#f59e0b] hover:bg-[#221507]"
                         >
-                          Buy on {opp.venueBuy} →
+                          {t.terminal.buy_on} {opp.venueBuy} →
                         </a>
                         <a
                           href={getSellUrl(opp.model, opp.venueSell)}
@@ -654,7 +656,7 @@ export default function SneakPriceResaleTerminal() {
                           onClick={(e) => e.stopPropagation()}
                           className="flex-1 rounded-xl border border-[#38bdf8]/40 bg-[#021018] px-2 py-2 text-center text-[11px] font-semibold text-[#7dd3fc] transition hover:border-[#38bdf8] hover:bg-[#031825]"
                         >
-                          Sell on {opp.venueSell} →
+                          {t.terminal.sell_on} {opp.venueSell} →
                         </a>
                       </div>
                     </div>
@@ -666,12 +668,12 @@ export default function SneakPriceResaleTerminal() {
             {/* Right sidebar */}
             <aside className="space-y-3">
               <TerminalPanel
-                title="Scanner Command Box"
+                title={t.terminal.scanner_title}
                 icon={<Command className="h-4 w-4 text-[#f59e0b]" />}
               >
                 <div className="relative rounded-2xl border border-[#f59e0b] bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.18),rgba(6,16,26,1))] p-4 shadow-[0_0_0_1px_rgba(245,158,11,0.25),0_0_30px_rgba(245,158,11,0.25)]">
                   <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-[#f8cc66]">
-                    <span>Type here to scan sneakers</span>
+                    <span>{t.terminal.scanner_hint}</span>
                     <span className="animate-pulse text-[#4ade80]">
                       LIVE INPUT
                     </span>
@@ -684,7 +686,7 @@ export default function SneakPriceResaleTerminal() {
                       onChange={(e) => { setCommand(e.target.value); setScanError(""); }}
                       onKeyDown={(e) => { if (e.key === "Enter") handleScan(); }}
                       className="w-full bg-transparent text-lg font-semibold text-white outline-none placeholder:text-[#6b85a6]"
-                      placeholder="e.g. Air Jordan 4 Bred..."
+                      placeholder={t.terminal.scanner_placeholder}
                     />
                     {isScanning
                       ? <Loader2 className="h-4 w-4 animate-spin text-[#f8cc66]" />
@@ -716,28 +718,28 @@ export default function SneakPriceResaleTerminal() {
 
                 <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                   <ActionButton
-                    label={isScanning ? "Scanning…" : "Run Scan"}
+                    label={isScanning ? t.terminal.scanning : t.terminal.run_scan}
                     icon={isScanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanLine className="h-4 w-4" />}
                     onClick={handleScan}
                     disabled={isScanning || !command.trim()}
                   />
                   <ActionButton
-                    label="Open Scanner"
+                    label={t.terminal.open_scanner}
                     icon={<Search className="h-4 w-4" />}
                   />
                   <ActionButton
-                    label="Push Alert"
+                    label={t.terminal.push_alert}
                     icon={<Bell className="h-4 w-4" />}
                   />
                   <ActionButton
-                    label="Track SKU"
+                    label={t.terminal.track_sku}
                     icon={<TrendingUp className="h-4 w-4" />}
                   />
                 </div>
               </TerminalPanel>
 
               <TerminalPanel
-                title="Watchlist"
+                title={t.terminal.watchlist}
                 icon={<Clock3 className="h-4 w-4 text-[#7dd3fc]" />}
               >
                 <div className="space-y-2">
@@ -754,7 +756,7 @@ export default function SneakPriceResaleTerminal() {
               </TerminalPanel>
 
               <TerminalPanel
-                title="Alert Queue"
+                title={t.terminal.alert_queue}
                 icon={<Bell className="h-4 w-4 text-[#4ade80]" />}
               >
                 <div className="space-y-2">
@@ -778,7 +780,7 @@ export default function SneakPriceResaleTerminal() {
 
         {/* ── Bottom panels ────────────────────────────────────── */}
         <section className="grid gap-3 xl:grid-cols-[1.1fr_0.95fr_0.95fr_0.9fr]">
-          <BottomPanel title="Deal Depth">
+          <BottomPanel title={t.terminal.deal_depth}>
             <div className="space-y-2 text-sm">
               {(
                 [
@@ -821,7 +823,7 @@ export default function SneakPriceResaleTerminal() {
             </div>
           </BottomPanel>
 
-          <BottomPanel title="Price History">
+          <BottomPanel title={t.terminal.price_history}>
             <div className="rounded-2xl border border-[#1d283a] bg-[#07101b] p-3">
               <TinyChart values={history} />
               <div className="mt-2 flex items-center justify-between text-xs text-[#8fa4c9]">
@@ -831,7 +833,7 @@ export default function SneakPriceResaleTerminal() {
             </div>
           </BottomPanel>
 
-          <BottomPanel title="Recent Sold Comps">
+          <BottomPanel title={t.terminal.recent_comps}>
             <div className="space-y-2 text-sm">
               {seedComps.map((comp, idx) => (
                 <div
@@ -847,7 +849,7 @@ export default function SneakPriceResaleTerminal() {
             </div>
           </BottomPanel>
 
-          <BottomPanel title="Execution Notes">
+          <BottomPanel title={t.terminal.execution_notes}>
             <div className="space-y-2 text-sm text-[#dbe7f7]">
               {[
                 "Confirm size-level comps before sending push alert.",

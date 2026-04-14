@@ -19,6 +19,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { type ArbDeal } from "@/components/ArbitrageDealCard";
 import SneakPriceResaleTerminal from "@/components/SneakPriceResaleTerminal";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const trendingTitles = [
   "🔥 Trending Sneaker Scans",
@@ -152,6 +153,7 @@ function getFlipScore(data: {
 export default function DiscoverPage() {
   const { user } = useUser();
   const { openSignIn } = useClerk();
+  const { t, dir } = useLanguage();
 
   const [deals, setDeals] = useState<LiveDeal[]>([]);
 
@@ -516,7 +518,7 @@ export default function DiscoverPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-white px-6 py-6 text-center text-black">
+    <div className="flex min-h-screen flex-col items-center bg-white px-6 py-6 text-center text-black" dir={dir}>
       <div className="mb-6">
         <Image
           src="/sneakprice-logo.png"
@@ -528,17 +530,15 @@ export default function DiscoverPage() {
       </div>
 
       <h1 className="text-6xl font-extrabold mb-6 leading-tight">
-        Know your <span className="text-black">Sneakers</span> <br />
-        real market value <br />
+        {t.page.hero_h1}
       </h1>
 
       <h2 className="text-3xl font-extrabold mb-3 leading-tight">
-        using <span className="text-black">verified resale data</span> <br />
+        {t.page.hero_h2}
       </h2>
 
       <p className="mb-10 max-w-2xl text-lg text-neutral-600">
-        Scan any sneaker and get real resale market value based on verified sold
-        listings. No guessing. No hype. Just data.
+        {t.page.hero_desc}
       </p>
 
       <div className="flex gap-4 justify-center">
@@ -546,7 +546,7 @@ export default function DiscoverPage() {
           href="#scan-tool"
           className="bg-[#24262b] hover:bg-black text-white px-8 py-4 rounded-xl font-semibold transition"
         >
-          Scan My Sneakers
+          {t.page.scan_cta}
         </a>
 
         {!user && (
@@ -554,13 +554,13 @@ export default function DiscoverPage() {
             href="/login"
             className="inline-flex items-center justify-center rounded-full border border-black/20 bg-white px-8 py-4 font-semibold text-black transition hover:border-black/35"
           >
-            Login or Sign Up
+            {t.page.login_cta}
           </Link>
         )}
       </div>
 
       <p className="mt-6 mb-10 text-sm text-neutral-500">
-        Free 3 scans per day • No credit card required
+        {t.page.free_plan}
       </p>
 
       <div className="flex justify-center mb-8">
@@ -575,10 +575,10 @@ export default function DiscoverPage() {
 
       <div className="mt-16 max-w-6xl w-full">
         <h2 className="text-3xl font-bold text-center mb-2">
-          🔥 Live Sneaker Deals
+          🔥 {t.page.live_deals}
         </h2>
 
-        <p className="text-black text-sm text-center mb-6">● Live Market Feed</p>
+        <p className="text-black text-sm text-center mb-6">● {t.page.live_feed}</p>
 
       {/* ── Resale Intelligence Terminal ─────────────────────── */}
       <SneakPriceResaleTerminal />
@@ -592,10 +592,10 @@ export default function DiscoverPage() {
               4-step scan workflow
             </p>
             <h2 className="text-3xl font-bold md:text-4xl">
-              Scan → Value → Profit → Flip Score
+              {t.page.scan_workflow}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-neutral-600">
-              Upload a sneaker photo and get a live market read on its resale potential.
+              {t.page.scan_workflow_desc}
             </p>
           </div>
 
@@ -606,9 +606,9 @@ export default function DiscoverPage() {
                   <Upload size={18} />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Step 1 — Upload sneaker photo</h3>
+                  <h3 className="font-semibold">{t.page.step1_label}</h3>
                   <p className="text-sm text-neutral-700">
-                    Use a clear image for best identification.
+                    {t.page.step1_hint}
                   </p>
                 </div>
               </div>
@@ -633,7 +633,7 @@ export default function DiscoverPage() {
                     <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
                       <Camera size={28} />
                     </div>
-                    <p className="font-semibold text-neutral-900">Click to upload sneaker photo</p>
+                    <p className="font-semibold text-neutral-900">{t.page.photo_upload}</p>
                     <p className="mt-2 text-sm text-neutral-700">
                       We&apos;ll identify the sneaker and calculate live market value.
                     </p>

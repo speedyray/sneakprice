@@ -3,24 +3,77 @@ import { Globe } from "lucide-react";
 import fr from "@/messages/fr.json";
 import de from "@/messages/de.json";
 import es from "@/messages/es.json";
+import ja from "@/messages/ja.json";
+import ar from "@/messages/ar.json";
+import zh from "@/messages/zh.json";
 
 type Messages = typeof fr;
 
 const LANGUAGE_DATA: Record<string, { native: string; label: string; dir?: string; messages: Messages }> = {
-  fr:    { native: "Français",   label: "French",   messages: fr },
-  de:    { native: "Deutsch",    label: "German",   messages: de },
-  es:    { native: "Español",    label: "Spanish",  messages: es },
+  fr:    { native: "Français",   label: "French",              messages: fr },
+  de:    { native: "Deutsch",    label: "German",              messages: de },
+  es:    { native: "Español",    label: "Spanish",             messages: es },
+  ja:    { native: "日本語",      label: "Japanese",            messages: ja },
+  ar:    { native: "العربية",    label: "Arabic",   dir: "rtl", messages: ar },
+  zh:    { native: "中文简体",    label: "Chinese Simplified",  messages: zh },
 };
 
 const COMING_SOON: Record<string, { native: string; label: string; greeting: string; tagline: string; dir?: string }> = {
-  "zh-TW": { native: "繁體中文",  label: "Traditional Chinese", greeting: "歡迎來到 SneakPrice",           tagline: "您的球鞋市場情報平台" },
-  "ja":    { native: "日本語",    label: "Japanese",            greeting: "SneakPrice へようこそ",          tagline: "スニーカー市場インテリジェンスプラットフォーム" },
-  "ru":    { native: "Русский",   label: "Russian",             greeting: "Добро пожаловать в SneakPrice", tagline: "Ваша платформа аналитики рынка кроссовок" },
-  "pt":    { native: "Português", label: "Portuguese",          greeting: "Bem-vindo ao SneakPrice",       tagline: "Sua plataforma de inteligência do mercado de sneakers" },
-  "it":    { native: "Italiano",  label: "Italian",             greeting: "Benvenuto su SneakPrice",       tagline: "La tua piattaforma di intelligence del mercato sneaker" },
-  "ko":    { native: "한국어",    label: "Korean",              greeting: "SneakPrice에 오신 것을 환영합니다", tagline: "스니커 시장 인텔리전스 플랫폼" },
-  "nl":    { native: "Nederlands",label: "Dutch",               greeting: "Welkom bij SneakPrice",         tagline: "Uw sneaker marktintelligentie platform" },
-  "ar":    { native: "العربية",  label: "Arabic",               greeting: "مرحباً بك في SneakPrice",       tagline: "منصة ذكاء سوق الأحذية الرياضية", dir: "rtl" },
+  // European
+  "it":    { native: "Italiano",        label: "Italian",              greeting: "Benvenuto su SneakPrice",                  tagline: "La tua piattaforma di intelligence del mercato sneaker" },
+  "pt":    { native: "Português",       label: "Portuguese",           greeting: "Bem-vindo ao SneakPrice",                  tagline: "Sua plataforma de inteligência do mercado de sneakers" },
+  "nl":    { native: "Nederlands",      label: "Dutch",                greeting: "Welkom bij SneakPrice",                    tagline: "Uw sneaker marktintelligentie platform" },
+  "sv":    { native: "Svenska",         label: "Swedish",              greeting: "Välkommen till SneakPrice",                tagline: "Din plattform för sneaker-marknadsunderrättelser" },
+  "no":    { native: "Norsk",           label: "Norwegian",            greeting: "Velkommen til SneakPrice",                 tagline: "Din plattform for sneakermarkedsintelligens" },
+  "da":    { native: "Dansk",           label: "Danish",               greeting: "Velkommen til SneakPrice",                 tagline: "Din platform for sneaker-markedsintelligens" },
+  "fi":    { native: "Suomi",           label: "Finnish",              greeting: "Tervetuloa SneakPriceen",                  tagline: "Lenkkarimarkkina-älyalustasi" },
+  "pl":    { native: "Polski",          label: "Polish",               greeting: "Witamy w SneakPrice",                      tagline: "Twoja platforma analizy rynku sneakerów" },
+  "cs":    { native: "Čeština",         label: "Czech",                greeting: "Vítejte na SneakPrice",                    tagline: "Vaše platforma pro analýzu trhu se sneakery" },
+  "sk":    { native: "Slovenčina",      label: "Slovak",               greeting: "Vitajte na SneakPrice",                    tagline: "Vaša platforma pre analýzu trhu so sneakermi" },
+  "hu":    { native: "Magyar",          label: "Hungarian",            greeting: "Üdvözöljük a SneakPrice-ban",              tagline: "A sneaker piaci intelligencia platformja" },
+  "ro":    { native: "Română",          label: "Romanian",             greeting: "Bun venit la SneakPrice",                  tagline: "Platforma ta de inteligență pe piața sneakerilor" },
+  "bg":    { native: "Български",       label: "Bulgarian",            greeting: "Добре дошли в SneakPrice",                 tagline: "Вашата платформа за разузнаване на пазара на маратонки" },
+  "el":    { native: "Ελληνικά",        label: "Greek",                greeting: "Καλώς ήρθατε στο SneakPrice",             tagline: "Η πλατφόρμα σας για αγορά αθλητικών παπουτσιών" },
+  "uk":    { native: "Українська",      label: "Ukrainian",            greeting: "Ласкаво просимо до SneakPrice",            tagline: "Ваша платформа аналітики ринку кросівок" },
+  "ru":    { native: "Русский",         label: "Russian",              greeting: "Добро пожаловать в SneakPrice",            tagline: "Ваша платформа аналитики рынка кроссовок" },
+  "tr":    { native: "Türkçe",          label: "Turkish",              greeting: "SneakPrice'a Hoş Geldiniz",               tagline: "Sneaker piyasa zekası platformunuz" },
+  "sr":    { native: "Српски",          label: "Serbian",              greeting: "Добродошли у SneakPrice",                  tagline: "Ваша платформа за тржишну аналитику патика" },
+  "hr":    { native: "Hrvatski",        label: "Croatian",             greeting: "Dobrodošli u SneakPrice",                  tagline: "Vaša platforma za tržišnu inteligenciju tenisica" },
+  "sl":    { native: "Slovenščina",     label: "Slovenian",            greeting: "Dobrodošli v SneakPrice",                  tagline: "Vaša platforma za tržiščno inteligenco superge" },
+  "et":    { native: "Eesti",           label: "Estonian",             greeting: "Tere tulemast SneakPrice'i",               tagline: "Teie sneaker-turu luurevahend" },
+  "lv":    { native: "Latviešu",        label: "Latvian",              greeting: "Laipni lūdzam SneakPrice",                 tagline: "Jūsu sporta apavu tirgus izlūkošanas platforma" },
+  "lt":    { native: "Lietuvių",        label: "Lithuanian",           greeting: "Sveiki atvykę į SneakPrice",              tagline: "Jūsų sportinių batų rinkos žvalgybos platforma" },
+  "ca":    { native: "Català",          label: "Catalan",              greeting: "Benvingut a SneakPrice",                   tagline: "La teva plataforma d'intel·ligència del mercat de sneakers" },
+  "eu":    { native: "Euskara",         label: "Basque",               greeting: "Ongi etorri SneakPrice-ra",                tagline: "Zure zapatila merkatuaren adimen plataforma" },
+  "gl":    { native: "Galego",          label: "Galician",             greeting: "Benvido a SneakPrice",                     tagline: "A túa plataforma de intelixencia do mercado de zapatillas" },
+  "sq":    { native: "Shqip",           label: "Albanian",             greeting: "Mirë se vini në SneakPrice",               tagline: "Platforma juaj e inteligjencës së tregut të sneakers" },
+  "bs":    { native: "Bosanski",        label: "Bosnian",              greeting: "Dobrodošli u SneakPrice",                  tagline: "Vaša platforma za tržišnu inteligenciju patika" },
+  "mk":    { native: "Македонски",      label: "Macedonian",           greeting: "Добредојдовте во SneakPrice",              tagline: "Вашата платформа за пазарна интелигенција на патики" },
+  // Middle East / RTL
+  "he":    { native: "עברית",           label: "Hebrew",               greeting: "ברוכים הבאים ל-SneakPrice",                tagline: "הפלטפורמה שלכם לאינטליגנציה בשוק הסניקרס",    dir: "rtl" },
+  "fa":    { native: "فارسی",           label: "Persian",              greeting: "به SneakPrice خوش آمدید",                  tagline: "پلتفرم هوش بازار کتانی شما",                   dir: "rtl" },
+  "ur":    { native: "اردو",            label: "Urdu",                 greeting: "SneakPrice میں خوش آمدید",                 tagline: "آپ کا اسنیکر مارکیٹ انٹیلیجنس پلیٹ فارم",     dir: "rtl" },
+  // South Asia
+  "hi":    { native: "हिन्दी",          label: "Hindi",                greeting: "SneakPrice में आपका स्वागत है",            tagline: "आपका स्नीकर मार्केट इंटेलिजेंस प्लेटफॉर्म" },
+  "bn":    { native: "বাংলা",           label: "Bengali",              greeting: "SneakPrice-এ আপনাকে স্বাগতম",             tagline: "আপনার স্নিকার মার্কেট ইন্টেলিজেন্স প্ল্যাটফর্ম" },
+  "pa":    { native: "ਪੰਜਾਬੀ",          label: "Punjabi",              greeting: "SneakPrice ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ",          tagline: "ਤੁਹਾਡਾ ਸਨੀਕਰ ਮਾਰਕੀਟ ਇੰਟੈਲੀਜੈਂਸ ਪਲੇਟਫਾਰਮ" },
+  "gu":    { native: "ગુજરાતી",         label: "Gujarati",             greeting: "SneakPrice-માં આપનું સ્વાગત છે",           tagline: "તમારું સ્નિકર માર્કેટ ઇન્ટેલિજન્સ પ્લેટફોર્મ" },
+  "mr":    { native: "मराठी",           label: "Marathi",              greeting: "SneakPrice मध्ये आपले स्वागत आहे",         tagline: "तुमचे स्नीकर मार्केट इंटेलिजन्स प्लॅटफॉर्म" },
+  "ta":    { native: "தமிழ்",           label: "Tamil",                greeting: "SneakPrice-ல் உங்களை வரவேற்கிறோம்",       tagline: "உங்கள் ஸ்னீக்கர் சந்தை நுண்ணறிவு தளம்" },
+  "te":    { native: "తెలుగు",          label: "Telugu",               greeting: "SneakPrice లో మీకు స్వాగతం",              tagline: "మీ స్నీకర్ మార్కెట్ ఇంటెలిజెన్స్ ప్లాట్‌ఫారం" },
+  "kn":    { native: "ಕನ್ನಡ",           label: "Kannada",              greeting: "SneakPrice ಗೆ ಸ್ವಾಗತ",                    tagline: "ನಿಮ್ಮ ಸ್ನೀಕರ್ ಮಾರ್ಕೆಟ್ ಇಂಟೆಲಿಜೆನ್ಸ್ ಪ್ಲಾಟ್‌ಫಾರ್ಮ್" },
+  "ml":    { native: "മലയാളം",          label: "Malayalam",            greeting: "SneakPrice-ലേക്ക് സ്വാഗതം",               tagline: "നിങ്ങളുടെ സ്നീക്കർ മാർക്കറ്റ് ഇൻ്റലിജൻസ് പ്ലാറ്റ്‌ഫോം" },
+  // East / Southeast Asia
+  "zh-hk": { native: "中文・香港",        label: "Chinese Hong Kong",    greeting: "歡迎來到 SneakPrice",                      tagline: "您的波鞋市場情報平台" },
+  "zh-tw": { native: "中文繁體",         label: "Chinese Traditional",  greeting: "歡迎來到 SneakPrice",                      tagline: "您的球鞋市場情報平台" },
+  "ko":    { native: "한국어",           label: "Korean",               greeting: "SneakPrice에 오신 것을 환영합니다",           tagline: "스니커 시장 인텔리전스 플랫폼" },
+  "th":    { native: "ไทย",             label: "Thai",                 greeting: "ยินดีต้อนรับสู่ SneakPrice",               tagline: "แพลตฟอร์มข้อมูลตลาดรองเท้าผ้าใบของคุณ" },
+  "vi":    { native: "Tiếng Việt",      label: "Vietnamese",           greeting: "Chào mừng đến với SneakPrice",             tagline: "Nền tảng thông minh thị trường giày thể thao của bạn" },
+  "id":    { native: "Bahasa Indonesia", label: "Indonesian",          greeting: "Selamat datang di SneakPrice",              tagline: "Platform intelijen pasar sneaker Anda" },
+  "ms":    { native: "Bahasa Melayu",   label: "Malay",                greeting: "Selamat datang ke SneakPrice",              tagline: "Platform risikan pasaran sneaker anda" },
+  "tl":    { native: "Filipino",        label: "Filipino",             greeting: "Maligayang pagdating sa SneakPrice",        tagline: "Ang iyong platform ng market intelligence para sa sneakers" },
+  // Africa
+  "sw":    { native: "Kiswahili",       label: "Swahili",              greeting: "Karibu SneakPrice",                        tagline: "Jukwaa lako la akili ya soko la viatu vya michezo" },
 };
 
 export function generateStaticParams() {

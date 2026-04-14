@@ -3,6 +3,7 @@ import "./globals.css";
 import Nav from "../components/Nav";
 import SecondaryNav from "../components/SecondaryNav";
 import { ClerkProvider } from "@clerk/nextjs";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 
 
@@ -20,9 +21,11 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className="antialiased">
-          <Nav />
-          <SecondaryNav />
-          {children}
+          <LanguageProvider>
+            <Nav />
+            <SecondaryNav />
+            {children}
+          </LanguageProvider>
         </body>
       </html>
     </ClerkProvider>
