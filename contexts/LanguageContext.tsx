@@ -16,10 +16,21 @@ import ja from "@/messages/ja.json";
 import ar from "@/messages/ar.json";
 import zh from "@/messages/zh.json";
 import zhtw from "@/messages/zh-tw.json";
+import pt from "@/messages/pt.json";
+import ko from "@/messages/ko.json";
+import bn from "@/messages/bn.json";
+import th from "@/messages/th.json";
+import vi from "@/messages/vi.json";
+import id from "@/messages/id.json";
+import ms from "@/messages/ms.json";
+import tl from "@/messages/tl.json";
 
 export type Messages = typeof en;
 
-const MESSAGES: Record<string, Messages> = { en, fr, de, es, ja, ar, zh, "zh-tw": zhtw };
+const MESSAGES: Record<string, Messages> = {
+  en, fr, de, es, ja, ar, zh, "zh-tw": zhtw,
+  pt, ko, bn, th, vi, id, ms, tl,
+};
 
 const RTL_LOCALES = new Set(["ar", "he", "fa", "ur"]);
 

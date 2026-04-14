@@ -6,14 +6,22 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 // Only languages with a full messages JSON file
 const LANGUAGES = [
-  { code: "en",    label: "English",             native: "English",   dir: "ltr" },
-  { code: "zh",    label: "Chinese Simplified",  native: "中文简体",   dir: "ltr" },
-  { code: "zh-tw", label: "Chinese Traditional", native: "中文繁體",   dir: "ltr" },
-  { code: "ja",    label: "Japanese",            native: "日本語",     dir: "ltr" },
-  { code: "es",    label: "Spanish",             native: "Español",   dir: "ltr" },
-  { code: "fr",    label: "French",              native: "Français",  dir: "ltr" },
-  { code: "de",    label: "German",              native: "Deutsch",   dir: "ltr" },
-  { code: "ar",    label: "Arabic",              native: "العربية",   dir: "rtl" },
+  { code: "en",    label: "English",             native: "English",          dir: "ltr" },
+  { code: "zh",    label: "Chinese Simplified",  native: "中文简体",          dir: "ltr" },
+  { code: "zh-tw", label: "Chinese Traditional", native: "中文繁體",          dir: "ltr" },
+  { code: "ja",    label: "Japanese",            native: "日本語",            dir: "ltr" },
+  { code: "ko",    label: "Korean",              native: "한국어",            dir: "ltr" },
+  { code: "es",    label: "Spanish",             native: "Español",          dir: "ltr" },
+  { code: "pt",    label: "Portuguese",          native: "Português",        dir: "ltr" },
+  { code: "fr",    label: "French",              native: "Français",         dir: "ltr" },
+  { code: "de",    label: "German",              native: "Deutsch",          dir: "ltr" },
+  { code: "ar",    label: "Arabic",              native: "العربية",          dir: "rtl" },
+  { code: "bn",    label: "Bengali",             native: "বাংলা",            dir: "ltr" },
+  { code: "th",    label: "Thai",                native: "ไทย",              dir: "ltr" },
+  { code: "vi",    label: "Vietnamese",          native: "Tiếng Việt",       dir: "ltr" },
+  { code: "id",    label: "Indonesian",          native: "Bahasa Indonesia",  dir: "ltr" },
+  { code: "ms",    label: "Malay",               native: "Bahasa Melayu",    dir: "ltr" },
+  { code: "tl",    label: "Filipino",            native: "Filipino",         dir: "ltr" },
 ] as const;
 
 type Language = (typeof LANGUAGES)[number];
