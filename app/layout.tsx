@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className="antialiased">
+        <body className="antialiased" style={{ backgroundColor: "#e8e4c8" }}>
           <LanguageProvider>
             <Nav />
             <SecondaryNav />

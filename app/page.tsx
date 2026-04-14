@@ -518,7 +518,7 @@ export default function DiscoverPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-white px-6 py-6 text-center text-black" dir={dir}>
+    <div className="flex min-h-screen flex-col items-center px-6 py-6 text-center text-black" dir={dir} style={{ backgroundColor: "#e8e4c8" }}>
       <div className="mb-6">
         <Image
           src="/sneakprice-logo.png"
@@ -585,7 +585,7 @@ export default function DiscoverPage() {
 
         <section
           id="scan-tool"
-          className="w-full rounded-3xl border border-black/10 bg-gradient-to-b from-white to-neutral-50 p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)] md:p-8 mb-10"
+          className="w-full rounded-3xl border border-black/10 p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)] md:p-8 mb-10" style={{ backgroundColor: "#e8e4c8" }}
         >
           <div className="mb-8">
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-neutral-500">
