@@ -565,10 +565,10 @@ export default function DiscoverPage() {
 
       <div className="flex justify-center mb-8">
         <Image
-          src="/jordan-yellow.png"
-          alt="SneakPrice"
-          width={160}
-          height={160}
+          src="/AirJordanOne.png"
+          alt="Air Jordan 1"
+          width={400}
+          height={400}
           className="opacity-90"
         />
       </div>
