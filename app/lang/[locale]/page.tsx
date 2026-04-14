@@ -30,13 +30,14 @@ export function generateStaticParams() {
   ].map((locale) => ({ locale }));
 }
 
-export function generateMetadata({ params }: { params: { locale: string } }) {
-  const lang = LANGUAGE_DATA[params.locale] ?? COMING_SOON[params.locale];
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const lang = LANGUAGE_DATA[locale] ?? COMING_SOON[locale];
   return { title: lang ? `SneakPrice — ${lang.label}` : "SneakPrice" };
 }
 
-export default function LangPage({ params }: { params: { locale: string } }) {
-  const locale = params.locale;
+export default async function LangPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
 
   /* ── Fully translated pages (fr, de, es) ─────────────── */
   if (LANGUAGE_DATA[locale]) {
