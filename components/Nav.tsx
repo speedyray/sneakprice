@@ -24,7 +24,7 @@ export default function Nav() {
       : "text-black/75 transition hover:text-black";
 
   return (
-    <nav className="relative z-40 w-full border-b border-black/10 bg-[#eee8df] px-6 py-4 text-black">
+    <nav className="relative z-50 w-full border-b border-black/10 bg-[#eee8df] px-6 py-4 text-black">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">

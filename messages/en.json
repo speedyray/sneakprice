@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "search_placeholder": "Search sneakers, brands, colorways...",
+    "home": "Home",
+    "news": "News",
+    "login": "Login / Sign Up"
+  },
+  "secondaryNav": {
+    "home": "Home",
+    "encyclopedia": "Sneaker Encyclopedia",
+    "care": "Sneaker Care Guide",
+    "exchange": "Sneaker Exchange",
+    "blog": "Sneaker Blogs"
+  },
+  "home": {
+    "hero_badge": "Sneaker Market Intelligence",
+    "hero_title": "Buy Low. Sell High. Profit Smart.",
+    "hero_subtitle": "SneakPrice scans eBay live to find underpriced sneakers you can flip for profit on StockX, GOAT, and more.",
+    "scan_title": "Scan a Sneaker for Arbitrage",
+    "scan_placeholder": "e.g. Air Jordan 4 Bred, Yeezy 700...",
+    "scan_button": "Analyze Sneaker",
+    "scan_scanning": "Analyzing...",
+    "step1_title": "Upload or Scan",
+    "step1_desc": "Enter a sneaker name or upload a photo to identify it.",
+    "step2_title": "Get Market Data",
+    "step2_desc": "We scan live eBay listings and compare to StockX and GOAT prices.",
+    "step3_title": "Find Your Profit",
+    "step3_desc": "See the spread, ROI, and where to buy and sell for maximum profit.",
+    "photo_title": "Scan by Photo",
+    "photo_subtitle": "Upload a sneaker photo and our AI will identify it and find arbitrage opportunities.",
+    "photo_upload": "Click to upload sneaker photo",
+    "photo_formats": "JPG, PNG, WEBP supported",
+    "analyze_button": "Analyze Sneaker",
+    "terminal_title": "Live Opportunities Grid",
+    "terminal_subtitle": "Live Feed"
+  },
+  "encyclopedia": {
+    "badge": "Sneaker Encyclopedia",
+    "history": "History",
+    "design": "Design & Technology",
+    "colorways": "Popular Colorways",
+    "resale": "Resale Market Value",
+    "care": "Care & Maintenance",
+    "check_resale_badge": "Live Market Tool",
+    "check_resale_title": "Check Live Resale Value",
+    "check_resale_desc": "Scan any colourway with SneakPrice to see live eBay market data and arbitrage opportunities in real time.",
+    "check_resale_cta": "Scan it with SneakPrice →",
+    "back_to_az": "← Back to Sneaker Encyclopedia A–Z"
+  },
+  "lang_page": {
+    "coming_soon_title": "Coming Soon",
+    "coming_soon_desc": "The full SneakPrice experience in {language} is on its way. We're working hard to bring you live sneaker market data, arbitrage tools, and the encyclopedia in your language.",
+    "back_english": "← Back to English",
+    "browse_english": "Browse in English"
+  },
+  "common": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "profit": "Profit",
+    "spread": "Spread",
+    "score": "Score",
+    "liquidity": "Liquidity",
+    "net": "Net",
+    "hot": "HOT",
+    "live": "LIVE",
+    "watch": "WATCH"
+  }
+}

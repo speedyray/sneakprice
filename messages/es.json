@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "search_placeholder": "Buscar zapatillas, marcas, combinaciones de colores...",
+    "home": "Inicio",
+    "news": "Noticias",
+    "login": "Iniciar sesión / Registrarse"
+  },
+  "secondaryNav": {
+    "home": "Inicio",
+    "encyclopedia": "Enciclopedia de Zapatillas",
+    "care": "Guía de Cuidado de Zapatillas",
+    "exchange": "Intercambio de Zapatillas",
+    "blog": "Blogs de Zapatillas"
+  },
+  "home": {
+    "hero_badge": "Inteligencia de Mercado de Zapatillas",
+    "hero_title": "Compra Barato. Vende Caro. Gana Inteligentemente.",
+    "hero_subtitle": "SneakPrice escanea eBay en vivo para encontrar zapatillas subvaloradas que puedes revender con ganancia en StockX, GOAT y más.",
+    "scan_title": "Escanea una Zapatilla para Arbitraje",
+    "scan_placeholder": "p.ej. Air Jordan 4 Bred, Yeezy 700...",
+    "scan_button": "Analizar Zapatilla",
+    "scan_scanning": "Analizando...",
+    "step1_title": "Sube o Escanea",
+    "step1_desc": "Ingresa un nombre de zapatilla o sube una foto para identificarla.",
+    "step2_title": "Obtén Datos de Mercado",
+    "step2_desc": "Escaneamos listados en vivo de eBay y comparamos con precios de StockX y GOAT.",
+    "step3_title": "Encuentra Tu Ganancia",
+    "step3_desc": "Ve la diferencia, ROI, y dónde comprar y vender para obtener la máxima ganancia.",
+    "photo_title": "Escanear por Foto",
+    "photo_subtitle": "Sube una foto de zapatilla y nuestra IA la identificará y encontrará oportunidades de arbitraje.",
+    "photo_upload": "Haz clic para subir foto de zapatilla",
+    "photo_formats": "JPG, PNG, WEBP soportados",
+    "analyze_button": "Analizar Zapatilla",
+    "terminal_title": "Cuadro de Oportunidades en Vivo",
+    "terminal_subtitle": "Transmisión en Vivo"
+  },
+  "encyclopedia": {
+    "badge": "Enciclopedia de Zapatillas",
+    "history": "Historia",
+    "design": "Diseño & Tecnología",
+    "colorways": "Combinaciones de Colores Populares",
+    "resale": "Valor de Mercado de Reventa",
+    "care": "Cuidado & Mantenimiento",
+    "check_resale_badge": "Herramienta de Mercado en Vivo",
+    "check_resale_title": "Verifica el Valor de Reventa en Vivo",
+    "check_resale_desc": "Escanea cualquier combinación de colores con SneakPrice para ver datos de mercado en vivo de eBay y oportunidades de arbitraje en tiempo real.",
+    "check_resale_cta": "Escanéalo con SneakPrice →",
+    "back_to_az": "← Volver a Enciclopedia de Zapatillas A–Z"
+  },
+  "lang_page": {
+    "coming_soon_title": "Próximamente",
+    "coming_soon_desc": "La experiencia completa de SneakPrice en {language} está en camino. Estamos trabajando arduamente para ofrecerte datos de mercado de zapatillas en vivo, herramientas de arbitraje y la enciclopedia en tu idioma.",
+    "back_english": "← Volver a Inglés",
+    "browse_english": "Navegar en Inglés"
+  },
+  "common": {
+    "buy": "Comprar",
+    "sell": "Vender",
+    "profit": "Ganancia",
+    "spread": "Diferencia",
+    "score": "Puntuación",
+    "liquidity": "Liquidez",
+    "net": "Neto",
+    "hot": "CALIENTE",
+    "live": "EN VIVO",
+    "watch": "VER"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "search_placeholder": "Suche Sneaker, Marken, Farbvarianten...",
+    "home": "Startseite",
+    "news": "Nachrichten",
+    "login": "Login / Registrieren"
+  },
+  "secondaryNav": {
+    "home": "Startseite",
+    "encyclopedia": "Sneaker-Enzyklopädie",
+    "care": "Sneaker-Pflegeanleitung",
+    "exchange": "Sneaker-Börse",
+    "blog": "Sneaker-Blogs"
+  },
+  "home": {
+    "hero_badge": "Sneaker-Marktintelligenz",
+    "hero_title": "Günstig kaufen. Teuer verkaufen. Clever profitieren.",
+    "hero_subtitle": "SneakPrice durchsucht eBay live, um unterbewertete Sneaker zu finden, die Sie auf StockX, GOAT und mehr mit Gewinn verkaufen können.",
+    "scan_title": "Scannen Sie einen Sneaker für Arbitrage",
+    "scan_placeholder": "z.B. Air Jordan 4 Bred, Yeezy 700...",
+    "scan_button": "Sneaker analysieren",
+    "scan_scanning": "Analysiere...",
+    "step1_title": "Hochladen oder Scannen",
+    "step1_desc": "Geben Sie einen Sneaker-Namen ein oder laden Sie ein Foto hoch, um ihn zu identifizieren.",
+    "step2_title": "Marktdaten erhalten",
+    "step2_desc": "Wir durchsuchen live eBay-Angebote und vergleichen sie mit StockX- und GOAT-Preisen.",
+    "step3_title": "Finden Sie Ihren Gewinn",
+    "step3_desc": "Sehen Sie die Spanne, ROI und wo Sie kaufen und verkaufen können, um maximalen Gewinn zu erzielen.",
+    "photo_title": "Per Foto scannen",
+    "photo_subtitle": "Laden Sie ein Sneaker-Foto hoch und unsere KI wird es identifizieren und Arbitragemöglichkeiten finden.",
+    "photo_upload": "Klicken Sie, um Sneaker-Foto hochzuladen",
+    "photo_formats": "JPG, PNG, WEBP unterstützt",
+    "analyze_button": "Sneaker analysieren",
+    "terminal_title": "Live-Möglichkeiten-Raster",
+    "terminal_subtitle": "Live-Feed"
+  },
+  "encyclopedia": {
+    "badge": "Sneaker-Enzyklopädie",
+    "history": "Geschichte",
+    "design": "Design & Technologie",
+    "colorways": "Beliebte Farbvarianten",
+    "resale": "Wiederverkaufsmarktwert",
+    "care": "Pflege & Wartung",
+    "check_resale_badge": "Live-Markttool",
+    "check_resale_title": "Überprüfen Sie den Live-Wiederverkaufswert",
+    "check_resale_desc": "Scannen Sie jede Farbvariante mit SneakPrice, um live eBay-Marktdaten und Arbitragemöglichkeiten in Echtzeit zu sehen.",
+    "check_resale_cta": "Scannen Sie es mit SneakPrice →",
+    "back_to_az": "← Zurück zur Sneaker-Enzyklopädie A–Z"
+  },
+  "lang_page": {
+    "coming_soon_title": "Demnächst",
+    "coming_soon_desc": "Das volle SneakPrice-Erlebnis in {language} ist auf dem Weg. Wir arbeiten hart daran, Ihnen live Sneaker-Marktdaten, Arbitrage-Tools und die Enzyklopädie in Ihrer Sprache zu bringen.",
+    "back_english": "← Zurück zu Englisch",
+    "browse_english": "Auf Englisch durchsuchen"
+  },
+  "common": {
+    "buy": "Kaufen",
+    "sell": "Verkaufen",
+    "profit": "Gewinn",
+    "spread": "Spanne",
+    "score": "Punktzahl",
+    "liquidity": "Liquidität",
+    "net": "Netto",
+    "hot": "HEISS",
+    "live": "LIVE",
+    "watch": "BEOBACHTEN"
+  }
+}
