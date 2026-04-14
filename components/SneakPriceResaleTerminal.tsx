@@ -46,7 +46,7 @@ const seedOpportunities = [
     id: 3,
     model: "Nike Air Max 1",
     venueBuy: "eBay",
-    venueSell: "Alias",
+    venueSell: "StockX",
     buy: 51.0,
     sell: 119.99,
     score: 65,
@@ -190,8 +190,9 @@ function getSellUrl(model: string, venue: string) {
   const q = encodeURIComponent(model);
   if (venue === "StockX") return `https://stockx.com/search?s=${q}`;
   if (venue === "GOAT") return `https://www.goat.com/search?query=${q}`;
-  // eBay resell or any other venue — search sold listings
-  return `https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1`;
+  if (venue === "eBay") return `https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1`;
+  // Fallback: StockX search
+  return `https://stockx.com/search?s=${q}`;
 }
 
 function formatCurrency(value: number) {
