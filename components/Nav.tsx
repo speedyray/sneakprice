@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Search } from "lucide-react";
+import LanguageDropdown from "./LanguageDropdown";
 
 export default function Nav() {
   const pathname = usePathname();
@@ -44,18 +45,21 @@ export default function Nav() {
         </div>
 
 
-        <form
-  action="/search"
-  className="flex items-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-4 w-full md:max-w-[1200px]"
->
-  <Search className="h-4 w-4 text-neutral-500" />
-  <input
-    type="text"
-    name="q"
-    placeholder="Search sneakers, brands, colorways..."
-    className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
-  />
-</form>
+        <div className="flex w-full items-center gap-2 md:max-w-[1200px]">
+          <form
+            action="/search"
+            className="flex flex-1 items-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-2.5"
+          >
+            <Search className="h-4 w-4 text-neutral-500" />
+            <input
+              type="text"
+              name="q"
+              placeholder="Search sneakers, brands, colorways..."
+              className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
+            />
+          </form>
+          <LanguageDropdown />
+        </div>
 
 
         <div className="flex flex-wrap items-center gap-6">
