@@ -730,7 +730,7 @@ export default function DiscoverPage() {
               ) : null}
 
               {scanError === "unauthenticated" && (
-                <div className="mt-4 rounded-xl bg-yellow-900/30 border border-yellow-700 px-4 py-3 text-sm text-yellow-300">
+                <div className="mt-4 rounded-xl bg-yellow-900/30 border border-yellow-700 px-5 py-4 text-base text-black">
                   Sign in to scan sneakers.{" "}
                   <button onClick={() => openSignIn()} className="underline font-semibold">
                     Sign in

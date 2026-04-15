@@ -24,12 +24,18 @@ import vi from "@/messages/vi.json";
 import id from "@/messages/id.json";
 import ms from "@/messages/ms.json";
 import tl from "@/messages/tl.json";
+import it from "@/messages/it.json";
+import nl from "@/messages/nl.json";
+import tr from "@/messages/tr.json";
+import hi from "@/messages/hi.json";
+import zhhk from "@/messages/zh-hk.json";
 
 export type Messages = typeof en;
 
 const MESSAGES: Record<string, Messages> = {
   en, fr, de, es, ja, ar, zh, "zh-tw": zhtw,
   pt, ko, bn, th, vi, id, ms, tl,
+  it, nl, tr, hi, "zh-hk": zhhk,
 };
 
 const RTL_LOCALES = new Set(["ar", "he", "fa", "ur"]);

@@ -22,6 +22,11 @@ const LANGUAGES = [
   { code: "id",    label: "Indonesian",          native: "Bahasa Indonesia",  dir: "ltr" },
   { code: "ms",    label: "Malay",               native: "Bahasa Melayu",    dir: "ltr" },
   { code: "tl",    label: "Filipino",            native: "Filipino",         dir: "ltr" },
+  { code: "it",    label: "Italian",             native: "Italiano",         dir: "ltr" },
+  { code: "nl",    label: "Dutch",               native: "Nederlands",       dir: "ltr" },
+  { code: "tr",    label: "Turkish",             native: "Türkçe",           dir: "ltr" },
+  { code: "hi",    label: "Hindi",               native: "हिन्दी",           dir: "ltr" },
+  { code: "zh-hk", label: "Chinese Hong Kong",   native: "中文・香港",        dir: "ltr" },
 ] as const;
 
 type Language = (typeof LANGUAGES)[number];
