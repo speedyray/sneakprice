@@ -23,7 +23,7 @@ const sneakersByLetter: Record<string, { name: string; slug: string }[]> = {
   B: [
     { name: "Blazer Mid", slug: "blazer-mid" },
     { name: "Brooks Ghost", slug: "brooks-ghost" },
-    { name: "Bottega Veneta Speedster", slug: "bottega-veneta-speedster" },
+    { name: "Bottega Veneta Speedster", slug: "bottega-venata-speedster" },
   ],
   C: [
     { name: "Chuck Taylor All Star", slug: "chuck-taylor-all-star" },
@@ -91,9 +91,7 @@ const sneakersByLetter: Record<string, { name: string; slug: string }[]> = {
     { name: "Puma Suede Classic", slug: "puma-suede-classic" },
     { name: "Puma RS-X", slug: "puma-rs-x" },
   ],
-  Q: [
-    { name: "Quantum 360", slug: "quantum-360" },
-  ],
+  Q: [{ name: "Quantum 360", slug: "quantum-360" }],
   R: [
     { name: "React Infinity Run", slug: "react-infinity-run" },
     { name: "Reebok Classic Leather", slug: "reebok-classic-leather" },
@@ -121,9 +119,7 @@ const sneakersByLetter: Record<string, { name: string; slug: string }[]> = {
     { name: "Waffle Racer", slug: "waffle-racer" },
     { name: "Wave Rider", slug: "wave-rider" },
   ],
-  X: [
-    { name: "X90004D", slug: "x90004d" },
-  ],
+  X: [{ name: "X90004D", slug: "x90004d" }],
   Y: [
     { name: "Yeezy Boost 350", slug: "yeezy-boost-350" },
     { name: "Yeezy 500", slug: "yeezy-500" },
@@ -140,8 +136,6 @@ export default function SneakerAZPage() {
   return (
     <div className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-5xl space-y-10">
-
-        {/* Header */}
         <div className="space-y-3">
           <h1 className="text-4xl font-bold">Sneaker Encyclopedia A–Z</h1>
           <p className="text-lg text-neutral-600">
@@ -151,7 +145,6 @@ export default function SneakerAZPage() {
           </p>
         </div>
 
-        {/* Alphabet quick-jump */}
         <div className="flex flex-wrap gap-2 border-y border-black/10 py-4">
           {letters.map((letter) => (
             <a
@@ -168,11 +161,11 @@ export default function SneakerAZPage() {
           ))}
         </div>
 
-        {/* A–Z sections */}
         <div className="space-y-12">
           {letters.map((letter) => {
             const sneakers = sneakersByLetter[letter];
             if (!sneakers?.length) return null;
+
             return (
               <section key={letter} id={`letter-${letter}`} className="scroll-mt-20">
                 <h2 className="mb-4 border-b border-black/10 pb-2 text-2xl font-bold text-green-600">
@@ -194,7 +187,6 @@ export default function SneakerAZPage() {
           })}
         </div>
 
-        {/* CTA */}
         <div className="rounded-xl border border-green-500/30 bg-green-50 p-6">
           <h3 className="text-lg font-semibold text-green-700">
             Know your sneaker&apos;s real market value
@@ -210,7 +202,6 @@ export default function SneakerAZPage() {
             Scan a Sneaker →
           </Link>
         </div>
-
       </div>
     </div>
   );
