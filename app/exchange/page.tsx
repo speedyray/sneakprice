@@ -1,4 +1,4 @@
-import ExchangeSlider from "./ExchangeSlider";
+import SneakerExchange from "@/components/exchange/SneakerExchange";
 
 export const metadata = {
   title: "Sneaker Exchange | SneakPrice",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function SneakerExchangePage() {
-  return <ExchangeSlider />;
+  return <SneakerExchange />;
 }

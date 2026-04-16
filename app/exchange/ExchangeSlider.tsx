@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 
 const DASHBOARDS = [
-  { src: "/exchange-dashboard.html", label: "Market Charts" },
-  { src: "/exchange-arbitrage.html", label: "Arbitrage Deals" },
+  { src: "/prototypes/exchange-dashboard.html", label: "Market Charts" },
+  { src: "/prototypes/exchange-arbitrage.html", label: "Arbitrage Deals" },
 ];
 
 const INTERVAL_MS = 9_000; // slide every 9 seconds
