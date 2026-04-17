@@ -594,10 +594,11 @@ function PhoneWrapper({ stepNum, stepLabel, caption, children }: {
       <p style={{
         marginTop: 14,
         fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 10,
-        color: "#6b6a5e",
-        letterSpacing: "0.05em",
+        fontSize: 13,
+        color: "#2a2a28",
+        letterSpacing: "0.03em",
         textAlign: "center",
+        fontWeight: 500,
       }}>{caption}</p>
     </div>
   );
