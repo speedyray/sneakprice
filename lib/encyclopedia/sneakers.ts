@@ -1097,6 +1097,418 @@ export const sneakers: Sneaker[] = [
 
 
 
+    {
+      slug: "adidas-stan-smith",
+      name: "Adidas Stan Smith",
+      tagline:
+        "The minimalist tennis icon that became one of the most recognizable white sneakers ever made, blending clean design with decades of crossover appeal.",
+    
+      brand: "Adidas",
+      firstRelease: "1971",
+      designer: "Adidas",
+      retailPrice: "$100–$130",
+    
+      tier: 1,
+    
+      images: [
+        {
+          src: "/encyclopedia/adidas-stan-smith/hero.jpg",
+          alt: "Adidas Stan Smith classic side view",
+        },
+        {
+          src: "/encyclopedia/adidas-stan-smith/angle-1.jpg",
+          alt: "Adidas Stan Smith alternate side profile",
+        },
+        {
+          src: "/encyclopedia/adidas-stan-smith/angle-2.jpg",
+          alt: "Adidas Stan Smith heel angle",
+        },
+        {
+          src: "/encyclopedia/adidas-stan-smith/detail.jpg",
+          alt: "Adidas Stan Smith heel tab detail",
+        },
+        {
+          src: "/encyclopedia/adidas-stan-smith/top.jpg",
+          alt: "Adidas Stan Smith top view",
+        },
+        {
+          src: "/encyclopedia/adidas-stan-smith/sole.jpg",
+          alt: "Adidas Stan Smith outsole detail",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Adidas Stan Smith Market Overview",
+        demand: "Stable Demand",
+        avgResale: "$115",
+        trend: "Stable / Neutral",
+        volatility: "Low",
+        liquidity: "High",
+        flipScore: "60 / 100",
+        description:
+          "The Adidas Stan Smith is one of the most recognizable lifestyle sneakers on the market. Core pairs usually trade close to retail, while premium versions and collaborations create the strongest resale movement.",
+      },
+    
+      history: [
+        "The Stan Smith emerged from Adidas’ tennis line in the early 1970s and went on to become one of the brand’s most iconic low-top sneakers.",
+        "Its simple leather construction, clean profile, and athlete-linked branding helped it stand apart from bulkier performance shoes of its era.",
+        "Over time, the Stan Smith moved beyond tennis and became a fashion staple, embraced for its versatility and minimalist look.",
+        "Today, it remains one of Adidas’ defining silhouettes, with broad appeal across casual wear, fashion, and heritage sneaker culture.",
+      ],
+    
+      designIntro:
+        "The Adidas Stan Smith is defined by its minimalist leather upper, perforated Three Stripes, portrait-branded tongue, and simple low-top shape that helped set the template for countless clean lifestyle sneakers.",
+    
+      designBullets: [
+        "Smooth leather upper with clean low-profile construction",
+        "Perforated Three Stripes instead of stitched side branding",
+        "Stan Smith portrait and branding on the tongue label",
+        "Green heel tab on the classic white-and-green version",
+        "Simple cupsole and textured outsole built for easy everyday wear",
+      ],
+    
+      colorways: [
+        {
+          name: "White / Green",
+          note: "The definitive Stan Smith colorway and the pair most closely tied to the model’s identity.",
+          market: "Classic staple",
+        },
+        {
+          name: "Triple White",
+          note: "A clean minimalist take with broad everyday appeal.",
+          market: "Steady demand",
+        },
+        {
+          name: "Lux / Premium Editions",
+          note: "Higher-end leather versions that elevate materials and presentation.",
+          market: "Selective upside",
+        },
+        {
+          name: "Collaboration Releases",
+          note: "Special projects that bring stronger collector interest than standard GR pairs.",
+          market: "Higher resale",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Stan Smith is primarily a stability-driven lifestyle model rather than a major hype sneaker. Standard pairs usually trade around retail because of broad availability and steady mainstream demand.",
+        "Resale upside is stronger on premium leather versions, fashion collaborations, and limited heritage releases than on standard everyday pairs.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Classic staple & premium editions" },
+        { label: "Risk Level", value: "Low" },
+        { label: "Reseller Take", value: "Reliable staple with selective upside" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "60 / 100",
+        liquidity: "High",
+        typicalMargin: "Low–Moderate",
+        bestUse: "Fast-moving staple & selective collabs",
+        bullets: [
+          "Core pairs are driven more by consistency than hype.",
+          "Premium material upgrades can perform better than standard GR releases.",
+          "Collabs and fashion-linked versions create the best upside.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Adidas Stan Smith Colorway Live",
+        description:
+          "Use SneakPrice to check live resale value, compare demand, and spot market opportunities across Adidas Stan Smith pairs.",
+        primaryHref: "/exchange",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/discover",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "View live resale signals",
+          "Track profitable flips",
+          "Compare demand instantly",
+        ],
+      },
+    
+      careIntro: [
+        "The Stan Smith is easy to maintain, but white leather pairs need regular cleaning to keep the upper, midsole, and heel tab looking fresh.",
+        "The clean shape is part of the appeal, so even light scuffs and dirt can stand out quickly on classic white-and-green pairs.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Useful for removing loose dirt from leather, outsole edges, and seams without scratching the surface.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Helps wipe down leather panels and dry the shoe gently after cleaning.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "A sneaker-safe cleaner helps remove surface grime while preserving the leather upper.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Useful for loosening dirt without making the shoe overly wet.",
+        },
+        {
+          label: "Magic Eraser or Rubber Cleaner",
+          desc: "Especially useful for cleaning the midsole and restoring the crisp white look.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out the laces so you can fully access the tongue and eyelet area.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush First",
+          desc: "Brush away loose dirt and dust before applying any water or cleaner.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Prepare the Cleaner",
+          desc: "Mix warm water with a sneaker-safe cleaning solution in a small bowl.",
+        },
+        {
+          step: "2",
+          label: "Clean the Leather Panels",
+          desc: "Use gentle circular motions across the leather upper, heel tab, and midsole without oversaturating the pair.",
+        },
+        {
+          step: "3",
+          label: "Wipe Away Residue",
+          desc: "Use a clean microfiber cloth to remove loosened dirt and leftover solution.",
+        },
+        {
+          step: "4",
+          label: "Air Dry Naturally",
+          desc: "Let the pair dry at room temperature away from direct heat and strong sunlight.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Adidas Superstar", href: "/encyclopedia/adidas-superstar" },
+        { name: "Adidas Samba", href: "/encyclopedia/adidas-samba" },
+        { name: "Adidas Gazelle", href: "/encyclopedia/adidas-gazelle" },
+        { name: "Air Force 1", href: "/encyclopedia/air-force-1" },
+      ],
+    },
+
+
+
+    {
+      slug: "asics-gel-kayano",
+      name: "ASICS Gel-Kayano",
+      tagline:
+        "The stability-running icon that fused long-distance support, GEL cushioning, and technical design into one of ASICS’ most respected performance franchises.",
+    
+      brand: "ASICS",
+      firstRelease: "1993",
+      designer: "Toshikazu Kayano",
+      retailPrice: "$160–$220",
+    
+      tier: 1,
+    
+      images: [
+        {
+          src: "/encyclopedia/asics-gel-kayano/hero.jpg",
+          alt: "ASICS Gel-Kayano side view",
+        },
+        {
+          src: "/encyclopedia/asics-gel-kayano/angle-1.jpg",
+          alt: "ASICS Gel-Kayano alternate profile",
+        },
+        {
+          src: "/encyclopedia/asics-gel-kayano/angle-2.jpg",
+          alt: "ASICS Gel-Kayano retro angle",
+        },
+        {
+          src: "/encyclopedia/asics-gel-kayano/detail.jpg",
+          alt: "ASICS Gel-Kayano heel cushioning detail",
+        },
+        {
+          src: "/encyclopedia/asics-gel-kayano/top.jpg",
+          alt: "ASICS Gel-Kayano top view",
+        },
+        {
+          src: "/encyclopedia/asics-gel-kayano/sole.jpg",
+          alt: "ASICS Gel-Kayano outsole detail",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "ASICS Gel-Kayano Market Overview",
+        demand: "Strong Demand",
+        avgResale: "$185",
+        trend: "Stable / Active",
+        volatility: "Medium",
+        liquidity: "Medium–High",
+        flipScore: "74 / 100",
+        description:
+          "The Gel-Kayano line blends serious running credibility with growing lifestyle relevance. Standard performance pairs usually trade near retail, while retro-driven models like the Gel-Kayano 14 and selective collaborations create stronger market movement.",
+      },
+    
+      history: [
+        "First released in 1993, the Gel-Kayano was developed as a supportive long-distance running shoe aimed at delivering comfort, protection, and structure for overpronating runners.",
+        "The series was named after its designer, Toshikazu Kayano, and quickly became one of ASICS’ most important performance franchises.",
+        "Across decades of updates, the Gel-Kayano has remained closely associated with stability running, evolving its foam, support systems, and cushioning while keeping the franchise identity intact.",
+        "More recently, retro-inspired entries such as the Gel-Kayano 14 helped expand the line’s visibility beyond pure performance running and into broader sneaker and fashion culture.",
+      ],
+    
+      designIntro:
+        "The Gel-Kayano is defined by its stability-focused platform, GEL cushioning heritage, and layered technical upper language that made it a staple in serious running and, later, retro-running style.",
+    
+      designBullets: [
+        "Stability-oriented running platform designed for support and guidance",
+        "GEL cushioning technology for impact absorption",
+        "Long-distance comfort focus across the franchise",
+        "Technical layered upper language that evolved with each generation",
+        "Performance roots with growing retro and lifestyle crossover appeal",
+      ],
+    
+      colorways: [
+        {
+          name: "White / Pure Silver",
+          note: "A clean technical runner look that fits both performance and lifestyle styling.",
+          market: "Strong demand",
+        },
+        {
+          name: "Cream / Silver Retro Styles",
+          note: "Popular on retro-oriented Gel-Kayano releases, especially lifestyle-friendly versions.",
+          market: "Lifestyle favorite",
+        },
+        {
+          name: "Core Running Editions",
+          note: "Standard line colorways focused more on function than hype.",
+          market: "Steady market",
+        },
+        {
+          name: "Selective Collaborations",
+          note: "Special projects and fashion-linked pairs can significantly outperform regular releases.",
+          market: "Higher resale",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Gel-Kayano is a mixed resale model. Performance-oriented general releases usually stay close to retail, but retro lifestyle versions and collaborations can generate meaningfully stronger demand.",
+        "From a reseller perspective, the biggest upside tends to come from retro-heavy Gel-Kayano models, fashion relevance, and limited collaborative drops rather than standard technical running pairs.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Retro lifestyle pairs & selective collabs" },
+        { label: "Risk Level", value: "Moderate" },
+        { label: "Reseller Take", value: "Performance heritage with growing lifestyle upside" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "74 / 100",
+        liquidity: "Medium–High",
+        typicalMargin: "Moderate",
+        bestUse: "Retro runners & selective collaboration flips",
+        bullets: [
+          "Core performance pairs are more stable than explosive in resale.",
+          "Retro-driven Gel-Kayano models have broadened the franchise’s market appeal.",
+          "Collaborations and strong neutral colorways usually provide the best upside.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any ASICS Gel-Kayano Colorway Live",
+        description:
+          "Use SneakPrice to check live resale value, compare demand, and spot market opportunities across ASICS Gel-Kayano pairs.",
+        primaryHref: "/exchange",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/discover",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "View live resale signals",
+          "Track profitable flips",
+          "Compare demand instantly",
+        ],
+      },
+    
+      careIntro: [
+        "The Gel-Kayano benefits from careful cleaning because mesh, synthetic overlays, and technical midsoles can show dirt quickly.",
+        "Performance pairs and retro lifestyle pairs both look best when the upper stays clean and the cushioning areas are kept free of heavy grime buildup.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Useful for removing dirt from mesh panels and technical overlays without damaging the upper.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Helps wipe down synthetic surfaces and dry the pair gently after cleaning.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "A sneaker-safe cleaner helps remove grime while protecting mixed materials.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Useful for loosening dirt without exposing the shoe to harsh cleaning conditions.",
+        },
+        {
+          label: "Protective Spray",
+          desc: "Helps defend lighter colorways against stains and light moisture.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out the laces so you can fully access the tongue and eyelet area.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush First",
+          desc: "Brush away loose dirt and dust before applying any water or cleaner.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Prepare the Cleaner",
+          desc: "Mix warm water with a sneaker-safe cleaning solution in a small bowl.",
+        },
+        {
+          step: "2",
+          label: "Clean Gently by Section",
+          desc: "Use soft circular motions across mesh, overlays, and the midsole without oversaturating the upper.",
+        },
+        {
+          step: "3",
+          label: "Wipe Away Residue",
+          desc: "Use a clean microfiber cloth to remove loosened dirt and leftover solution.",
+        },
+        {
+          step: "4",
+          label: "Air Dry Naturally",
+          desc: "Let the pair dry at room temperature away from direct heat or strong sunlight.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "ASICS Gel-Lyte III", href: "/encyclopedia/asics-gel-lyte-iii" },
+        { name: "New Balance 990v3", href: "/encyclopedia/new-balance-990v3" },
+        { name: "Nike Zoom Vomero 5", href: "/encyclopedia/nike-zoom-vomero-5" },
+        { name: "Salomon XT-6", href: "/encyclopedia/salomon-xt-6" },
+      ],
+    },
+
+
+
 
 
 
