@@ -37,6 +37,7 @@ export default function SneakerEncyclopediaTemplate({
 
   return (
     <div className="min-h-screen bg-white px-6 py-12 text-black">
+
       <div className="mx-auto max-w-5xl space-y-12">
         <header className="space-y-4">
           <div className="space-y-2">

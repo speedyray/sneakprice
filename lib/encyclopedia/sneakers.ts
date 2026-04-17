@@ -492,6 +492,400 @@ export const sneakers: Sneaker[] = [
 
     },
 
+    
+
+    {
+      slug: "air-max-95",
+      name: "Nike Air Max 95",
+      tagline:
+        "Inspired by the human body, the Air Max 95 revolutionized sneaker design with lible forefoot Air cushioning.",
+    
+      brand: "Nike",
+      firstRelease: "1995",
+      designer: "Sergio Lozano",
+      retailPrice: "$160–$180",
+    
+      tier: 2,
+    
+      images: [
+        {
+          src: "/encyclopedia/air-max-95/hero.jpg",
+          alt: "Nike Air Max 95",
+        },
+        {
+          src: "/encyclopedia/air-max-95/angle-1.jpg",
+          alt: "Nike Air Max 95 side view",
+        },
+        {
+          src: "/encyclopedia/air-max-95/angle-2.jpg",
+          alt: "Nike Air Max 95 alternate angle",
+        },
+        {
+          src: "/encyclopedia/air-max-95/detail.jpg",
+          alt: "Nike Air Max 95 detail view",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Nike Air Max 95 Market Overview",
+        demand: "Strong Demand",
+        avgResale: "$220",
+        trend: "Stable / Active",
+        volatility: "Medium",
+        liquidity: "Medium–High",
+        flipScore: "78 / 100",
+        description:
+          "The Air Max 95 remains one of Nike’s most iconic retro runners, with strong long-term demand driven by OG colorways, collector nostalgia, and high-heat collaborations.",
+      },
+    
+      history: [
+        "The Nike Air Max 95 was designed by Sergio Lozano, who took a bold and unconventional approach inspired by human anatomy and natural erosion patterns.",
+        "Its structure mirrors the human body — the midsole represents the spine, the eyelets act as ribs, and the layered upper reflects muscle fibers.",
+        "It became the first Air Max to feature visible forefoot Air units, introducing dual Air cushioning and redefining performance footwear.",
+        "Originally released in the iconic Neon colorway, the Air Max 95 quickly became a cultural symbol across streetwear, hip-hop, and global sneaker scenes.",
+      ],
+    
+      designIntro:
+        "The Air Max 95 is defined by its anatomy-inspired construction, gradient side panels, and the first-ever visible forefoot Air unit in the Air Max line.",
+    
+      designBullets: [
+        "Dual visible Air units in the forefoot and heel",
+        "Gradient layered upper inspired by erosion and human anatomy",
+        "Spine-inspired midsole and rib-like lace eyelets",
+        "Mesh, suede, and synthetic mixed-material construction",
+        "Bold midsole and aggressive paneling that defined 1990s runner design",
+      ],
+    
+      colorways: [
+        {
+          name: "Neon",
+          note: "The original and most iconic Air Max 95 colorway",
+          market: "Collector favorite",
+        },
+        {
+          name: "Solar Red",
+          note: "A popular OG-style follow-up with strong appeal",
+          market: "Strong demand",
+        },
+        {
+          name: "Stash",
+          note: "Highly regarded collaboration with premium collector interest",
+          market: "High resale",
+        },
+        {
+          name: "Corteiz Pink Beam",
+          note: "Modern collab with major hype and fast sell-through",
+          market: "Very hot",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Air Max 95 performs best in OG-inspired colorways and limited collaborations. Standard general releases often sit closer to retail, but strong storytelling and heritage pairs usually outperform.",
+        "From a reseller perspective, the Air Max 95 is less about constant hype and more about selective upside, nostalgia, and collector-driven demand.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "OG colorways & premium collaborations" },
+        { label: "Risk Level", value: "Moderate" },
+        { label: "Reseller Take", value: "Selective upside with strong heritage appeal" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "78 / 100",
+        liquidity: "Medium–High",
+        typicalMargin: "Moderate",
+        bestUse: "OG holds & selective collab flips",
+        bullets: [
+          "OG colorways usually carry the strongest long-term value.",
+          "Collaborations can create sharp spikes in resale performance.",
+          "A heritage-driven model with better collector appeal than everyday GR upside.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Air Max 95 Colorway Live",
+        description:
+          "Use SneakPrice to check live resale value, compare demand, and surface potential opportunities across Air Max 95 colorways.",
+        primaryHref: "/exchange",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/discover",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "View live resale signals",
+          "Track profitable flips",
+          "Compare demand and momentum instantly",
+        ],
+      },
+    
+      careIntro: [
+        "The Air Max 95 benefits from regular cleaning because its layered upper and mixed materials can collect dirt quickly.",
+        "Extra care is especially important on suede, mesh, and light-colored gradient panels to preserve the silhouette’s signature look.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Helps remove dirt from mesh and layered panels without damaging delicate materials.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Useful for wiping away surface dirt and drying the shoe gently after cleaning.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "A sneaker-safe cleaner helps preserve suede, mesh, and synthetic overlays.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Helps loosen grime without exposing the pair to harsh cleaning conditions.",
+        },
+        {
+          label: "Water & Stain Repellent",
+          desc: "Useful for protecting suede and mesh pairs from future wear and weather exposure.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out the laces so you can fully access the tongue, eyelets, and upper layers.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush First",
+          desc: "Brush off loose dirt and debris before introducing any water or cleaning solution.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Mix Cleaning Solution",
+          desc: "Combine warm water with a sneaker-safe cleaning solution in a small bowl.",
+        },
+        {
+          step: "2",
+          label: "Clean Gently by Section",
+          desc: "Use soft circular motions across mesh, suede panels, and the midsole without oversaturating the shoe.",
+        },
+        {
+          step: "3",
+          label: "Wipe Away Residue",
+          desc: "Use a clean microfiber cloth to remove loosened dirt and leftover cleaning solution.",
+        },
+        {
+          step: "4",
+          label: "Air Dry Naturally",
+          desc: "Let the pair dry at room temperature away from direct heat or sunlight.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Air Max 90", href: "/encyclopedia/air-max-90" },
+        { name: "Air Max 97", href: "/encyclopedia/air-max-97" },
+        { name: "Air Max 1", href: "/encyclopedia/air-max-1" },
+        { name: "Air Force 1", href: "/encyclopedia/air-force-1" },
+      ],
+    },
+
+
+    {
+      slug: "air-max-97",
+      name: "Nike Air Max 97",
+      tagline:
+        "The futuristic runner that introduced full-length visible Air and became one of Nike’s most recognizable silhouettes.",
+    
+      brand: "Nike",
+      firstRelease: "1997",
+      designer: "Christian Tresser",
+      retailPrice: "$180–$210",
+    
+      tier: 2,
+    
+      images: [
+        {
+          src: "/encyclopedia/air-max-97/hero.jpg",
+          alt: "Nike Air Max 97",
+        },
+        {
+          src: "/encyclopedia/air-max-97/angle-1.jpg",
+          alt: "Nike Air Max 97 side view",
+        },
+        {
+          src: "/encyclopedia/air-max-97/angle-2.jpg",
+          alt: "Nike Air Max 97 alternate angle",
+        },
+        {
+          src: "/encyclopedia/air-max-97/detail.jpg",
+          alt: "Nike Air Max 97 detail view",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Nike Air Max 97 Market Overview",
+        demand: "Strong Demand",
+        avgResale: "$210",
+        trend: "Stable / Active",
+        volatility: "Medium",
+        liquidity: "Medium–High",
+        flipScore: "76 / 100",
+        description:
+          "The Air Max 97 remains one of Nike’s most recognizable retro runners, with enduring demand driven by the iconic Silver Bullet colorway, global streetwear appeal, and occasional high-performing collaborations.",
+      },
+    
+      history: [
+        "Released in 1997, the Nike Air Max 97 pushed the Air Max line into a more futuristic direction with a streamlined upper and full-length visible Air cushioning.",
+        "Designer Christian Tresser drew inspiration from high-speed motion, giving the silhouette a fast, fluid look that stood apart from earlier, more layered Air Max models.",
+        "The Air Max 97 became especially iconic through its metallic finishes and bold reflective lines, helping define late-1990s Nike design language.",
+        "Over time, it grew into a streetwear staple with strong global recognition, especially around OG retros, regional popularity, and fashion-forward styling.",
+      ],
+    
+      designIntro:
+        "The Air Max 97 is defined by its wavy upper lines, reflective detailing, and the first full-length visible Air unit in Nike’s flagship Air Max line.",
+    
+      designBullets: [
+        "First full-length visible Air unit in the Air Max line",
+        "Rippled upper inspired by speed, motion, and aerodynamic design",
+        "Reflective piping that enhances the futuristic visual identity",
+        "Mixed-material upper with mesh, synthetic overlays, and metallic finishes",
+        "Slim, streamlined shape that made it one of Nike’s most futuristic runners of the 1990s",
+      ],
+    
+      colorways: [
+        {
+          name: "Silver Bullet",
+          note: "The most iconic Air Max 97 colorway and the pair most closely tied to the silhouette’s legacy.",
+          market: "Collector favorite",
+        },
+        {
+          name: "Metallic Gold",
+          note: "A bold and highly recognizable alternative OG-style colorway.",
+          market: "Strong demand",
+        },
+        {
+          name: "Triple White",
+          note: "A clean lifestyle-friendly version with broad everyday appeal.",
+          market: "Steady market",
+        },
+        {
+          name: "UNDEFEATED Collaboration",
+          note: "One of the standout collaboration runs associated with the model.",
+          market: "High resale",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Air Max 97 performs best through iconic OG colorways, strong retro storytelling, and notable collaborations. Standard GR pairs usually see more modest resale movement.",
+        "From a reseller perspective, the model offers better upside when tied to heritage colorways like Silver Bullet or limited-edition releases rather than routine general releases.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "OG colorways & selective collabs" },
+        { label: "Risk Level", value: "Moderate" },
+        { label: "Reseller Take", value: "Strong heritage appeal with selective upside" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "76 / 100",
+        liquidity: "Medium–High",
+        typicalMargin: "Moderate",
+        bestUse: "OG retros & premium collabs",
+        bullets: [
+          "Silver Bullet remains the key benchmark pair for long-term demand.",
+          "Collaborations and premium executions can outperform standard lifestyle releases.",
+          "More of a heritage-driven resale model than a constant hype sneaker.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Air Max 97 Colorway Live",
+        description:
+          "Use SneakPrice to check live resale value, compare demand, and surface market opportunities across Air Max 97 colorways.",
+        primaryHref: "/exchange",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/discover",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "View live resale signals",
+          "Track profitable flips",
+          "Compare demand and momentum instantly",
+        ],
+      },
+    
+      careIntro: [
+        "The Air Max 97 benefits from careful cleaning because reflective piping, mesh underlays, and metallic finishes can show wear quickly.",
+        "Extra attention should be given to the upper’s layered curves and visible Air sole unit to preserve the model’s clean futuristic look.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Useful for cleaning mesh panels and upper curves without damaging the surface.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Helps wipe away dirt gently and works especially well on metallic or smooth synthetic areas.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "A sneaker-safe cleaner helps preserve the upper while removing built-up grime.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Useful for loosening dirt without exposing the pair to harsh cleaning conditions.",
+        },
+        {
+          label: "Protective Spray",
+          desc: "Helps guard the upper against stains and light moisture, especially on lighter colorways.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out the laces so you can fully access the tongue, lace loops, and upper panels.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush the Upper",
+          desc: "Remove loose dust and debris before applying any water or cleaning solution.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Prepare the Cleaner",
+          desc: "Mix warm water with a sneaker-safe cleaning solution in a small bowl.",
+        },
+        {
+          step: "2",
+          label: "Clean in Gentle Motions",
+          desc: "Use soft circular motions across mesh, reflective lines, and synthetic overlays without oversaturating the upper.",
+        },
+        {
+          step: "3",
+          label: "Wipe Away Residue",
+          desc: "Use a clean microfiber cloth to remove loosened dirt and leftover solution.",
+        },
+        {
+          step: "4",
+          label: "Air Dry Naturally",
+          desc: "Let the pair dry at room temperature away from direct heat or strong sunlight.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Air Max 95", href: "/encyclopedia/air-max-95" },
+        { name: "Air Max 90", href: "/encyclopedia/air-max-90" },
+        { name: "Air Max 1", href: "/encyclopedia/air-max-1" },
+        { name: "Nike Zoom Vomero 5", href: "/encyclopedia/nike-zoom-vomero-5" },
+      ],
+    },
 
 
 
