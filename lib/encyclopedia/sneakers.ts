@@ -890,6 +890,212 @@ export const sneakers: Sneaker[] = [
 
 
 
+    {
+      slug: "adidas-superstar",
+      name: "Adidas Superstar",
+      tagline:
+        "The shell-toe icon that moved from hardwood performance to global streetwear legend and became one of Adidas’ most enduring silhouettes.",
+    
+      brand: "Adidas",
+      firstRelease: "1969",
+      designer: "Adidas",
+      retailPrice: "$100–$130",
+    
+      tier: 1,
+    
+      images: [
+        {
+          src: "/encyclopedia/adidas-superstar/hero.jpg",
+          alt: "Adidas Superstar white black shell toe",
+        },
+        {
+          src: "/encyclopedia/adidas-superstar/angle-1.jpg",
+          alt: "Adidas Superstar side view",
+        },
+        {
+          src: "/encyclopedia/adidas-superstar/angle-2.jpg",
+          alt: "Adidas Superstar black white profile",
+        },
+        {
+          src: "/encyclopedia/adidas-superstar/detail.jpg",
+          alt: "Adidas Superstar shell toe detail",
+        },
+        {
+          src: "/encyclopedia/adidas-superstar/on-feet.jpg",
+          alt: "Adidas Superstar on feet streetwear",
+        },
+        {
+          src: "/encyclopedia/adidas-superstar/top.jpg",
+          alt: "Adidas Superstar top view",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Adidas Superstar Market Overview",
+        demand: "Stable Demand",
+        avgResale: "$120",
+        trend: "Stable / Neutral",
+        volatility: "Low",
+        liquidity: "High",
+        flipScore: "64 / 100",
+        description:
+          "The Adidas Superstar remains one of the most recognizable sneakers ever made. Standard pairs usually trade close to retail, while collaborations and limited editions generate the strongest market movement.",
+      },
+    
+      history: [
+        "Originally introduced in 1969 as a low-top basketball shoe, the Adidas Superstar quickly gained attention for its leather upper and distinctive rubber shell toe.",
+        "It became one of the first widely adopted leather basketball sneakers, helping Adidas build credibility on the court during the 1970s.",
+        "Its true cultural explosion came in the 1980s, when the Superstar was embraced by hip-hop — most famously by Run-D.M.C., who helped transform it from sports product into streetwear icon.",
+        "Since then, the Superstar has remained a global staple across music, fashion, and everyday wear, making it one of the most enduring silhouettes in sneaker history.",
+      ],
+    
+      designIntro:
+        "The Adidas Superstar is defined by its iconic rubber shell toe, clean leather build, and timeless low-top shape that helped bridge performance footwear and street culture.",
+    
+      designBullets: [
+        "Signature rubber shell toe for protection and unmistakable identity",
+        "Leather upper with classic Three Stripes branding",
+        "Low-top silhouette with broad lifestyle versatility",
+        "Herringbone-pattern outsole for grip and durability",
+        "Simple panel construction that made the model easy to wear across eras and styles",
+      ],
+    
+      colorways: [
+        {
+          name: "White / Black",
+          note: "The definitive OG-style Adidas Superstar colorway and the pair most associated with the model’s legacy.",
+          market: "Classic staple",
+        },
+        {
+          name: "Triple White",
+          note: "A clean minimalist version popular for everyday wear.",
+          market: "Steady demand",
+        },
+        {
+          name: "Run-D.M.C. Edition",
+          note: "A heritage-driven version tied directly to the silhouette’s hip-hop legacy.",
+          market: "Collector interest",
+        },
+        {
+          name: "Pharrell and premium collaborations",
+          note: "Special editions that bring stronger hype and resale energy than standard releases.",
+          market: "Selective upside",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Adidas Superstar is generally a stability-driven sneaker rather than a high-margin resale model. Standard GR pairs usually trade near retail due to broad availability.",
+        "Where the Superstar becomes more interesting from a reseller perspective is through collaboration projects, premium executions, and culturally significant anniversary releases.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Classic staple & selective collabs" },
+        { label: "Risk Level", value: "Low" },
+        { label: "Reseller Take", value: "More dependable than explosive" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "64 / 100",
+        liquidity: "High",
+        typicalMargin: "Low–Moderate",
+        bestUse: "Fast-moving classic & collab targeting",
+        bullets: [
+          "Standard pairs are driven more by consistency than hype.",
+          "Collaborations and heritage-themed editions create the strongest upside.",
+          "A timeless model with reliable recognition but limited GR resale expansion.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Adidas Superstar Colorway Live",
+        description:
+          "Use SneakPrice to check live resale value, compare demand, and spot market opportunities across Adidas Superstar pairs.",
+        primaryHref: "/exchange",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/discover",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "View live resale signals",
+          "Track profitable flips",
+          "Compare demand instantly",
+        ],
+      },
+    
+      careIntro: [
+        "The Adidas Superstar is relatively easy to maintain, but the leather upper and rubber shell toe both benefit from regular cleaning to keep the pair looking sharp.",
+        "White-based colorways especially need routine care, since scuffs, dirt, and sole discoloration can show quickly on the shell toe and sidewalls.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Useful for removing loose dirt from the upper, outsole, and shell toe without scratching the surface.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Helps wipe down leather and rubber areas gently after cleaning.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "A sneaker-safe cleaner helps remove grime from leather and shell toe surfaces effectively.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Useful for loosening dirt while keeping the cleaning process gentle.",
+        },
+        {
+          label: "Magic Eraser or Rubber Cleaner",
+          desc: "Especially helpful for restoring the shell toe and midsole edges on white pairs.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out the laces so you can fully access the tongue and eyelet area.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush First",
+          desc: "Brush away loose dirt and dust before using water or cleaning solution.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Prepare the Cleaner",
+          desc: "Mix warm water with a sneaker-safe cleaning solution in a small bowl.",
+        },
+        {
+          step: "2",
+          label: "Clean the Leather and Shell Toe",
+          desc: "Use gentle circular motions across the leather panels and rubber shell toe without oversaturating the shoe.",
+        },
+        {
+          step: "3",
+          label: "Wipe Away Residue",
+          desc: "Use a clean microfiber cloth to remove loosened dirt and leftover solution.",
+        },
+        {
+          step: "4",
+          label: "Air Dry Naturally",
+          desc: "Let the pair dry at room temperature away from direct heat or strong sunlight.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Adidas Samba", href: "/encyclopedia/adidas-samba" },
+        { name: "Adidas Gazelle", href: "/encyclopedia/adidas-gazelle" },
+        { name: "Air Force 1", href: "/encyclopedia/air-force-1" },
+        { name: "Puma Suede Classic", href: "/encyclopedia/puma-suede-classic" },
+      ],
+    },
+
+
+
 
 
 
