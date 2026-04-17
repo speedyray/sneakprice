@@ -19,6 +19,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { type ArbDeal } from "@/components/ArbitrageDealCard";
 import SneakPriceResaleTerminal from "@/components/SneakPriceResaleTerminal";
+import HowItWorks from "@/components/HowItWorks";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const trendingTitles = [
@@ -941,6 +942,8 @@ export default function DiscoverPage() {
           )}
         </div>
       </div>
+
+      <HowItWorks />
 
       <div className="mt-24 max-w-5xl w-full">
         <h2 className="text-3xl font-bold mb-12 text-center">
