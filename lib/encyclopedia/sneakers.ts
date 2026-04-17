@@ -189,9 +189,9 @@ export const sneakers: Sneaker[] = [
       title: "Scan Any Air Jordan 1 Colorway Live",
       description:
         "View real-time resale value, compare demand, and surface potential arbitrage opportunities for Air Jordan 1 pairs across the market.",
-      primaryHref: "/exchange",
+      primaryHref: "/",
       primaryLabel: "Scan it with SneakPrice →",
-      secondaryHref: "/discover",
+      secondaryHref: "/exchange",
       secondaryLabel: "Open market tools",
       bullets: [
         "View live resale signals",
@@ -294,9 +294,9 @@ export const sneakers: Sneaker[] = [
       title: "Scan Any Air Force 1 Colorway Live",
       description:
         "View real-time resale value, compare demand, and surface potential arbitrage opportunities for Air Force 1 pairs across the market.",
-      primaryHref: "/exchange",
+      primaryHref: "/",
       primaryLabel: "Scan it with SneakPrice →",
-      secondaryHref: "/discover",
+      secondaryHref: "/exchange",
       secondaryLabel: "Open market tools",
       bullets: [
         "View live resale signals",
@@ -406,9 +406,9 @@ export const sneakers: Sneaker[] = [
       title: "Check Live Resale Value",
       description:
         "Scan any Nike Air Max 90 colorway with SneakPrice to view live resale data, monitor demand, and discover potential arbitrage opportunities.",
-      primaryHref: "/exchange",
+      primaryHref: "/",
       primaryLabel: "Scan it with SneakPrice →",
-      secondaryHref: "/discover",
+      secondaryHref: "/exchange",
       secondaryLabel: "Open market tools",
       bullets: [
         "View live resale signals",
@@ -607,9 +607,9 @@ export const sneakers: Sneaker[] = [
         title: "Scan Any Air Max 95 Colorway Live",
         description:
           "Use SneakPrice to check live resale value, compare demand, and surface potential opportunities across Air Max 95 colorways.",
-        primaryHref: "/exchange",
+        primaryHref: "/",
         primaryLabel: "Scan it with SneakPrice →",
-        secondaryHref: "/discover",
+        secondaryHref: "/exchange",
         secondaryLabel: "Open market tools",
         bullets: [
           "View live resale signals",
@@ -804,9 +804,9 @@ export const sneakers: Sneaker[] = [
         title: "Scan Any Air Max 97 Colorway Live",
         description:
           "Use SneakPrice to check live resale value, compare demand, and surface market opportunities across Air Max 97 colorways.",
-        primaryHref: "/exchange",
+        primaryHref: "/",
         primaryLabel: "Scan it with SneakPrice →",
-        secondaryHref: "/discover",
+        secondaryHref: "/exchange",
         secondaryLabel: "Open market tools",
         bullets: [
           "View live resale signals",
@@ -1011,9 +1011,9 @@ export const sneakers: Sneaker[] = [
         title: "Scan Any Adidas Superstar Colorway Live",
         description:
           "Use SneakPrice to check live resale value, compare demand, and spot market opportunities across Adidas Superstar pairs.",
-        primaryHref: "/exchange",
+        primaryHref: "/",
         primaryLabel: "Scan it with SneakPrice →",
-        secondaryHref: "/discover",
+        secondaryHref: "/exchange",
         secondaryLabel: "Open market tools",
         bullets: [
           "View live resale signals",
@@ -1218,9 +1218,9 @@ export const sneakers: Sneaker[] = [
         title: "Scan Any Adidas Stan Smith Colorway Live",
         description:
           "Use SneakPrice to check live resale value, compare demand, and spot market opportunities across Adidas Stan Smith pairs.",
-        primaryHref: "/exchange",
+        primaryHref: "/",
         primaryLabel: "Scan it with SneakPrice →",
-        secondaryHref: "/discover",
+        secondaryHref: "/exchange",
         secondaryLabel: "Open market tools",
         bullets: [
           "View live resale signals",
@@ -1424,9 +1424,9 @@ export const sneakers: Sneaker[] = [
         title: "Scan Any ASICS Gel-Kayano Colorway Live",
         description:
           "Use SneakPrice to check live resale value, compare demand, and spot market opportunities across ASICS Gel-Kayano pairs.",
-        primaryHref: "/exchange",
+        primaryHref: "/",
         primaryLabel: "Scan it with SneakPrice →",
-        secondaryHref: "/discover",
+        secondaryHref: "/exchange",
         secondaryLabel: "Open market tools",
         bullets: [
           "View live resale signals",

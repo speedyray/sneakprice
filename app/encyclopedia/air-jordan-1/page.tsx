@@ -294,13 +294,13 @@ export default function AirJordan1Page() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/exchange"
+                href="/"
                 className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-base font-bold text-white shadow-md transition hover:bg-green-700 active:scale-95"
               >
                 Scan it with SneakPrice →
               </Link>
               <Link
-                href="/discover"
+                href="/exchange"
                 className="inline-flex items-center gap-2 rounded-xl border border-green-600 px-6 py-3 text-base font-bold text-green-700 transition hover:bg-green-50"
               >
                 Open market tools
