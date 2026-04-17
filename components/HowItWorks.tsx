@@ -88,6 +88,22 @@ export default function HowItWorks() {
         .hiw-stat-val {
           animation: hiw-count-up 0.5s ease-out 0.6s both;
         }
+
+        .hiw-phones-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 18px;
+          align-items: end;
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+
+        @media (max-width: 767px) {
+          .hiw-phones-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+          }
+        }
       `}</style>
 
       <section className="hiw-section w-full max-w-6xl mx-auto px-4 mb-16">
@@ -143,14 +159,7 @@ export default function HowItWorks() {
         </div>
 
         {/* Phone grid */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 18,
-          alignItems: "end",
-          maxWidth: 1000,
-          margin: "0 auto",
-        }}>
+        <div className="hiw-phones-grid">
 
           {/* ── PHONE 1: SCAN ── */}
           <PhoneWrapper stepNum="01" stepLabel="Scan Sneaker" caption="Snap or upload instantly">
