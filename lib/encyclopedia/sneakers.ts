@@ -1510,6 +1510,785 @@ export const sneakers: Sneaker[] = [
 
 
 
+    {
+      slug: "blazer-mid",
+      name: "Nike Blazer Mid",
+      tagline:
+        "One of Nike’s earliest basketball sneakers, the Blazer Mid has evolved into a timeless lifestyle staple defined by its clean design, vintage feel, and everyday versatility.",
+    
+      brand: "Nike",
+      firstRelease: "1973",
+      designer: "Nike Design Team",
+      retailPrice: "$100–$120",
+    
+      tier: 1,
+    
+      images: [
+        {
+          src: "/encyclopedia/blazer-mid/hero.jpg",
+          alt: "Nike Blazer Mid",
+        },
+        {
+          src: "/encyclopedia/blazer-mid/angle-1.jpg",
+          alt: "Nike Blazer Mid side view",
+        },
+        {
+          src: "/encyclopedia/blazer-mid/angle-2.jpg",
+          alt: "Nike Blazer Mid alternate angle",
+        },
+        {
+          src: "/encyclopedia/blazer-mid/detail.jpg",
+          alt: "Nike Blazer Mid detail view",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Nike Blazer Mid Market Overview",
+        demand: "Consistent Demand",
+        avgResale: "$90–$150",
+        trend: "Stable",
+        volatility: "Low",
+        liquidity: "High",
+        flipScore: "52 / 100",
+        description:
+          "The Blazer Mid is a stable, everyday sneaker with consistent demand driven by its simplicity and versatility. While general releases rarely generate strong resale, collaborations and limited editions can perform significantly better.",
+      },
+    
+      history: [
+        "The Nike Blazer debuted in 1973 as one of Nike’s first basketball sneakers, named after the Portland Trail Blazers.",
+        "Originally worn by NBA players, the Blazer quickly became known for its simple leather construction and bold Swoosh branding.",
+        "By the 1980s, the silhouette was phased out of performance basketball but remained popular in casual and skate communities.",
+        "Its revival in the 2000s as a lifestyle sneaker cemented the Blazer Mid as a timeless staple across streetwear and fashion.",
+      ],
+    
+      designIntro:
+        "The Blazer Mid is defined by its minimalist construction, vintage basketball DNA, and clean silhouette that transitions easily between casual and streetwear styling.",
+    
+      designBullets: [
+        "Classic leather or suede upper with clean paneling",
+        "Oversized Swoosh for bold visual identity",
+        "Vulcanized rubber sole for flexibility and durability",
+        "Exposed foam tongue on vintage models",
+        "Slim, streamlined profile compared to modern sneakers",
+      ],
+    
+      colorways: [
+        {
+          name: "White / Black",
+          note: "The most iconic and versatile Blazer Mid colorway",
+          market: "Everyday staple",
+        },
+        {
+          name: "Sail Vintage",
+          note: "A retro-inspired version with aged midsole detailing",
+          market: "Strong lifestyle demand",
+        },
+        {
+          name: "Black / White",
+          note: "A clean reverse look with wide appeal",
+          market: "Stable",
+        },
+        {
+          name: "Off-White Collaboration",
+          note: "Virgil Abloh’s reimagined Blazer with exposed details",
+          market: "High resale",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Blazer Mid is not a hype-driven resale sneaker, with most general releases staying close to or below retail due to high supply and consistent availability.",
+        "However, collaborations and limited-edition releases—especially from high-profile partners—can generate strong resale performance and collector demand.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Everyday wear & selective collaborations" },
+        { label: "Risk Level", value: "Low" },
+        { label: "Reseller Take", value: "Limited upside outside of collabs" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "52 / 100",
+        liquidity: "High",
+        typicalMargin: "Low",
+        bestUse: "Personal wear & selective collab flips",
+        bullets: [
+          "General releases rarely offer strong resale margins.",
+          "Collaborations can significantly outperform standard pairs.",
+          "A reliable model for consistent demand but not high-profit flipping.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Blazer Mid Colorway Live",
+        description:
+          "Use SneakPrice to check live resale value, track demand trends, and identify potential opportunities across Blazer Mid releases.",
+        primaryHref: "/",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/exchange",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "View live resale signals",
+          "Compare pricing across marketplaces",
+          "Track demand and stability instantly",
+        ],
+      },
+    
+      careIntro: [
+        "The Blazer Mid is easy to maintain due to its simple construction, but leather and suede versions require regular care to keep them looking clean.",
+        "Vintage models with exposed foam and lighter tones benefit from extra attention to avoid discoloration over time.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Ideal for removing dirt from leather and suede without causing damage.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Helps wipe away dirt and moisture gently.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "Safe for leather, suede, and rubber surfaces.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Used to dilute cleaning solution and lift dirt effectively.",
+        },
+        {
+          label: "Suede Eraser",
+          desc: "Useful for maintaining suede panels and removing marks.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out laces to clean the tongue and upper thoroughly.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush",
+          desc: "Brush off loose dirt before applying any cleaning solution.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Mix Cleaning Solution",
+          desc: "Combine warm water with a sneaker-safe cleaner.",
+        },
+        {
+          step: "2",
+          label: "Clean Upper Gently",
+          desc: "Use soft circular motions across leather or suede areas.",
+        },
+        {
+          step: "3",
+          label: "Wipe Down",
+          desc: "Remove excess solution with a clean microfiber cloth.",
+        },
+        {
+          step: "4",
+          label: "Air Dry",
+          desc: "Allow the sneakers to dry naturally away from direct heat.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Blazer Low", href: "/encyclopedia/blazer-low" },
+        { name: "Dunk High", href: "/encyclopedia/dunk-high" },
+        { name: "Air Force 1", href: "/encyclopedia/air-force-1" },
+        { name: "Air Jordan 1", href: "/encyclopedia/air-jordan-1" },
+      ],
+    },
+
+
+
+    /** Brooks Ghost * */
+
+    {
+      slug: "brooks-ghost",
+      name: "Brooks Ghost",
+      tagline:
+        "A dependable neutral daily trainer, the Brooks Ghost built its reputation on soft cushioning, smooth transitions, and an easygoing ride that works for runners, walkers, and all-day wear alike.",
+    
+      brand: "Brooks",
+      firstRelease: "2008",
+      designer: "Brooks Running Design Team",
+      retailPrice: "$140–$160",
+    
+      tier: 1,
+    
+      images: [
+        {
+          src: "/encyclopedia/brooks-ghost/hero.jpg",
+          alt: "Brooks Ghost",
+        },
+        {
+          src: "/encyclopedia/brooks-ghost/angle-1.jpg",
+          alt: "Brooks Ghost side view",
+        },
+        {
+          src: "/encyclopedia/brooks-ghost/angle-2.jpg",
+          alt: "Brooks Ghost alternate angle",
+        },
+        {
+          src: "/encyclopedia/brooks-ghost/detail.jpg",
+          alt: "Brooks Ghost detail view",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Brooks Ghost Market Overview",
+        demand: "Consistent Demand",
+        avgResale: "$70–$130",
+        trend: "Stable",
+        volatility: "Low",
+        liquidity: "Medium",
+        flipScore: "38 / 100",
+        description:
+          "The Brooks Ghost is a high-volume performance runner with steady demand in the everyday running and walking market. Most pairs behave like practical wear pairs rather than collectible sneakers, so resale is usually modest outside of special editions or hard-to-find sizes.",
+      },
+    
+      history: [
+        "The Brooks Ghost debuted in 2008 and gradually became one of the brand’s signature neutral daily trainers.",
+        "Over time, the Ghost line built a reputation for balanced cushioning, comfort, and a smooth ride that appealed to runners at many experience levels.",
+        "Brooks continued evolving the line through repeated annual updates, using runner feedback to refine fit, transitions, and underfoot feel.",
+        "Modern Ghost models sit at the center of Brooks’ running lineup as versatile road shoes that also cross over well into walking and casual everyday use.",
+      ],
+    
+      designIntro:
+        "The Brooks Ghost is defined by its soft cushioning, comfortable upper, and smooth heel-to-toe ride, making it one of the most approachable daily trainers in performance running.",
+    
+      designBullets: [
+        "Neutral daily trainer built for road running and walking",
+        "Soft cushioned platform designed for comfort over long mileage",
+        "Smooth heel-to-toe transitions for an easy, distraction-free ride",
+        "Breathable engineered upper with structured everyday fit",
+        "Consistent, dependable design philosophy across many generations",
+      ],
+    
+      colorways: [
+        {
+          name: "Black / White",
+          note: "A versatile staple often used for both running and everyday wear",
+          market: "Stable",
+        },
+        {
+          name: "Grey / Blue",
+          note: "A classic performance-runner palette common across Ghost releases",
+          market: "Consistent",
+        },
+        {
+          name: "White / Silver",
+          note: "Clean neutral option with crossover casual appeal",
+          market: "Steady demand",
+        },
+        {
+          name: "Seasonal Limited Editions",
+          note: "Occasional color updates and special packs add short-term interest",
+          market: "Selective",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Brooks Ghost is not a hype resale model. Most pairs depreciate after release because the line is produced at scale and purchased primarily for performance, comfort, and daily wear.",
+        "From a reseller perspective, the Ghost behaves more like a practical footwear product than a collectible sneaker. Limited editions and uncommon colorways may hold value better, but standard pairs are usually strongest for personal wear rather than flipping.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Daily wear, running, and comfort-focused buyers" },
+        { label: "Risk Level", value: "Low" },
+        { label: "Reseller Take", value: "Minimal flip upside outside selective releases" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "38 / 100",
+        liquidity: "Medium",
+        typicalMargin: "Low",
+        bestUse: "Personal wear & selective niche resale",
+        bullets: [
+          "General releases usually sit below or near retail on the secondary market.",
+          "Demand is driven more by function and comfort than by hype.",
+          "Best suited for wearers, with only occasional niche upside for special editions.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Brooks Ghost Pair Live",
+        description:
+          "Use SneakPrice to compare current resale value, check pricing across marketplaces, and track demand on Brooks Ghost releases.",
+        primaryHref: "/",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/exchange",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "Compare resale pricing instantly",
+          "Track performance-runner demand",
+          "Spot selective opportunities across Ghost versions",
+        ],
+      },
+    
+      careIntro: [
+        "The Brooks Ghost is built as a daily trainer, so it benefits from regular cleaning to keep mesh uppers, midsoles, and outsoles looking fresh.",
+        "Because many Ghost pairs use breathable engineered mesh and soft foam, gentle cleaning is the best way to preserve both appearance and comfort.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Useful for removing dirt from mesh uppers and outsole grooves without damaging the material.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Helps wipe away residue and dry the shoe gently after cleaning.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "A mild cleaner works well on mesh, midsoles, and rubber outsoles.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Helps loosen dirt while keeping the cleaning process gentle.",
+        },
+        {
+          label: "Stuffing Paper or Shoe Trees",
+          desc: "Helps the pair keep its shape while drying naturally.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out the laces so you can clean the tongue and eyelet area properly.",
+        },
+        {
+          step: "2",
+          label: "Brush Off Dry Dirt",
+          desc: "Use a soft brush first to remove loose debris before adding water or cleaner.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Mix Cleaning Solution",
+          desc: "Combine warm water with a mild sneaker-safe cleaner.",
+        },
+        {
+          step: "2",
+          label: "Clean Mesh and Midsole Gently",
+          desc: "Use soft circular motions across the upper and midsole without soaking the shoe.",
+        },
+        {
+          step: "3",
+          label: "Wipe Away Residue",
+          desc: "Use a microfiber cloth to remove leftover cleaner and loosened dirt.",
+        },
+        {
+          step: "4",
+          label: "Air Dry Naturally",
+          desc: "Let the shoes dry at room temperature away from direct sun or heat sources.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Brooks Glycerin", href: "/encyclopedia/brooks-glycerin" },
+        { name: "Brooks Adrenaline GTS", href: "/encyclopedia/brooks-adrenaline-gts" },
+        { name: "Nike Pegasus", href: "/encyclopedia/nike-pegasus" },
+        { name: "ASICS Gel-Nimbus", href: "/encyclopedia/asics-gel-nimbus" },
+      ],
+    },
+
+
+
+
+/* Bottega Veneta Speedster */
+
+    {
+      slug: "bottega-veneta-speedster",
+      name: "Bottega Veneta Speedster",
+      tagline:
+        "A luxury knit sneaker blending high-fashion craftsmanship with minimalist design, the Bottega Veneta Speedster delivers understated performance-inspired aesthetics with premium materials.",
+    
+      brand: "Bottega Veneta",
+      firstRelease: "Late 2010s",
+      designer: "Bottega Veneta Design Team",
+      retailPrice: "$750–$950",
+    
+      tier: 3,
+    
+      images: [ {
+        src: "/encyclopedia/bottega-veneta-speedster/hero.jpg",
+        alt: "Bottega Veneta Speedster",
+      },],
+    
+      marketSnapshot: {
+        title: "Bottega Veneta Speedster Market Overview",
+        demand: "Niche Luxury Demand",
+        avgResale: "$350–$800",
+        trend: "Selective",
+        volatility: "Medium",
+        liquidity: "Low–Medium",
+        flipScore: "58 / 100",
+        description:
+          "The Speedster sits in the luxury sneaker segment, where demand is driven by fashion cycles rather than performance or hype. Resale varies widely depending on condition, color, and seasonality.",
+      },
+    
+      history: [
+        "The Bottega Veneta Speedster emerged during the late 2010s as luxury fashion houses expanded deeper into sneaker culture.",
+        "Designed as part of Bottega Veneta’s modern footwear lineup, the Speedster reflects the brand’s emphasis on craftsmanship, minimalism, and material quality.",
+        "Unlike traditional athletic sneakers, the Speedster was never built for sport performance but instead positioned as a luxury lifestyle silhouette.",
+        "The model gained attention through fashion circles, runway styling, and its association with high-end streetwear trends.",
+      ],
+    
+      designIntro:
+        "The Bottega Veneta Speedster is defined by its sleek knit construction, sculpted sole, and luxury-focused minimal aesthetic that prioritizes comfort and refined design over athletic performance.",
+    
+      designBullets: [
+        "Stretch knit upper for a sock-like fit",
+        "Minimal branding consistent with Bottega Veneta’s design philosophy",
+        "Lightweight construction focused on comfort",
+        "Sculpted rubber sole with modern luxury styling",
+        "Clean, understated silhouette suited for fashion-forward outfits",
+      ],
+    
+      colorways: [
+        {
+          name: "Triple Black",
+          note: "A versatile and popular luxury staple",
+          market: "Steady",
+        },
+        {
+          name: "Neutral Beige",
+          note: "Minimal tone aligned with luxury fashion palettes",
+          market: "Moderate",
+        },
+        {
+          name: "Grey / White",
+          note: "Clean and understated aesthetic",
+          market: "Selective",
+        },
+        {
+          name: "Seasonal Fashion Colors",
+          note: "Runway-driven releases tied to seasonal collections",
+          market: "Varies",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "The Bottega Veneta Speedster operates within the luxury resale market, where value is influenced more by brand perception and fashion cycles than sneaker hype.",
+        "Resale performance depends heavily on condition, rarity, and timing relative to current fashion trends, with most pairs depreciating after retail purchase.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Luxury fashion wear" },
+        { label: "Risk Level", value: "Moderate" },
+        { label: "Reseller Take", value: "Unpredictable, fashion-driven demand" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "58 / 100",
+        liquidity: "Low–Medium",
+        typicalMargin: "Low–Moderate",
+        bestUse: "Selective resale & personal luxury wear",
+        bullets: [
+          "Resale value depends heavily on condition and fashion trends.",
+          "Not a hype sneaker — demand is niche and style-driven.",
+          "Better suited for personal wear than consistent flipping.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Luxury Market Tool",
+        title: "Track Bottega Veneta Sneaker Value",
+        description:
+          "Use SneakPrice to compare resale prices, monitor demand, and analyze luxury sneaker trends across Bottega Veneta releases.",
+        primaryHref: "/",
+        primaryLabel: "Check market value →",
+        secondaryHref: "/exchange",
+        secondaryLabel: "Explore insights",
+        bullets: [
+          "Compare luxury resale pricing",
+          "Track fashion-driven demand",
+          "Analyze niche market trends",
+        ],
+      },
+    
+      careIntro: [
+        "The Bottega Veneta Speedster requires careful maintenance due to its knit upper and luxury materials.",
+        "Proper care helps preserve both the structure and premium appearance of the sneaker.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Useful for gently cleaning knit materials without damaging fibers.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Helps remove surface dirt and moisture safely.",
+        },
+        {
+          label: "Mild Cleaning Solution",
+          desc: "Essential for delicate luxury materials.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Used carefully to avoid oversaturating the knit upper.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Surface Dirt",
+          desc: "Use a soft brush to clean the knit upper gently.",
+        },
+        {
+          step: "2",
+          label: "Prepare Cleaning Solution",
+          desc: "Mix mild cleaner with warm water.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Clean Gently",
+          desc: "Use light motions to avoid damaging the knit material.",
+        },
+        {
+          step: "2",
+          label: "Wipe Excess Moisture",
+          desc: "Use a microfiber cloth to remove residue.",
+        },
+        {
+          step: "3",
+          label: "Air Dry",
+          desc: "Allow to dry naturally away from heat sources.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Balenciaga Speed Trainer", href: "/encyclopedia/balenciaga-speed-trainer" },
+        { name: "Adidas Ultraboost", href: "/encyclopedia/adidas-ultraboost" },
+        { name: "Nike React Phantom Run", href: "/encyclopedia/nike-react-phantom-run" },
+        { name: "Common Projects Achilles Low", href: "/encyclopedia/common-projects-achilles-low" },
+      ],
+    },
+
+
+    /** Chuck Taylor All Star */
+
+    {
+      slug: "chuck-taylor-all-star",
+      name: "Converse Chuck Taylor All Star",
+      tagline:
+        "One of the most iconic sneakers ever made, the Chuck Taylor All Star blends basketball heritage, timeless simplicity, and cross-generational cultural relevance.",
+    
+      brand: "Converse",
+      firstRelease: "1917",
+      designer: "Converse / Chuck Taylor influence",
+      retailPrice: "$60–$90",
+    
+      tier: 2,
+    
+      images: [
+        {
+          src: "/encyclopedia/chuck-taylor-all-star/hero.jpg",
+          alt: "Converse Chuck Taylor All Star",
+        },
+        {
+          src: "/encyclopedia/chuck-taylor-all-star/angle-1.jpg",
+          alt: "Converse Chuck Taylor All Star side view",
+        },
+        {
+          src: "/encyclopedia/chuck-taylor-all-star/angle-2.jpg",
+          alt: "Converse Chuck Taylor All Star alternate angle",
+        },
+        {
+          src: "/encyclopedia/chuck-taylor-all-star/detail.jpg",
+          alt: "Converse Chuck Taylor All Star detail view",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Chuck Taylor All Star Market Overview",
+        demand: "Very Strong Demand",
+        avgResale: "$50–$140",
+        trend: "Stable",
+        volatility: "Low",
+        liquidity: "High",
+        flipScore: "46 / 100",
+        description:
+          "The Chuck Taylor All Star is a global evergreen sneaker with extremely strong demand as a wear pair, but most standard releases have limited resale upside. Collaborations and special editions perform much better than everyday core colorways.",
+      },
+    
+      history: [
+        "The Converse All Star debuted in 1917 as a basketball sneaker and quickly became one of the earliest mass-recognized athletic shoes.",
+        "Chuck Taylor, a basketball player and Converse salesman, helped popularize the model and his name was later added to the ankle patch.",
+        "The shoe became a dominant force in basketball before performance footwear evolved beyond its simple canvas-and-rubber construction.",
+        "Over the decades, the Chuck Taylor All Star transitioned from the court into music, skate, punk, streetwear, and everyday global fashion culture.",
+      ],
+    
+      designIntro:
+        "The Chuck Taylor All Star is defined by its canvas upper, rubber toe cap, vulcanized sole, and unmistakable high-top or low-top silhouette that has remained visually consistent for generations.",
+    
+      designBullets: [
+        "Classic canvas upper with lightweight feel",
+        "Signature rubber toe cap and toe bumper",
+        "Vulcanized rubber sole for flexibility and grip",
+        "Iconic circular ankle patch on high-top versions",
+        "Simple, timeless shape that works across countless styles",
+      ],
+    
+      colorways: [
+        {
+          name: "Black High Top",
+          note: "The most iconic and universally recognized Chuck Taylor colorway",
+          market: "Everyday staple",
+        },
+        {
+          name: "White High Top",
+          note: "A clean classic with strong summer and lifestyle appeal",
+          market: "Stable",
+        },
+        {
+          name: "Red High Top",
+          note: "A heritage color with strong visual identity",
+          market: "Consistent demand",
+        },
+        {
+          name: "Comme des Garçons PLAY",
+          note: "The most recognizable modern collaboration in the Chuck Taylor line",
+          market: "High resale",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "Standard Chuck Taylor All Star pairs are produced at scale and are usually purchased for wear rather than resale, keeping most general release pricing near or below retail.",
+        "The strongest market movement comes from collaborations, premium builds, and limited-edition releases that tap into fashion or collector demand beyond the standard canvas models.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Everyday wear & selective collaborations" },
+        { label: "Risk Level", value: "Low" },
+        { label: "Reseller Take", value: "Core pairs are weak flips, collabs are stronger" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "46 / 100",
+        liquidity: "High",
+        typicalMargin: "Low",
+        bestUse: "Personal wear & selective collab flips",
+        bullets: [
+          "Core canvas pairs usually stay close to retail or below.",
+          "Collaborations often outperform standard GRs by a wide margin.",
+          "A cultural icon with huge wear demand but limited everyday resale upside.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Chuck Taylor Pair Live",
+        description:
+          "Use SneakPrice to compare resale pricing, track demand, and identify opportunities across Chuck Taylor classics and collaborations.",
+        primaryHref: "/",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/exchange",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "Track live resale signals",
+          "Compare classic pairs vs collabs",
+          "Spot stronger limited releases instantly",
+        ],
+      },
+    
+      careIntro: [
+        "The Chuck Taylor All Star is easy to maintain, but canvas uppers and white rubber areas can collect visible dirt quickly.",
+        "Regular cleaning helps preserve both the upper and the signature foxing, especially on lighter colorways.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Helps remove loose dirt from canvas and rubber without damaging the material.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Useful for wiping away residue and drying the shoe gently after cleaning.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "Safe for canvas uppers and rubber midsoles when used lightly.",
+        },
+        {
+          label: "Warm Water",
+          desc: "Helps loosen dirt and stains during the cleaning process.",
+        },
+        {
+          label: "Magic Eraser",
+          desc: "Useful for brightening white rubber foxing and toe caps.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Take out the laces so you can clean the tongue and eyelet area properly.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush First",
+          desc: "Remove loose dirt from canvas and rubber before using water or cleaning solution.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Mix Cleaning Solution",
+          desc: "Combine warm water with a mild sneaker-safe cleaner.",
+        },
+        {
+          step: "2",
+          label: "Clean Canvas Gently",
+          desc: "Use soft circular motions to lift dirt without oversaturating the upper.",
+        },
+        {
+          step: "3",
+          label: "Wipe Rubber Areas",
+          desc: "Clean the toe cap, foxing, and midsole with a cloth or eraser for a brighter finish.",
+        },
+        {
+          step: "4",
+          label: "Air Dry Naturally",
+          desc: "Let the pair dry at room temperature away from direct heat or sunlight.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Chuck 70", href: "/encyclopedia/chuck-70" },
+        { name: "Vans Old Skool", href: "/encyclopedia/vans-old-skool" },
+        { name: "Nike Blazer Mid", href: "/encyclopedia/blazer-mid" },
+        { name: "Adidas Samba", href: "/encyclopedia/adidas-samba" },
+      ],
+    },
+
+
+
+
+
+
+
 
 
 

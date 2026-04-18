@@ -23,7 +23,7 @@ const sneakersByLetter: Record<string, { name: string; slug: string }[]> = {
   B: [
     { name: "Blazer Mid", slug: "blazer-mid" },
     { name: "Brooks Ghost", slug: "brooks-ghost" },
-    { name: "Bottega Veneta Speedster", slug: "bottega-venata-speedster" },
+    { name: "Bottega Veneta Speedster", slug: "bottega-veneta-speedster" },
   ],
   C: [
     { name: "Chuck Taylor All Star", slug: "chuck-taylor-all-star" },
