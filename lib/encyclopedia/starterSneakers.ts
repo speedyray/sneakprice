@@ -740,16 +740,6 @@ export type SneakerStarterEntry = {
       relatedSlugs: [],
     },
     {
-      slug: "clan-ultra",
-      name: "Clan Ultra",
-      brand: "Independent / niche",
-      family: "Lifestyle",
-      silhouette: "Low",
-      tier: 3,
-      tagline: "A niche long-tail sneaker entry for broader encyclopedia coverage.",
-      relatedSlugs: [],
-    },
-    {
       slug: "air-jordan-1-low",
       name: "Air Jordan 1 Low",
       brand: "Jordan Brand",

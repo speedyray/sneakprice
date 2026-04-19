@@ -2285,6 +2285,213 @@ export const sneakers: Sneaker[] = [
 
 
 
+    /* Nike Cortez Sneakers */
+
+    {
+      slug: "cortez",
+      name: "Cortez",
+      tagline:
+        "Nike’s first-ever shoe and an enduring cultural landmark, the Cortez blends 1970s running heritage, timeless low-profile design, and decades of pop culture relevance.",
+    
+      brand: "Nike",
+      firstRelease: "1972",
+      designer: "Bill Bowerman",
+      retailPrice: "$90–$120",
+    
+      tier: 2,
+    
+      images: [
+        {
+          src: "/encyclopedia/cortez/hero.jpg",
+          alt: "Nike Cortez",
+        },
+        {
+          src: "/encyclopedia/cortez/angle-1.jpg",
+          alt: "Nike Cortez side view",
+        },
+        {
+          src: "/encyclopedia/cortez/angle-2.jpg",
+          alt: "Nike Cortez alternate angle",
+        },
+        {
+          src: "/encyclopedia/cortez/detail.jpg",
+          alt: "Nike Cortez Swoosh detail",
+        },
+      ],
+    
+      marketSnapshot: {
+        title: "Nike Cortez Market Overview",
+        demand: "Moderate Demand",
+        avgResale: "$60–$160",
+        trend: "Stable",
+        volatility: "Low",
+        liquidity: "Moderate",
+        flipScore: "38 / 100",
+        description:
+          "The Nike Cortez is a heritage lifestyle sneaker with strong wear demand and limited everyday resale upside. Standard GRs hover near or below retail, but select collaborations and special editions attract collector interest and meaningful price premiums.",
+      },
+    
+      history: [
+        "The Cortez was originally developed in 1972 through a collaboration between Bill Bowerman, Phil Knight, and Onitsuka Tiger — first sold as the Tiger Cortez before the Nike/Onitsuka partnership dissolved.",
+        "When the two companies split, Nike launched the Cortez under its own name in 1972, making it effectively Nike’s first original silhouette.",
+        "Through the late 1970s and 1980s, the Cortez became a staple of Southern California street culture, worn by everyone from athletes to gang members, embedding itself in LA identity.",
+        "The shoe’s cultural footprint exploded globally after Tom Hanks wore a red, white, and blue pair throughout the 1994 film Forrest Gump — one of the most iconic sneaker placements in cinema history.",
+        "Nike has periodically refreshed the Cortez with premium materials, collaborations, and women’s-focused releases that have introduced the silhouette to new generations.",
+      ],
+    
+      designIntro:
+        "The Nike Cortez is defined by its low-profile cupsole construction, nylon or leather upper, bold Swoosh placement, and foam-cushioned midsole that was considered innovative for running footwear in its era.",
+    
+      designBullets: [
+        "Clean nylon or leather upper with structured overlays",
+        "Prominent curved Swoosh on the lateral panel",
+        "Low-profile cupsole with foam-cushioned midsole",
+        "Rounded toe box with a retro athletic silhouette",
+        "Classic red, white, and blue color blocking on the OG colorway",
+      ],
+    
+      colorways: [
+        {
+          name: "White / Varsity Red / Navy",
+          note: "The original OG colorway — the most recognized and most reproduced Cortez ever made",
+          market: "Iconic staple",
+        },
+        {
+          name: "White / Black",
+          note: "A clean, versatile everyday option with consistent lifestyle demand",
+          market: "Stable",
+        },
+        {
+          name: "All White",
+          note: "Minimal and clean — popular as a summer and fashion-forward lifestyle pair",
+          market: "Steady demand",
+        },
+        {
+          name: "Sacai x Nike Cortez 4.0",
+          note: "Elevated design collaboration with layered detailing and premium materials",
+          market: "Strong resale",
+        },
+      ],
+    
+      resaleParagraphs: [
+        "Standard Nike Cortez releases are widely available and produced at scale, meaning most general releases trade near or below retail with little margin for resellers.",
+        "The best resale opportunities come from collaborations and limited-edition builds — particularly fashion-forward partnerships that elevate the Cortez beyond its everyday positioning.",
+      ],
+    
+      resaleHighlights: [
+        { label: "Best For", value: "Everyday wear & selective collab flips" },
+        { label: "Risk Level", value: "Low" },
+        { label: "Reseller Take", value: "Core pairs are weak flips, collabs show real margin" },
+      ],
+    
+      resellerInsight: {
+        flipScore: "38 / 100",
+        liquidity: "Moderate",
+        typicalMargin: "Low",
+        bestUse: "Personal wear & targeted collab flips",
+        bullets: [
+          "Standard GRs rarely move above retail — primarily a wear shoe.",
+          "Collaborations (Sacai, premium materials) can show meaningful price premiums.",
+          "Pop culture heritage drives strong demand, but not resale velocity on core pairs.",
+        ],
+      },
+    
+      cta: {
+        eyebrow: "Live Market Tool",
+        title: "Scan Any Nike Cortez Pair Live",
+        description:
+          "Use SneakPrice to compare resale pricing, track demand, and identify opportunities across Cortez GRs and collaborations.",
+        primaryHref: "/",
+        primaryLabel: "Scan it with SneakPrice →",
+        secondaryHref: "/exchange",
+        secondaryLabel: "Open market tools",
+        bullets: [
+          "Track live resale signals",
+          "Compare GRs vs collab pairs",
+          "Spot limited releases with real margin",
+        ],
+      },
+    
+      careIntro: [
+        "The Nike Cortez is available in nylon and leather builds, and each material benefits from a slightly different care approach.",
+        "White midsoles and light colorways are especially prone to yellowing and scuffing, so regular upkeep extends the life of the pair significantly.",
+      ],
+    
+      careTools: [
+        {
+          label: "Soft-bristle Brush",
+          desc: "Ideal for removing loose dirt from nylon uppers and rubber midsoles without causing abrasion.",
+        },
+        {
+          label: "Leather Cleaner / Conditioner",
+          desc: "Essential for leather Cortez builds — keeps the upper supple and prevents cracking.",
+        },
+        {
+          label: "Sneaker Cleaning Solution",
+          desc: "Safe for nylon and leather uppers when applied with a soft brush or cloth.",
+        },
+        {
+          label: "Microfiber Cloth",
+          desc: "Useful for wiping down the midsole and upper after cleaning.",
+        },
+        {
+          label: "Magic Eraser",
+          desc: "Effective on white midsole scuffs and oxidation on the cupsole edges.",
+        },
+      ],
+    
+      carePrep: [
+        {
+          step: "1",
+          label: "Remove Laces",
+          desc: "Pull out laces to properly access the tongue, eyelet area, and upper.",
+        },
+        {
+          step: "2",
+          label: "Dry Brush First",
+          desc: "Remove loose dirt from the upper and midsole before introducing any liquid.",
+        },
+      ],
+    
+      careCleaning: [
+        {
+          step: "1",
+          label: "Mix Cleaning Solution",
+          desc: "Combine warm water with a mild sneaker-safe cleaner appropriate for the upper material.",
+        },
+        {
+          step: "2",
+          label: "Clean the Upper",
+          desc: "Use light circular motions on nylon or leather — avoid oversaturating either material.",
+        },
+        {
+          step: "3",
+          label: "Wipe the Midsole",
+          desc: "Use a cloth or Magic Eraser to restore the white cupsole and remove scuffs.",
+        },
+        {
+          step: "4",
+          label: "Condition Leather (if applicable)",
+          desc: "Apply leather conditioner to leather uppers after cleaning to maintain suppleness.",
+        },
+        {
+          step: "5",
+          label: "Air Dry Naturally",
+          desc: "Let the pair dry fully at room temperature away from direct sunlight or heat.",
+        },
+      ],
+    
+      relatedModels: [
+        { name: "Air Force 1", href: "/encyclopedia/air-force-1" },
+        { name: "Nike Blazer Mid", href: "/encyclopedia/blazer-mid" },
+        { name: "Adidas Samba", href: "/encyclopedia/adidas-samba" },
+        { name: "Vans Old Skool", href: "/encyclopedia/vans-old-skool" },
+      ],
+    },
+    
+
+
+
 
 
 
@@ -2304,293 +2511,665 @@ export const sneakers: Sneaker[] = [
 
     // -------------------- NEW SNEAKERS --------------------
 
-{
-  slug: "air-jordan-4",
-  name: "Air Jordan 4",
-  tagline: "A defining silhouette that brought visible Air and mesh panels into Jordan legacy.",
-  brand: "Nike / Jordan Brand",
-  firstRelease: "1989",
-  designer: "Tinker Hatfield",
-  retailPrice: "$200–$225",
-  tier: 1,
-  relatedModels: [
-    { name: "Air Jordan 1", href: "/encyclopedia/air-jordan-1" },
-    { name: "Air Jordan 3", href: "/encyclopedia/air-jordan-3" },
-  ],
-},
+// {
+//   slug: "air-jordan-4",
+//   name: "Air Jordan 4",
+//   tagline: "A defining silhouette that brought visible Air and mesh panels into Jordan legacy.",
+//   brand: "Nike / Jordan Brand",
+//   firstRelease: "1989",
+//   designer: "Tinker Hatfield",
+//   retailPrice: "$200–$225",
+//   tier: 1,
+//   relatedModels: [
+//     { name: "Air Jordan 1", href: "/encyclopedia/air-jordan-1" },
+//     { name: "Air Jordan 3", href: "/encyclopedia/air-jordan-3" },
+//   ],
+// },
+
+// {
+//   slug: "air-jordan-3",
+//   name: "Air Jordan 3",
+//   tagline: "The model that introduced visible Air and saved the Jordan line.",
+//   brand: "Nike / Jordan Brand",
+//   firstRelease: "1988",
+//   designer: "Tinker Hatfield",
+//   retailPrice: "$200–$220",
+//   tier: 1,
+// },
+
+// {
+//   slug: "air-jordan-11",
+//   name: "Air Jordan 11",
+//   tagline: "Patent leather icon worn during MJ’s legendary comeback season.",
+//   brand: "Nike / Jordan Brand",
+//   firstRelease: "1995",
+//   designer: "Tinker Hatfield",
+//   retailPrice: "$225–$250",
+//   tier: 1,
+// },
 
 {
-  slug: "air-jordan-3",
-  name: "Air Jordan 3",
-  tagline: "The model that introduced visible Air and saved the Jordan line.",
-  brand: "Nike / Jordan Brand",
-  firstRelease: "1988",
-  designer: "Tinker Hatfield",
-  retailPrice: "$200–$220",
-  tier: 1,
-},
-
-{
-  slug: "air-jordan-11",
-  name: "Air Jordan 11",
-  tagline: "Patent leather icon worn during MJ’s legendary comeback season.",
-  brand: "Nike / Jordan Brand",
-  firstRelease: "1995",
-  designer: "Tinker Hatfield",
-  retailPrice: "$225–$250",
-  tier: 1,
-},
-
-{
-  slug: "nike-dunk-low",
+  slug: "dunk-low",
   name: "Nike Dunk Low",
-  tagline: "A skate and streetwear staple that exploded in modern resale culture.",
+  tagline:
+    "Originally a basketball shoe, the Dunk Low evolved through skate culture into one of the most hyped and widely collected sneakers of the modern resale era.",
+
   brand: "Nike",
   firstRelease: "1985",
   designer: "Peter Moore",
   retailPrice: "$110–$130",
+
   tier: 1,
+
+  images: [
+    {
+      src: "/encyclopedia/dunk-low/hero.jpg",
+      alt: "Nike Dunk Low",
+    },
+    {
+      src: "/encyclopedia/dunk-low/angle-1.jpg",
+      alt: "Nike Dunk Low Retro side view",
+    },
+    {
+      src: "/encyclopedia/dunk-low/angle-2.jpg",
+      alt: "Nike SB Dunk Low Pro alternate angle",
+    },
+    {
+      src: "/encyclopedia/dunk-low/detail.jpg",
+      alt: "Nike SB Dunk Low Staple NYC Pigeon detail",
+    },
+  ],
+
+  marketSnapshot: {
+    title: "Nike Dunk Low Market Overview",
+    demand: "Very Strong Demand",
+    avgResale: "$100–$600+",
+    trend: "Cooling from 2021 peak but remains active",
+    volatility: "Medium",
+    liquidity: "High",
+    flipScore: "72 / 100",
+    description:
+      "The Nike Dunk Low sits at the center of modern sneaker resale culture. Heat releases and high-profile collaborations regularly command strong premiums, while standard GRs have cooled since the 2020–2022 frenzy. Collab and limited releases remain among the most liquid flips in the market.",
+  },
+
+  history: [
+    "Peter Moore designed the Dunk in 1985 as a performance basketball shoe, originally released in colorways matching college team uniforms under the 'Be True to Your School' campaign.",
+    "After fading from basketball, the Dunk was adopted by skateboarders in the late 1990s — Nike formalized this with the launch of Nike SB in 2002, releasing the Dunk in limited runs with skate-specific cushioning.",
+    "Early SB Dunk collabs — Supreme, Stüssy, Staple NYC Pigeon, Futura — became grail-level collectibles, cementing the Dunk's status in streetwear and collector culture.",
+    "Nike retro-released the Dunk Low to the mainstream market starting in 2020, triggering a resale frenzy that made it one of the most traded sneakers in the world for two consecutive years.",
+    "The hype has moderated since the 2021 peak, but the Dunk Low remains a cornerstone of the Nike lineup with constant new colorways and collabs keeping demand active.",
+  ],
+
+  designIntro:
+    "The Nike Dunk Low is defined by its padded ankle collar, perforated toe box, two-tone paneling, and cupsole construction — a clean, versatile silhouette that works equally in sport, skate, and lifestyle contexts.",
+
+  designBullets: [
+    "Two-tone leather or suede upper with contrast overlays",
+    "Perforated toe box for breathability",
+    "Padded low-cut ankle collar",
+    "Flat rubber cupsole with herringbone traction pattern",
+    "Nike Swoosh stitched onto the lateral midfoot panel",
+  ],
+
+  colorways: [
+    {
+      name: "Panda (White / Black)",
+      note: "The most widely produced and recognizable modern Dunk Low — sold in enormous quantities",
+      market: "Near-retail on GRs",
+    },
+    {
+      name: "University Red / White",
+      note: "A heritage college-inspired colorway with consistent demand",
+      market: "Stable above retail",
+    },
+    {
+      name: "Nike SB Dunk Low Staple NYC Pigeon",
+      note: "One of the most legendary Dunk collabs ever — sparked near-riots at retail in 2005",
+      market: "Grail — $1,000+",
+    },
+    {
+      name: "Travis Scott x Nike Dunk Low",
+      note: "Among the most sought-after modern Dunk collabs, fetching strong multiples over retail",
+      market: "Very high resale",
+    },
+  ],
+
+  resaleParagraphs: [
+    "General release Dunk Lows — including the Panda — have largely returned to retail or near-retail pricing after the 2020–2022 hype cycle peaked. The market is oversaturated with GRs, limiting flip potential on standard colorways.",
+    "Limited releases, regional exclusives, and high-profile collaborations remain the strongest resale opportunities, often moving at 2x–5x retail with fast liquidity on StockX and GOAT.",
+  ],
+
+  resaleHighlights: [
+    { label: "Best For", value: "Collab & limited flips" },
+    { label: "Risk Level", value: "Medium — GRs carry little margin, collabs carry hype risk" },
+    { label: "Reseller Take", value: "Pick your spots carefully — not all Dunks are equal" },
+  ],
+
+  resellerInsight: {
+    flipScore: "72 / 100",
+    liquidity: "High",
+    typicalMargin: "Variable — low on GRs, strong on heat releases",
+    bestUse: "Targeted limited & collab flips",
+    bullets: [
+      "Standard GRs like the Panda have flooded the market — expect near-retail or below.",
+      "Limited colorways, SB releases, and fashion collabs remain strong earners.",
+      "High liquidity makes Dunks easy to move — finding the margin is the challenge.",
+    ],
+  },
+
+  cta: {
+    eyebrow: "Live Market Tool",
+    title: "Scan Any Nike Dunk Low Live",
+    description:
+      "Use SneakPrice to compare resale pricing across Dunk Low GRs, SB releases, and collabs — and spot where the real margin is.",
+    primaryHref: "/",
+    primaryLabel: "Scan it with SneakPrice →",
+    secondaryHref: "/exchange",
+    secondaryLabel: "Open market tools",
+    bullets: [
+      "Track live resale signals across all Dunk colorways",
+      "Compare GR pricing vs limited release premiums",
+      "Find collab opportunities before they cool",
+    ],
+  },
+
+  careIntro: [
+    "Most Nike Dunk Lows feature leather or suede uppers that require regular attention to maintain their shape and color — especially on lighter colorways.",
+    "The rubber cupsole and midsole are easy to clean but prone to yellowing over time without proper storage.",
+  ],
+
+  careTools: [
+    {
+      label: "Soft-bristle Brush",
+      desc: "Removes surface dirt from leather, suede, and rubber without causing damage.",
+    },
+    {
+      label: "Suede Brush / Eraser",
+      desc: "Essential for suede-paneled Dunks — lifts scuffs and restores the nap.",
+    },
+    {
+      label: "Sneaker Cleaning Solution",
+      desc: "Safe for leather and rubber; use sparingly on suede panels.",
+    },
+    {
+      label: "Microfiber Cloth",
+      desc: "Good for buffing leather to a clean finish and wiping down the midsole.",
+    },
+    {
+      label: "Crep Protect / Sneaker Shield",
+      desc: "Spray protector helps repel water and stains on both leather and suede panels.",
+    },
+  ],
+
+  carePrep: [
+    {
+      step: "1",
+      label: "Remove Laces",
+      desc: "Pull laces out to access the tongue and eyelet area fully.",
+    },
+    {
+      step: "2",
+      label: "Dry Brush",
+      desc: "Brush away loose dirt from the upper and outsole before using any solution.",
+    },
+  ],
+
+  careCleaning: [
+    {
+      step: "1",
+      label: "Clean Leather Panels",
+      desc: "Apply sneaker solution with a soft brush in circular motions on leather overlays.",
+    },
+    {
+      step: "2",
+      label: "Treat Suede Carefully",
+      desc: "Use a dedicated suede brush or eraser — avoid soaking suede with liquid cleaner.",
+    },
+    {
+      step: "3",
+      label: "Scrub the Midsole",
+      desc: "Use a firm brush with cleaner on the cupsole edges to remove grime and scuffs.",
+    },
+    {
+      step: "4",
+      label: "Wipe Down and Air Dry",
+      desc: "Remove excess solution with a microfiber cloth and let dry at room temperature.",
+    },
+    {
+      step: "5",
+      label: "Apply Protector Spray",
+      desc: "Once fully dry, apply a water and stain repellent to extend the clean.",
+    },
+  ],
+
+  relatedModels: [
+    { name: "Air Jordan 1", href: "/encyclopedia/air-jordan-1" },
+    { name: "Air Force 1", href: "/encyclopedia/air-force-1" },
+    { name: "Nike Blazer Mid", href: "/encyclopedia/blazer-mid" },
+    { name: "Adidas Samba", href: "/encyclopedia/adidas-samba" },
+  ],
 },
 
 {
-  slug: "nike-dunk-high",
+  slug: "dunk-high",
   name: "Nike Dunk High",
-  tagline: "The original basketball version of the Dunk before its skate evolution.",
+  tagline:
+    "The original high-top form of Peter Moore's 1985 Dunk design — a basketball icon that carved its own lane through skate culture, fashion collabs, and streetwear before its low-top sibling stole the spotlight.",
+
   brand: "Nike",
   firstRelease: "1985",
   designer: "Peter Moore",
   retailPrice: "$120–$150",
+
   tier: 2,
+
+  images: [
+    {
+      src: "/encyclopedia/dunk-high/hero.jpg",
+      alt: "Nike SB Dunk High MF Doom",
+    },
+    {
+      src: "/encyclopedia/dunk-high/angle-1.jpg",
+      alt: "Nike SB Dunk High MF Doom alternate view",
+    },
+    {
+      src: "/encyclopedia/dunk-high/angle-2.jpg",
+      alt: "Nike Dunk High side view",
+    },
+    {
+      src: "/encyclopedia/dunk-high/detail.jpg",
+      alt: "Nike Dunk High detail view",
+    },
+  ],
+
+  marketSnapshot: {
+    title: "Nike Dunk High Market Overview",
+    demand: "Strong Demand",
+    avgResale: "$100–$500+",
+    trend: "Stable after cooling from 2021 peak",
+    volatility: "Medium",
+    liquidity: "Moderate",
+    flipScore: "58 / 100",
+    description:
+      "The Nike Dunk High commands a loyal collector base and consistently outperforms the Low on select collabs, but GRs have settled near retail. The high-top silhouette appeals to a slightly more niche audience than the Low, keeping demand focused on limited releases and high-profile collaborations.",
+  },
+
+  history: [
+    "Peter Moore designed the Dunk in 1985 as a unified basketball shoe released simultaneously in high, mid, and low versions — the High was the original intended form for on-court performance.",
+    "Nike's 'Be True to Your School' campaign launched the Dunk in college team colorways, with the High version representing the classic basketball silhouette of the era.",
+    "The Nike SB program, launched in 2002, brought the Dunk High into skate culture with limited collaborations including the legendary MF Doom release — one of the most sought-after SB Dunk Highs ever produced.",
+    "While the Dunk Low dominated the 2020–2022 hype cycle, the High maintained a dedicated following among collectors who prefer the original high-top silhouette and its deeper connection to basketball and SB heritage.",
+    "Recent years have seen Nike continue releasing the Dunk High in both mainstream GR colorways and targeted collabs, keeping the silhouette relevant across both lifestyle and collector markets.",
+  ],
+
+  designIntro:
+    "The Nike Dunk High is defined by its extended ankle collar, padded high-top construction, two-tone paneling, and the same cupsole base as the Low — but with a more substantial presence and stronger visual ties to its basketball origins.",
+
+  designBullets: [
+    "Tall padded ankle collar offering coverage and structure",
+    "Two-tone leather or suede upper with contrast color blocking",
+    "Perforated toe box for ventilation",
+    "Flat rubber cupsole with classic herringbone traction",
+    "Stitched Nike Swoosh on the lateral midfoot panel",
+  ],
+
+  colorways: [
+    {
+      name: "White / Black",
+      note: "Clean and versatile — the most accessible Dunk High colorway in GR rotation",
+      market: "Near retail",
+    },
+    {
+      name: "Varsity Red / White",
+      note: "Heritage college colorway with consistent demand tied to the original 'Be True to Your School' campaign",
+      market: "Stable above retail",
+    },
+    {
+      name: "Nike SB Dunk High MF Doom",
+      note: "One of the most legendary SB Dunk High releases ever — named after the late rapper and still a coveted grail",
+      market: "Grail — $800+",
+    },
+    {
+      name: "Supreme x Nike SB Dunk High",
+      note: "Multiple Supreme collabs have elevated the High to fashion-collab status with strong premiums",
+      market: "High resale",
+    },
+  ],
+
+  resaleParagraphs: [
+    "General release Dunk Highs trade close to or slightly above retail, with demand more focused than the Low due to the silhouette's narrower mainstream appeal.",
+    "The strongest opportunities come from SB releases, Supreme collabs, and fashion-forward limited drops — these routinely command significant premiums and move quickly on resale platforms.",
+  ],
+
+  resaleHighlights: [
+    { label: "Best For", value: "SB & collab flips" },
+    { label: "Risk Level", value: "Medium — high-top silhouette limits casual demand vs Low" },
+    { label: "Reseller Take", value: "GRs are slow flips; targeted heat releases are strong earners" },
+  ],
+
+  resellerInsight: {
+    flipScore: "58 / 100",
+    liquidity: "Moderate",
+    typicalMargin: "Low on GRs, strong on heat and SB releases",
+    bestUse: "Collab and SB limited flips",
+    bullets: [
+      "GRs hover near retail — the High attracts fewer casual buyers than the Low.",
+      "SB and fashion collabs carry real margin and often move faster than equivalent Low collabs.",
+      "The MF Doom and Supreme SB Highs remain benchmark grails with strong long-term value.",
+    ],
+  },
+
+  cta: {
+    eyebrow: "Live Market Tool",
+    title: "Scan Any Nike Dunk High Live",
+    description:
+      "Use SneakPrice to compare resale pricing across Dunk High GRs, SB releases, and collabs — and find the real value in the high-top market.",
+    primaryHref: "/",
+    primaryLabel: "Scan it with SneakPrice →",
+    secondaryHref: "/exchange",
+    secondaryLabel: "Open market tools",
+    bullets: [
+      "Track live resale signals across all Dunk High colorways",
+      "Compare GR pricing vs SB and collab premiums",
+      "Identify limited high-top releases with real margin",
+    ],
+  },
+
+  careIntro: [
+    "The Nike Dunk High features the same leather and suede panel construction as the Low but with an extended ankle collar that needs extra attention to maintain shape and prevent creasing.",
+    "Storing with a shoe tree or paper fill helps the high-top collar hold its form between wears.",
+  ],
+
+  careTools: [
+    {
+      label: "Soft-bristle Brush",
+      desc: "Removes surface dirt from leather overlays and rubber midsole without damaging the upper.",
+    },
+    {
+      label: "Suede Brush / Eraser",
+      desc: "Essential for suede panels — lifts scuffs and restores texture without liquid.",
+    },
+    {
+      label: "Sneaker Cleaning Solution",
+      desc: "Safe for leather and rubber; apply sparingly to suede areas.",
+    },
+    {
+      label: "Microfiber Cloth",
+      desc: "Use to buff leather panels and wipe down the midsole after cleaning.",
+    },
+    {
+      label: "Shoe Tree or Paper Fill",
+      desc: "Helps the high-top collar maintain its upright shape during storage.",
+    },
+  ],
+
+  carePrep: [
+    {
+      step: "1",
+      label: "Remove Laces",
+      desc: "Pull laces to access the tongue and collar area fully.",
+    },
+    {
+      step: "2",
+      label: "Dry Brush the Upper",
+      desc: "Clear loose dirt from leather, suede, and rubber before introducing any moisture.",
+    },
+  ],
+
+  careCleaning: [
+    {
+      step: "1",
+      label: "Clean Leather Panels",
+      desc: "Work sneaker solution into leather overlays with a soft brush using gentle circular motions.",
+    },
+    {
+      step: "2",
+      label: "Treat Suede Carefully",
+      desc: "Use a suede brush or eraser — avoid saturating suede panels with liquid cleaner.",
+    },
+    {
+      step: "3",
+      label: "Scrub the Midsole",
+      desc: "Apply cleaner to the cupsole edge and rubber outsole with a firm brush.",
+    },
+    {
+      step: "4",
+      label: "Wipe and Air Dry",
+      desc: "Remove excess solution with a microfiber cloth and dry at room temperature away from heat.",
+    },
+    {
+      step: "5",
+      label: "Stuff the Collar",
+      desc: "Insert a shoe tree or crumpled paper while drying to maintain the high-top collar shape.",
+    },
+  ],
+
+  relatedModels: [
+    { name: "Nike Dunk Low", href: "/encyclopedia/nike-dunk-low" },
+    { name: "Air Jordan 1", href: "/encyclopedia/air-jordan-1" },
+    { name: "Air Force 1", href: "/encyclopedia/air-force-1" },
+    { name: "Nike Blazer Mid", href: "/encyclopedia/blazer-mid" },
+  ],
 },
 
-{
-  slug: "yeezy-boost-350",
-  name: "Yeezy Boost 350",
-  tagline: "The sneaker that redefined hype culture and comfort.",
-  brand: "Adidas",
-  firstRelease: "2015",
-  designer: "Kanye West",
-  retailPrice: "$220–$300",
-  tier: 1,
-},
+// {
+//   slug: "yeezy-boost-350",
+//   name: "Yeezy Boost 350",
+//   tagline: "The sneaker that redefined hype culture and comfort.",
+//   brand: "Adidas",
+//   firstRelease: "2015",
+//   designer: "Kanye West",
+//   retailPrice: "$220–$300",
+//   tier: 1,
+// },
 
-{
-  slug: "yeezy-700",
-  name: "Yeezy Boost 700",
-  tagline: "Chunky runner that helped define the dad shoe era.",
-  brand: "Adidas",
-  firstRelease: "2017",
-  designer: "Kanye West",
-  retailPrice: "$300–$350",
-  tier: 1,
-},
+// {
+//   slug: "yeezy-700",
+//   name: "Yeezy Boost 700",
+//   tagline: "Chunky runner that helped define the dad shoe era.",
+//   brand: "Adidas",
+//   firstRelease: "2017",
+//   designer: "Kanye West",
+//   retailPrice: "$300–$350",
+//   tier: 1,
+// },
 
-{
-  slug: "nike-air-max-95",
-  name: "Nike Air Max 95",
-  tagline: "A layered design inspired by human anatomy with aggressive styling.",
-  brand: "Nike",
-  firstRelease: "1995",
-  designer: "Sergio Lozano",
-  retailPrice: "$170–$200",
-  tier: 2,
-},
+// {
+//   slug: "nike-air-max-95",
+//   name: "Nike Air Max 95",
+//   tagline: "A layered design inspired by human anatomy with aggressive styling.",
+//   brand: "Nike",
+//   firstRelease: "1995",
+//   designer: "Sergio Lozano",
+//   retailPrice: "$170–$200",
+//   tier: 2,
+// },
 
-{
-  slug: "nike-air-max-97",
-  name: "Nike Air Max 97",
-  tagline: "Full-length Air unit with futuristic ripple design.",
-  brand: "Nike",
-  firstRelease: "1997",
-  designer: "Christian Tresser",
-  retailPrice: "$180–$210",
-  tier: 2,
-},
+// {
+//   slug: "nike-air-max-97",
+//   name: "Nike Air Max 97",
+//   tagline: "Full-length Air unit with futuristic ripple design.",
+//   brand: "Nike",
+//   firstRelease: "1997",
+//   designer: "Christian Tresser",
+//   retailPrice: "$180–$210",
+//   tier: 2,
+// },
 
-{
-  slug: "nike-air-max-1",
-  name: "Nike Air Max 1",
-  tagline: "The first sneaker to showcase visible Air technology.",
-  brand: "Nike",
-  firstRelease: "1987",
-  designer: "Tinker Hatfield",
-  retailPrice: "$150–$180",
-  tier: 1,
-},
+// {
+//   slug: "nike-air-max-1",
+//   name: "Nike Air Max 1",
+//   tagline: "The first sneaker to showcase visible Air technology.",
+//   brand: "Nike",
+//   firstRelease: "1987",
+//   designer: "Tinker Hatfield",
+//   retailPrice: "$150–$180",
+//   tier: 1,
+// },
 
-{
-  slug: "adidas-samba",
-  name: "Adidas Samba",
-  tagline: "A timeless indoor soccer shoe turned fashion essential.",
-  brand: "Adidas",
-  firstRelease: "1949",
-  designer: "Adolf Dassler",
-  retailPrice: "$90–$120",
-  tier: 1,
-},
+// {
+//   slug: "adidas-samba",
+//   name: "Adidas Samba",
+//   tagline: "A timeless indoor soccer shoe turned fashion essential.",
+//   brand: "Adidas",
+//   firstRelease: "1949",
+//   designer: "Adolf Dassler",
+//   retailPrice: "$90–$120",
+//   tier: 1,
+// },
 
-{
-  slug: "adidas-gazelle",
-  name: "Adidas Gazelle",
-  tagline: "Minimalist suede classic with decades of cultural relevance.",
-  brand: "Adidas",
-  firstRelease: "1966",
-  designer: "Adidas",
-  retailPrice: "$100–$130",
-  tier: 2,
-},
+// {
+//   slug: "adidas-gazelle",
+//   name: "Adidas Gazelle",
+//   tagline: "Minimalist suede classic with decades of cultural relevance.",
+//   brand: "Adidas",
+//   firstRelease: "1966",
+//   designer: "Adidas",
+//   retailPrice: "$100–$130",
+//   tier: 2,
+// },
 
-{
-  slug: "new-balance-990v3",
-  name: "New Balance 990v3",
-  tagline: "Premium runner blending comfort and heritage.",
-  brand: "New Balance",
-  firstRelease: "2012",
-  designer: "New Balance",
-  retailPrice: "$180–$220",
-  tier: 1,
-},
+// {
+//   slug: "new-balance-990v3",
+//   name: "New Balance 990v3",
+//   tagline: "Premium runner blending comfort and heritage.",
+//   brand: "New Balance",
+//   firstRelease: "2012",
+//   designer: "New Balance",
+//   retailPrice: "$180–$220",
+//   tier: 1,
+// },
 
-{
-  slug: "new-balance-550",
-  name: "New Balance 550",
-  tagline: "Retro basketball silhouette revived for modern streetwear.",
-  brand: "New Balance",
-  firstRelease: "1989",
-  designer: "New Balance",
-  retailPrice: "$110–$140",
-  tier: 1,
-},
+// {
+//   slug: "new-balance-550",
+//   name: "New Balance 550",
+//   tagline: "Retro basketball silhouette revived for modern streetwear.",
+//   brand: "New Balance",
+//   firstRelease: "1989",
+//   designer: "New Balance",
+//   retailPrice: "$110–$140",
+//   tier: 1,
+// },
 
-{
-  slug: "nike-blazer-mid",
-  name: "Nike Blazer Mid",
-  tagline: "Vintage basketball shoe embraced by skate culture.",
-  brand: "Nike",
-  firstRelease: "1973",
-  designer: "Nike",
-  retailPrice: "$100–$130",
-  tier: 2,
-},
+// {
+//   slug: "nike-blazer-mid",
+//   name: "Nike Blazer Mid",
+//   tagline: "Vintage basketball shoe embraced by skate culture.",
+//   brand: "Nike",
+//   firstRelease: "1973",
+//   designer: "Nike",
+//   retailPrice: "$100–$130",
+//   tier: 2,
+// },
 
-{
-  slug: "nike-cortez",
-  name: "Nike Cortez",
-  tagline: "One of Nike’s earliest running shoes and a cultural icon.",
-  brand: "Nike",
-  firstRelease: "1972",
-  designer: "Bill Bowerman",
-  retailPrice: "$90–$120",
-  tier: 2,
-},
 
-{
-  slug: "puma-suede-classic",
-  name: "Puma Suede Classic",
-  tagline: "A streetwear staple rooted in hip-hop history.",
-  brand: "Puma",
-  firstRelease: "1968",
-  designer: "Puma",
-  retailPrice: "$70–$100",
-  tier: 2,
-},
+// {
+//   slug: "puma-suede-classic",
+//   name: "Puma Suede Classic",
+//   tagline: "A streetwear staple rooted in hip-hop history.",
+//   brand: "Puma",
+//   firstRelease: "1968",
+//   designer: "Puma",
+//   retailPrice: "$70–$100",
+//   tier: 2,
+// },
 
-{
-  slug: "reebok-club-c",
-  name: "Reebok Club C",
-  tagline: "Clean tennis-inspired sneaker with minimalist appeal.",
-  brand: "Reebok",
-  firstRelease: "1985",
-  designer: "Reebok",
-  retailPrice: "$80–$110",
-  tier: 2,
-},
+// {
+//   slug: "reebok-club-c",
+//   name: "Reebok Club C",
+//   tagline: "Clean tennis-inspired sneaker with minimalist appeal.",
+//   brand: "Reebok",
+//   firstRelease: "1985",
+//   designer: "Reebok",
+//   retailPrice: "$80–$110",
+//   tier: 2,
+// },
 
-{
-  slug: "asics-gel-lyte-iii",
-  name: "ASICS Gel-Lyte III",
-  tagline: "Comfort-driven runner with split tongue design.",
-  brand: "ASICS",
-  firstRelease: "1990",
-  designer: "Shigeyuki Mitsui",
-  retailPrice: "$120–$160",
-  tier: 2,
-},
+// {
+//   slug: "asics-gel-lyte-iii",
+//   name: "ASICS Gel-Lyte III",
+//   tagline: "Comfort-driven runner with split tongue design.",
+//   brand: "ASICS",
+//   firstRelease: "1990",
+//   designer: "Shigeyuki Mitsui",
+//   retailPrice: "$120–$160",
+//   tier: 2,
+// },
 
-{
-  slug: "nike-zoom-vomero-5",
-  name: "Nike Zoom Vomero 5",
-  tagline: "Tech runner turned lifestyle favorite.",
-  brand: "Nike",
-  firstRelease: "2010",
-  designer: "Nike",
-  retailPrice: "$160–$180",
-  tier: 1,
-},
+// {
+//   slug: "nike-zoom-vomero-5",
+//   name: "Nike Zoom Vomero 5",
+//   tagline: "Tech runner turned lifestyle favorite.",
+//   brand: "Nike",
+//   firstRelease: "2010",
+//   designer: "Nike",
+//   retailPrice: "$160–$180",
+//   tier: 1,
+// },
 
-{
-  slug: "salomon-xt-6",
-  name: "Salomon XT-6",
-  tagline: "Trail performance sneaker adopted into fashion.",
-  brand: "Salomon",
-  firstRelease: "2013",
-  designer: "Salomon",
-  retailPrice: "$180–$220",
-  tier: 1,
-},
+// {
+//   slug: "salomon-xt-6",
+//   name: "Salomon XT-6",
+//   tagline: "Trail performance sneaker adopted into fashion.",
+//   brand: "Salomon",
+//   firstRelease: "2013",
+//   designer: "Salomon",
+//   retailPrice: "$180–$220",
+//   tier: 1,
+// },
 
-{
-  slug: "converse-chuck-70",
-  name: "Converse Chuck 70",
-  tagline: "Premium evolution of the classic Chuck Taylor silhouette.",
-  brand: "Converse",
-  firstRelease: "1970",
-  designer: "Converse",
-  retailPrice: "$85–$110",
-  tier: 1,
-},
+// {
+//   slug: "converse-chuck-70",
+//   name: "Converse Chuck 70",
+//   tagline: "Premium evolution of the classic Chuck Taylor silhouette.",
+//   brand: "Converse",
+//   firstRelease: "1970",
+//   designer: "Converse",
+//   retailPrice: "$85–$110",
+//   tier: 1,
+// },
 
-{
-  slug: "vans-old-skool",
-  name: "Vans Old Skool",
-  tagline: "Skateboarding staple with iconic side stripe.",
-  brand: "Vans",
-  firstRelease: "1977",
-  designer: "Vans",
-  retailPrice: "$70–$100",
-  tier: 1,
-},
+// {
+//   slug: "vans-old-skool",
+//   name: "Vans Old Skool",
+//   tagline: "Skateboarding staple with iconic side stripe.",
+//   brand: "Vans",
+//   firstRelease: "1977",
+//   designer: "Vans",
+//   retailPrice: "$70–$100",
+//   tier: 1,
+// },
 
-{
-  slug: "vans-sk8-hi",
-  name: "Vans Sk8-Hi",
-  tagline: "High-top skate shoe with durable build.",
-  brand: "Vans",
-  firstRelease: "1978",
-  designer: "Vans",
-  retailPrice: "$80–$110",
-  tier: 2,
-},
+// {
+//   slug: "vans-sk8-hi",
+//   name: "Vans Sk8-Hi",
+//   tagline: "High-top skate shoe with durable build.",
+//   brand: "Vans",
+//   firstRelease: "1978",
+//   designer: "Vans",
+//   retailPrice: "$80–$110",
+//   tier: 2,
+// },
 
-{
-  slug: "nike-air-huarache",
-  name: "Nike Air Huarache",
-  tagline: "Sock-like fit that changed comfort expectations.",
-  brand: "Nike",
-  firstRelease: "1991",
-  designer: "Tinker Hatfield",
-  retailPrice: "$120–$150",
-  tier: 2,
-},
+// {
+//   slug: "nike-air-huarache",
+//   name: "Nike Air Huarache",
+//   tagline: "Sock-like fit that changed comfort expectations.",
+//   brand: "Nike",
+//   firstRelease: "1991",
+//   designer: "Tinker Hatfield",
+//   retailPrice: "$120–$150",
+//   tier: 2,
+// },
 
-{
-  slug: "new-balance-2002r",
-  name: "New Balance 2002R",
-  tagline: "Retro runner revived with modern cushioning.",
-  brand: "New Balance",
-  firstRelease: "2010",
-  designer: "New Balance",
-  retailPrice: "$140–$180",
-  tier: 1,
- },
+// {
+//   slug: "new-balance-2002r",
+//   name: "New Balance 2002R",
+//   tagline: "Retro runner revived with modern cushioning.",
+//   brand: "New Balance",
+//   firstRelease: "2010",
+//   designer: "New Balance",
+//   retailPrice: "$140–$180",
+//   tier: 1,
+//  },
 ];
