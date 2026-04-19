@@ -28,12 +28,12 @@ const sneakersByLetter: Record<string, { name: string; slug: string }[]> = {
   C: [
     { name: "Chuck Taylor All Star", slug: "chuck-taylor-all-star" },
     { name: "Cortez", slug: "cortez" },
-    { name: "Clan Ultra", slug: "clan-ultra" },
+    
   ],
   D: [
     { name: "Dunk Low", slug: "dunk-low" },
     { name: "Dunk High", slug: "dunk-high" },
-    { name: "Dr. Martens 1460", slug: "dr-martens-1460" },
+    
   ],
   E: [
     { name: "EQT Support ADV", slug: "eqt-support-adv" },
