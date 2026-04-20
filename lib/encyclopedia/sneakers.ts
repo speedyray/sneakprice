@@ -108,19 +108,19 @@ export const sneakers: Sneaker[] = [
 
     images: [
       {
-        src: "/encyclopedia/air-jordan-1/hero.jpg",
+        src: "/encyclopedia/air-jordan-1/AIRJORDAN-1.jpeg",
         alt: "Air Jordan 1",
       },
       {
-        src: "/encyclopedia/air-jordan-1/angle-1.jpg",
+        src: "/encyclopedia/air-jordan-1/AirJordanOne.jpeg",
         alt: "Air Jordan 1 side view",
       },
       {
-        src: "/encyclopedia/air-jordan-1/angle-2.jpg",
+        src: "/encyclopedia/air-jordan-1/AIR-JORDAN-ONE.jpeg",
         alt: "Air Jordan 1 alternate angle",
       },
       {
-        src: "/encyclopedia/air-jordan-1/detail.jpg",
+        src: "/encyclopedia/air-jordan-1/AIR_JORDAN_ONE.jpg",
         alt: "Air Jordan 1 detail view",
       },
     ],

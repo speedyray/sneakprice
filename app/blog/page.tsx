@@ -19,7 +19,7 @@ const posts = [
     categoryColor: "bg-emerald-100 text-emerald-700",
     date: "Apr 18, 2025",
     readTime: "8 min read",
-    image: "/encyclopedia/air-jordan-1/hero.jpg",
+    image: "/encyclopedia/air-jordan-1/AIRJORDAN-1.jpeg",
     imageAlt: "Air Jordan 1",
   },
   {
@@ -31,7 +31,7 @@ const posts = [
     categoryColor: "bg-blue-100 text-blue-700",
     date: "Apr 15, 2025",
     readTime: "10 min read",
-    image: "/encyclopedia/air-jordan-1/AIRJORDAN-1.jpeg",
+    image: "/encyclopedia/air-jordan-1/AirJordanOne.jpeg",
     imageAlt: "Air Jordan 1",
   },
   {
