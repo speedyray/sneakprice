@@ -593,12 +593,13 @@ function PhoneWrapper({ stepNum, stepLabel, caption, children }: {
       {/* Caption */}
       <p style={{
         marginTop: 14,
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 13,
-        color: "#2a2a28",
-        letterSpacing: "0.03em",
+        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontSize: 17,
+        color: "#0a0a0a",
+        letterSpacing: "-0.01em",
         textAlign: "center",
-        fontWeight: 500,
+        fontWeight: 600,
+        lineHeight: 1.3,
       }}>{caption}</p>
     </div>
   );
