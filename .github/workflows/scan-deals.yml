@@ -10,8 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger deal scan
+        continue-on-error: true
         run: |
-          curl -s -f -X GET \
-            "https://sneakpriceapp.com/api/cron/scan-deals" \
+          RESPONSE=$(curl -s --max-time 320 \
+            -w "\nHTTP_STATUS:%{http_code}" \
+            -X GET "https://sneakpriceapp.com/api/cron/scan-deals" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json"
+            -H "Content-Type: application/json")
+
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+          BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS:")
+
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_STATUS" = "401" ]; then
+            echo "ERROR: Unauthorized — check CRON_SECRET in GitHub repository secrets"
+            exit 1
+          fi
