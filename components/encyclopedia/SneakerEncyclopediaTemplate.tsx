@@ -113,13 +113,14 @@ export default function SneakerEncyclopediaTemplate({
             {images.map((img, i) => (
               <div
                 key={`${img.src}-${i}`}
-                className="relative aspect-square overflow-hidden rounded-2xl border border-black/10 bg-neutral-100"
+                className="overflow-hidden rounded-2xl border border-black/10 bg-neutral-100"
               >
                 <Image
                   src={img.src}
                   alt={img.alt}
-                  fill
-                  className="object-cover"
+                  width={800}
+                  height={600}
+                  style={{ width: "100%", height: "auto" }}
                   sizes="(max-width: 640px) 50vw, 25vw"
                   loading={i === 0 ? "eager" : "lazy"}
                   priority={i === 0}

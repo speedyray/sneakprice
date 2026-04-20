@@ -27,17 +27,14 @@ const sneakersByLetter: Record<string, { name: string; slug: string }[]> = {
   ],
   C: [
     { name: "Chuck Taylor All Star", slug: "chuck-taylor-all-star" },
-    { name: "Cortez", slug: "cortez" },
-    
+    { name: "Nike Cortez", slug: "cortez" },
   ],
   D: [
-    { name: "Dunk Low", slug: "dunk-low" },
-    { name: "Dunk High", slug: "dunk-high" },
-    
+    { name: "Nike Dunk Low", slug: "dunk-low" },
+    { name: "Nike Dunk High", slug: "dunk-high" },
   ],
   E: [
     { name: "EQT Support ADV", slug: "eqt-support-adv" },
-    { name: "Enforce Low", slug: "enforce-low" },
   ],
   F: [
     { name: "Fresh Foam 1080", slug: "fresh-foam-1080" },
@@ -46,89 +43,82 @@ const sneakersByLetter: Record<string, { name: string; slug: string }[]> = {
   ],
   G: [
     { name: "Gel-Lyte III", slug: "gel-lyte-iii" },
-    { name: "Ghost 15", slug: "ghost-15" },
     { name: "Gazelle", slug: "gazelle" },
   ],
   H: [
-    { name: "Huarache", slug: "huarache" },
+    { name: "Air Huarache", slug: "air-huarache" },
     { name: "Handball Spezial", slug: "handball-spezial" },
   ],
   I: [
     { name: "Instapump Fury", slug: "instapump-fury" },
-    { name: "Icon Classic", slug: "icon-classic" },
   ],
   J: [
-    { name: "Jordan 3", slug: "jordan-3" },
-    { name: "Jordan 4", slug: "jordan-4" },
-    { name: "Jordan 11", slug: "jordan-11" },
-    { name: "Jordan 12", slug: "jordan-12" },
+    { name: "Air Jordan 3", slug: "air-jordan-3" },
+    { name: "Air Jordan 4", slug: "air-jordan-4" },
+    { name: "Air Jordan 11", slug: "air-jordan-11" },
+    { name: "Air Jordan 12", slug: "air-jordan-12" },
   ],
   K: [
-    { name: "Kayano 30", slug: "kayano-30" },
-    { name: "Kobe 6", slug: "kobe-6" },
+    { name: "Gel-Kayano 30", slug: "gel-kayano-30" },
+    { name: "Nike Kobe 6", slug: "nike-kobe-6" },
   ],
   L: [
     { name: "LeBron 21", slug: "lebron-21" },
-    { name: "Lows Classic", slug: "lows-classic" },
   ],
   M: [
-    { name: "Mule Slider", slug: "mule-slider" },
-    { name: "M990v6", slug: "m990v6" },
-    { name: "M2002R", slug: "m2002r" },
-    { name: "Mayfly", slug: "mayfly" },
+    { name: "New Balance M990v6", slug: "new-balance-m990v6" },
+    { name: "New Balance 2002R", slug: "new-balance-2002r" },
+    { name: "Nike Mayfly", slug: "nike-mayfly" },
   ],
   N: [
     { name: "New Balance 550", slug: "new-balance-550" },
     { name: "New Balance 574", slug: "new-balance-574" },
-    { name: "New Balance 990", slug: "new-balance-990" },
+    { name: "New Balance 990v6", slug: "new-balance-990v6" },
   ],
   O: [
-    { name: "Old Skool", slug: "old-skool" },
-    { name: "One Star", slug: "one-star" },
+    { name: "Vans Old Skool", slug: "vans-old-skool" },
+    { name: "Converse One Star", slug: "converse-one-star" },
   ],
   P: [
-    { name: "Pegasus 40", slug: "pegasus-40" },
+    { name: "Nike Pegasus 40", slug: "nike-pegasus-40" },
     { name: "Puma Suede Classic", slug: "puma-suede-classic" },
     { name: "Puma RS-X", slug: "puma-rs-x" },
   ],
-  Q: [{ name: "Quantum 360", slug: "quantum-360" }],
   R: [
-    { name: "React Infinity Run", slug: "react-infinity-run" },
+    { name: "Nike React Infinity Run", slug: "nike-react-infinity-run" },
     { name: "Reebok Classic Leather", slug: "reebok-classic-leather" },
     { name: "Reebok Club C", slug: "reebok-club-c" },
   ],
   S: [
-    { name: "Samba", slug: "samba" },
-    { name: "SB Dunk Low", slug: "sb-dunk-low" },
-    { name: "Spizike", slug: "spizike" },
-    { name: "Speed Cat", slug: "speed-cat" },
+    { name: "Adidas Samba", slug: "adidas-samba" },
+    { name: "Nike SB Dunk Low", slug: "nike-sb-dunk-low" },
+    { name: "Air Jordan Spizike", slug: "air-jordan-spizike" },
+    { name: "Puma Speed Cat", slug: "puma-speed-cat" },
   ],
   T: [
     { name: "Timberland 6-Inch Boot", slug: "timberland-6-inch" },
-    { name: "Terrex Free Hiker", slug: "terrex-free-hiker" },
+    { name: "Adidas Terrex Free Hiker", slug: "adidas-terrex-free-hiker" },
   ],
   U: [
-    { name: "Ultra Boost", slug: "ultra-boost" },
-    { name: "Ultrafly", slug: "ultrafly" },
+    { name: "Adidas Ultra Boost", slug: "adidas-ultra-boost" },
   ],
   V: [
     { name: "Vans Sk8-Hi", slug: "vans-sk8-hi" },
     { name: "Vans Era", slug: "vans-era" },
   ],
   W: [
-    { name: "Waffle Racer", slug: "waffle-racer" },
-    { name: "Wave Rider", slug: "wave-rider" },
+    { name: "Nike Waffle Racer", slug: "nike-waffle-racer" },
+    { name: "Mizuno Wave Rider", slug: "mizuno-wave-rider" },
   ],
-  X: [{ name: "X90004D", slug: "x90004d" }],
   Y: [
-    { name: "Yeezy Boost 350", slug: "yeezy-boost-350" },
+    { name: "Yeezy Boost 350 V2", slug: "yeezy-boost-350-v2" },
     { name: "Yeezy 500", slug: "yeezy-500" },
     { name: "Yeezy Slide", slug: "yeezy-slide" },
   ],
   Z: [
-    { name: "Zoom Fly 5", slug: "zoom-fly-5" },
-    { name: "Zoom Freak 5", slug: "zoom-freak-5" },
-    { name: "ZX 8000", slug: "zx-8000" },
+    { name: "Nike Zoom Fly 5", slug: "nike-zoom-fly-5" },
+    { name: "Nike Zoom Freak 5", slug: "nike-zoom-freak-5" },
+    { name: "Adidas ZX 8000", slug: "adidas-zx-8000" },
   ],
 };
 
