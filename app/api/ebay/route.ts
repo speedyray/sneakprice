@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   const activeRes = await fetch(
     `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
       query
-    )}&limit=30&filter=buyingOptions:{FIXED_PRICE}`,
+    )}&category_ids=15709&limit=30&filter=buyingOptions:{FIXED_PRICE}`,
     { headers }
   );
 
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
   const soldRes = await fetch(
     `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
       query
-    )}&limit=50&filter=soldItems:{true}`,
+    )}&category_ids=15709&limit=50&filter=soldItems:{true}`,
     { headers }
   );
 
