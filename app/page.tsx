@@ -98,6 +98,7 @@ type EbayResponse = {
     roi?: number;
     cheapestItemId?: string;
   } | null;
+  cheapestItemId?: string | null;
 };
 
 function formatMoney(value?: number | null) {
@@ -768,11 +769,13 @@ export default function DiscoverPage() {
                       Buy here
                     </p>
                     <a
-                      href={
-                        marketData.deal?.cheapestItemId
-                          ? `https://www.ebay.com/itm/${marketData.deal.cheapestItemId}`
-                          : `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(identifiedSneaker)}`
-                      }
+                      href={(() => {
+                        const itemId =
+                          marketData.cheapestItemId ?? marketData.deal?.cheapestItemId;
+                        return itemId
+                          ? `https://www.ebay.com/itm/${itemId}`
+                          : `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(identifiedSneaker)}`;
+                      })()}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-black hover:bg-yellow-300 transition"
@@ -805,7 +808,7 @@ export default function DiscoverPage() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <a
-                        href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(identifiedSneaker)}`}
+                        href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(identifiedSneaker)}&LH_Sold=1&LH_Complete=1`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-black hover:bg-yellow-300 transition"

@@ -80,6 +80,9 @@ export async function POST(req: Request) {
     .filter((item: any) => !isNaN(parseFloat(item.price?.value)))
     .sort((a: any, b: any) => parseFloat(a.price?.value) - parseFloat(b.price?.value))[0];
 
+  const cheapestItemId: string | null =
+    cheapestItem?.legacyItemId ?? cheapestItem?.itemId?.split("|")[1] ?? null;
+
   let activeStats = null;
 
   if (activePrices.length > 0) {
@@ -196,7 +199,7 @@ if (
     marketPrice: soldStats.overallMedian,
     profit: spread,
     roi: percent,
-    cheapestItemId: cheapestItem?.legacyItemId ?? cheapestItem?.itemId?.split("|")[1] ?? null,
+    cheapestItemId,
   };
 
   // 🔥 SAVE DEAL TO SUPABASE
@@ -222,6 +225,7 @@ return NextResponse.json({
   activeMarket: activeStats,
   soldMarket: soldStats,
   deal,
+  cheapestItemId,
   remaining,
 });
 }
