@@ -2,18 +2,24 @@
 //
 // Flight Club's legacy search endpoint `/catalogsearch/result/?q=...` returns a
 // 200 but silently ignores the query (renders "RESULTS FOR 'ALL'"). Their real
-// discovery surface is brand/model slug pages like /nike/air-force-1 and
-// /air-jordans/air-jordan-1. We match the scanned sneaker name against a
-// curated slug map; unknown models fall back to a brand root, then homepage.
+// discovery surface is slug-based: /nike/air-force-1, /air-jordans/air-jordan-1,
+// /adidas/samba, /sneakers/balenciaga, etc.
 //
-// Slugs in MODEL_SLUGS are verified against Flight Club's site via search
-// (site:flightclub.com). When adding entries, verify the URL before shipping.
+// We match the scanned sneaker name against a curated slug map; unknown models
+// fall back to a brand root, then homepage. The matcher is a whole-word
+// *contains* match so collab prefixes like "Travis Scott Jordan 1 Low" still
+// resolve to the Jordan 1 page.
+//
+// Slugs are verified against Flight Club via `site:flightclub.com` search
+// (Salomon has no dedicated brand page, so it falls through to /sneakers/salomon
+// which follows the /sneakers/<brand> pattern confirmed for Balenciaga; treat
+// as best-effort).
 
 const FC_BASE = "https://www.flightclub.com";
 
 // Model-level slugs. Ordered longest/most-specific first so a "nike air force 1 mid"
 // name matches the Mid page before the generic Air Force 1 page.
-const MODEL_SLUGS: Array<[prefix: string, slug: string]> = [
+const MODEL_SLUGS: Array<[phrase: string, slug: string]> = [
   // Nike Air Force 1 — variants before base
   ["nike air force 1 mid", "/nike/nike-air-force/nike-force-1-mid"],
   ["nike air force 1 high", "/nike/nike-air-force/air-force-1-high"],
@@ -24,14 +30,17 @@ const MODEL_SLUGS: Array<[prefix: string, slug: string]> = [
   ["nike air force 1", "/nike/air-force-1"],
   ["air force 1", "/nike/air-force-1"],
 
-  // Nike Dunks — SB variant before base
+  // Nike Dunks — SB variant before base; include "dunk low/high" alone to catch
+  // collabs that drop the "nike" prefix (e.g. "Off-White Dunk Low").
   ["nike sb dunk", "/nike/dunk-sb"],
   ["nike dunk sb", "/nike/dunk-sb"],
+  ["dunk sb", "/nike/dunk-sb"],
   ["nike dunk", "/nike/nike-dunks"],
+  ["dunk low", "/nike/nike-dunks"],
+  ["dunk high", "/nike/nike-dunks"],
 
-  // Air Jordan — double-digit models before single-digit so "jordan 1" doesn't
-  // eat "jordan 11". Matcher below rejects digit-followed-by-digit anyway, but
-  // ordering is belt-and-suspenders.
+  // Air Jordan — double-digit models first. The whole-word matcher rejects
+  // digit-followed-by-digit anyway, but ordering is belt-and-suspenders.
   ["air jordan 11", "/air-jordans/air-jordan-11"],
   ["jordan 11", "/air-jordans/air-jordan-11"],
   ["air jordan 6", "/air-jordans/air-jordan-6"],
@@ -48,16 +57,18 @@ const MODEL_SLUGS: Array<[prefix: string, slug: string]> = [
   // Adidas
   ["adidas samba", "/adidas/samba"],
 
-  // Yeezy — route all variants to the Yeezy section, including Adidas-era.
+  // Yeezy — route Adidas-era and Nike-era Yeezys to the Yeezy section.
   ["adidas yeezy", "/yeezy"],
   ["yeezy", "/yeezy"],
 ];
 
 // Brand roots — fallback when no model slug matched.
-const BRAND_ROOTS: Array<[prefix: string, slug: string]> = [
+const BRAND_ROOTS: Array<[phrase: string, slug: string]> = [
   ["air jordan", "/air-jordans"],
   ["jordan", "/air-jordans"],
-  ["yeezy", "/yeezy"],
+  ["travis scott", "/collections/travis-scott"],
+  ["balenciaga", "/sneakers/balenciaga"],
+  ["salomon", "/sneakers/salomon"],
   ["nike", "/nike"],
   ["adidas", "/adidas"],
   ["new balance", "/new-balance"],
@@ -67,27 +78,32 @@ const BRAND_ROOTS: Array<[prefix: string, slug: string]> = [
   ["puma", "/puma"],
   ["reebok", "/reebok"],
   ["hoka", "/hoka-one-one"],
+  // "on" alone is too generic; match only when paired with a known suffix.
+  ["on cloud", "/sneakers"],
+  ["on running", "/sneakers"],
 ];
 
-function startsWithWholeWord(name: string, prefix: string): boolean {
-  if (!name.startsWith(prefix)) return false;
-  const next = name.charAt(prefix.length);
-  // End of string, or a non-alphanumeric (space, hyphen, etc.). Rejects
-  // "jordan 1" matching "jordan 14".
-  return next === "" || !/[a-z0-9]/i.test(next);
+function compile(entries: Array<[string, string]>): Array<[RegExp, string]> {
+  return entries.map(([phrase, slug]) => {
+    const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return [new RegExp(`\\b${escaped}\\b`, "i"), slug];
+  });
 }
+
+const MODEL_REGEX = compile(MODEL_SLUGS);
+const BRAND_REGEX = compile(BRAND_ROOTS);
 
 export function flightClubUrl(sneakerName: string): string {
   if (!sneakerName) return FC_BASE;
 
   const name = sneakerName.toLowerCase().trim();
 
-  for (const [prefix, slug] of MODEL_SLUGS) {
-    if (startsWithWholeWord(name, prefix)) return `${FC_BASE}${slug}`;
+  for (const [re, slug] of MODEL_REGEX) {
+    if (re.test(name)) return `${FC_BASE}${slug}`;
   }
 
-  for (const [prefix, slug] of BRAND_ROOTS) {
-    if (startsWithWholeWord(name, prefix)) return `${FC_BASE}${slug}`;
+  for (const [re, slug] of BRAND_REGEX) {
+    if (re.test(name)) return `${FC_BASE}${slug}`;
   }
 
   return FC_BASE;
