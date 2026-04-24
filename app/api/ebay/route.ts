@@ -60,10 +60,11 @@ export async function POST(req: Request) {
      1️⃣ ACTIVE LISTINGS
   ========================== */
 
+  // Note: eBay Browse API rejects filter=buyingOptions:{FIXED_PRICE} (error 12002), so it's omitted.
   const activeRes = await fetch(
     `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
       query
-    )}&category_ids=15709&limit=30&filter=buyingOptions:{FIXED_PRICE}`,
+    )}&category_ids=15709&limit=30`,
     { headers }
   );
 
@@ -119,10 +120,14 @@ export async function POST(req: Request) {
      2️⃣ SOLD LISTINGS
   ========================== */
 
+  // Note: eBay Browse API doesn't expose sold listings (that's Marketplace Insights, requires approval).
+  // filter=soldItems:{true} was rejected with error 12002 and silently ignored. This fetches a broader
+  // active sample (50 vs 30) and treats the median as a market-price proxy — rename field when moving
+  // to a real sold-price source.
   const soldRes = await fetch(
     `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
       query
-    )}&category_ids=15709&limit=50&filter=soldItems:{true}`,
+    )}&category_ids=15709&limit=50`,
     { headers }
   );
 
