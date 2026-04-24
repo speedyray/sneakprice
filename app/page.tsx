@@ -21,6 +21,7 @@ import { type ArbDeal } from "@/components/ArbitrageDealCard";
 import SneakPriceResaleTerminal from "@/components/SneakPriceResaleTerminal";
 import HowItWorks from "@/components/HowItWorks";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { flightClubUrl } from "@/lib/flight-club-url";
 
 const trendingTitles = [
   "🔥 Trending Sneaker Scans",
@@ -832,7 +833,7 @@ export default function DiscoverPage() {
                         GOAT
                       </a>
                       <a
-                        href={`https://www.flightclub.com/catalogsearch/result/?q=${encodeURIComponent(identifiedSneaker)}`}
+                        href={flightClubUrl(identifiedSneaker)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-400 transition"
