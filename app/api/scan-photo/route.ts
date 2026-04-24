@@ -1,10 +1,41 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import sharp from "sharp";
+import { prisma } from "@/lib/prisma";
 
 const CV_API_URL = process.env.SNEAKER_CV_API_URL;
 const CV_MIN_CONFIDENCE = 0.15;
 const CV_TIMEOUT_MS = 4000;
+
+// First-match-wins, ordered so more-specific prefixes precede the brands that
+// contain them (e.g. "Air Jordan" → Jordan, not Nike). Lowercased substring
+// match against the identified sneaker name.
+const BRAND_PATTERNS: Array<[needle: string, canonical: string]> = [
+  ["air jordan", "Jordan"],
+  ["jordan", "Jordan"],
+  ["new balance", "New Balance"],
+  ["adidas", "Adidas"],
+  ["yeezy", "Yeezy"],
+  ["nike", "Nike"],
+  ["converse", "Converse"],
+  ["asics", "ASICS"],
+  ["vans", "Vans"],
+  ["puma", "Puma"],
+  ["reebok", "Reebok"],
+  ["hoka", "Hoka"],
+  ["salomon", "Salomon"],
+  ["balenciaga", "Balenciaga"],
+  ["on cloud", "On"],
+  ["on running", "On"],
+];
+
+function extractBrand(sneakerName: string): string | null {
+  const lower = sneakerName.toLowerCase();
+  for (const [needle, canonical] of BRAND_PATTERNS) {
+    if (lower.includes(needle)) return canonical;
+  }
+  return null;
+}
 
 function formatClassName(cls: string): string {
   return cls
@@ -13,7 +44,12 @@ function formatClassName(cls: string): string {
     .trim();
 }
 
-async function tryCvServer(file: File): Promise<string | null> {
+interface CvResult {
+  name: string;
+  confidence: number; // 0..1
+}
+
+async function tryCvServer(file: File): Promise<CvResult | null> {
   if (!CV_API_URL) return null;
 
   const controller = new AbortController();
@@ -41,7 +77,8 @@ async function tryCvServer(file: File): Promise<string | null> {
     if (!top || top.confidence < CV_MIN_CONFIDENCE) return null;
 
     const rawName = formatClassName(top.class);
-    return rawName.toLowerCase().includes("sneaker") ? rawName : `${rawName} sneakers`;
+    const name = rawName.toLowerCase().includes("sneaker") ? rawName : `${rawName} sneakers`;
+    return { name, confidence: top.confidence };
   } catch (err) {
     console.warn("CV server unreachable, falling back to Gemini:", err instanceof Error ? err.message : err);
     return null;
@@ -106,8 +143,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No image uploaded" }, { status: 400 });
     }
 
-    const cvName = await tryCvServer(file);
-    const sneakerName = cvName ?? (await tryGemini(file));
+    const cvResult = await tryCvServer(file);
+    const sneakerName = cvResult?.name ?? (await tryGemini(file));
 
     if (!sneakerName) {
       return NextResponse.json(
@@ -115,6 +152,26 @@ export async function POST(req: Request) {
         { status: 422 }
       );
     }
+
+    // Record the scan for analytics (trending, stats). Fire-and-forget so a DB
+    // hiccup doesn't block the user's response.
+    const confidence = cvResult
+      ? Math.min(100, Math.round(cvResult.confidence * 100))
+      : null;
+    prisma.scan
+      .create({
+        data: {
+          model: sneakerName,
+          brand: extractBrand(sneakerName),
+          confidence,
+        },
+      })
+      .catch((err) =>
+        console.warn(
+          "[scan-photo] scan record insert failed:",
+          err instanceof Error ? err.message : err,
+        ),
+      );
 
     return NextResponse.json({ sneakerName });
   } catch (err) {
