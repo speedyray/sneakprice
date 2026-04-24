@@ -1063,20 +1063,22 @@ export default function DiscoverPage() {
             🔴 Live eBay Market Prices
           </h2>
           <div className="rounded-xl border border-black/10 bg-white p-6 shadow-[0_15px_35px_rgba(0,0,0,0.05)]">
-            <ul className="divide-y divide-black/5">
-              {marketPrices.map((item) => (
-                <li key={item.sneaker} className="flex items-center justify-between py-3">
-                  <span className="font-medium text-neutral-800">{item.sneaker}</span>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-neutral-500">{item.totalListings} listings</span>
-                    <span className="inline-flex rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-600">
-                      {item.marketLabel}
-                    </span>
-                    <span className="text-xl font-bold text-black">${item.medianPrice}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <div className="overflow-hidden h-[240px]">
+              <ul className="animate-[scrollVertical_15s_linear_infinite] divide-y divide-black/5">
+                {[...marketPrices, ...marketPrices].map((item, i) => (
+                  <li key={`${item.sneaker}-${i}`} className="flex items-center justify-between py-3">
+                    <span className="font-medium text-neutral-800">{item.sneaker}</span>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="text-neutral-500">{item.totalListings} listings</span>
+                      <span className="inline-flex rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-600">
+                        {item.marketLabel}
+                      </span>
+                      <span className="text-xl font-bold text-black">${item.medianPrice}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       )}
