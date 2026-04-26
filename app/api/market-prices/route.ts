@@ -20,8 +20,10 @@ async function fetchEbayPrice(
   try {
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), 8_000);
+    // Note: eBay Browse API rejects filter=buyingOptions:{FIXED_PRICE} (error 12002).
+    // Removed here to match the cleanup of /api/ebay in commit 2ad6a1a.
     const res = await fetch(
-      `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(sneaker)}&limit=30&filter=buyingOptions:{FIXED_PRICE}`,
+      `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(sneaker)}&limit=30`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -57,7 +59,8 @@ async function fetchEbayPrice(
     if (volatility < 0.2) marketLabel = "Stable Blue-Chip";
 
     return { sneaker, medianPrice: Math.round(med), totalListings: prices.length, marketLabel };
-  } catch {
+  } catch (e) {
+    console.error("[/api/market-prices] fetch failed for", sneaker, e);
     return null;
   }
 }
