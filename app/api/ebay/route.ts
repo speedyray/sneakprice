@@ -51,34 +51,63 @@ export async function POST(req: Request) {
 
   const token = await getEbayAccessToken();
 
+  // If the token fetch failed (Vercel intermittently can't resolve api.ebay.com),
+  // return a structured null response so the frontend can render gracefully
+  // instead of crashing on JSON.parse of an empty 500 body.
+  if (!token) {
+    console.error("[/api/ebay] eBay token unavailable for query:", query);
+    return NextResponse.json({
+      activeMarket: null,
+      soldMarket: null,
+      deal: null,
+      cheapestItemId: null,
+      remaining,
+      error: "ebay_unavailable",
+    });
+  }
+
   const headers = {
     Authorization: `Bearer ${token}`,
     "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
   };
+
+  // Wrap eBay fetches so a network failure (ENOTFOUND on api.ebay.com, timeout,
+  // etc.) returns null items instead of crashing the route with an empty 500.
+  async function safeEbayFetch(url: string): Promise<{ itemSummaries?: unknown[] }> {
+    try {
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        console.error("[/api/ebay] eBay returned", res.status, "for", url);
+        return {};
+      }
+      return await res.json();
+    } catch (e) {
+      console.error("[/api/ebay] eBay fetch threw for", url, e);
+      return {};
+    }
+  }
 
   /* =========================
      1️⃣ ACTIVE LISTINGS
   ========================== */
 
   // Note: eBay Browse API rejects filter=buyingOptions:{FIXED_PRICE} (error 12002), so it's omitted.
-  const activeRes = await fetch(
+  const activeData = await safeEbayFetch(
     `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
       query
-    )}&category_ids=15709&limit=30`,
-    { headers }
+    )}&category_ids=15709&limit=30`
   );
-
-  const activeData = await activeRes.json();
-  const activeItems = activeData.itemSummaries || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const activeItems = ((activeData.itemSummaries as any[]) || []) as any[];
 
   const activePrices = activeItems
-    .map((item: any) => parseFloat(item.price?.value))
+    .map((item) => parseFloat(item.price?.value))
     .filter((p: number) => !isNaN(p));
 
   // Track cheapest listing's itemId for direct buy link
   const cheapestItem = activeItems
-    .filter((item: any) => !isNaN(parseFloat(item.price?.value)))
-    .sort((a: any, b: any) => parseFloat(a.price?.value) - parseFloat(b.price?.value))[0];
+    .filter((item) => !isNaN(parseFloat(item.price?.value)))
+    .sort((a, b) => parseFloat(a.price?.value) - parseFloat(b.price?.value))[0];
 
   const cheapestItemId: string | null =
     cheapestItem?.legacyItemId ?? cheapestItem?.itemId?.split("|")[1] ?? null;
@@ -127,20 +156,18 @@ export async function POST(req: Request) {
   // filter=soldItems:{true} was rejected with error 12002 and silently ignored. This fetches a broader
   // active sample (50 vs 30) and treats the median as a market-price proxy — rename field when moving
   // to a real sold-price source.
-  const soldRes = await fetch(
+  const soldData = await safeEbayFetch(
     `${base}/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
       query
-    )}&category_ids=15709&limit=50`,
-    { headers }
+    )}&category_ids=15709&limit=50`
   );
-
-  const soldData = await soldRes.json();
-  const soldItems = soldData.itemSummaries || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const soldItems = ((soldData.itemSummaries as any[]) || []) as any[];
 
   const newPrices: number[] = [];
   const usedPrices: number[] = [];
 
-  soldItems.forEach((item: any) => {
+  soldItems.forEach((item) => {
     const price = parseFloat(item.price?.value);
     const condition = item.condition?.toLowerCase();
 
