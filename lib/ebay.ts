@@ -4,21 +4,22 @@
 // Cache the token until 60s before its real expiry.
 let cached: { value: string; expiresAt: number } | null = null;
 
-async function fetchTokenWithRetry(url: string, init: RequestInit, retries = 1): Promise<Response> {
+async function fetchTokenWithRetry(url: string, init: RequestInit, attempt = 0): Promise<Response> {
   try {
     return await fetch(url, init);
   } catch (e) {
     const code = (e as { cause?: { code?: string }; code?: string })?.cause?.code
       ?? (e as { code?: string })?.code;
-    if (retries > 0 && code === "ENOTFOUND") {
-      await new Promise((r) => setTimeout(r, 500));
-      return fetchTokenWithRetry(url, init, retries - 1);
+    // Backoff schedule: 500ms, 1s, 2s. Up to 3 retries.
+    if (attempt < 3 && (code === "ENOTFOUND" || code === "ECONNRESET" || code === "ETIMEDOUT")) {
+      await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt)));
+      return fetchTokenWithRetry(url, init, attempt + 1);
     }
     throw e;
   }
 }
 
-export async function getEbayAccessToken() {
+export async function getEbayAccessToken(): Promise<string | undefined> {
   const now = Date.now();
   if (cached && cached.expiresAt > now + 60_000) {
     return cached.value;
@@ -33,24 +34,31 @@ export async function getEbayAccessToken() {
     `${process.env.EBAY_CLIENT_ID}:${process.env.EBAY_CLIENT_SECRET}`
   ).toString("base64");
 
-  const res = await fetchTokenWithRetry(`${base}/identity/v1/oauth2/token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${credentials}`,
-    },
-    body: "grant_type=client_credentials&scope=https://api.ebay.com/oauth/api_scope",
-  });
+  try {
+    const res = await fetchTokenWithRetry(`${base}/identity/v1/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${credentials}`,
+      },
+      body: "grant_type=client_credentials&scope=https://api.ebay.com/oauth/api_scope",
+    });
 
-  if (!res.ok) {
-    console.error("[lib/ebay] token request failed:", res.status, await res.text().catch(() => ""));
+    if (!res.ok) {
+      console.error("[lib/ebay] token request failed:", res.status, await res.text().catch(() => ""));
+      return undefined;
+    }
+
+    const data = (await res.json()) as { access_token?: string; expires_in?: number };
+    if (!data.access_token) return undefined;
+
+    const ttlMs = (data.expires_in ?? 7200) * 1000;
+    cached = { value: data.access_token, expiresAt: now + ttlMs };
+    return data.access_token;
+  } catch (e) {
+    // Vercel intermittently fails getaddrinfo for api.ebay.com. Don't throw:
+    // callers degrade gracefully (e.g. /api/market-prices uses Deal cache).
+    console.error("[lib/ebay] token fetch threw:", e);
     return undefined;
   }
-
-  const data = (await res.json()) as { access_token?: string; expires_in?: number };
-  if (!data.access_token) return undefined;
-
-  const ttlMs = (data.expires_in ?? 7200) * 1000;
-  cached = { value: data.access_token, expiresAt: now + ttlMs };
-  return data.access_token;
 }
