@@ -2,18 +2,25 @@
 //
 // Flight Club's legacy search endpoint `/catalogsearch/result/?q=...` returns a
 // 200 but silently ignores the query (renders "RESULTS FOR 'ALL'"). Their real
-// discovery surface is slug-based: /nike/air-force-1, /air-jordans/air-jordan-1,
-// /adidas/samba, /sneakers/balenciaga, etc.
+// discovery surface is slug-based, and the brand routing follows two patterns:
+//
+//   Flagship brands at `/<brand>`:        /nike, /adidas, /new-balance, /air-jordans
+//   Non-flagship brands at `/sneakers/<brand>`: /sneakers/asics, /sneakers/vans,
+//                                                /sneakers/converse, /sneakers/puma,
+//                                                /sneakers/reebok, /sneakers/balenciaga
+//
+// Model pages live under their brand root, e.g. /nike/air-force-1,
+// /air-jordans/air-jordan-1, /sneakers/asics/gel-lyte-3.
 //
 // We match the scanned sneaker name against a curated slug map; unknown models
 // fall back to a brand root, then homepage. The matcher is a whole-word
 // *contains* match so collab prefixes like "Travis Scott Jordan 1 Low" still
 // resolve to the Jordan 1 page.
 //
-// Slugs are verified against Flight Club via `site:flightclub.com` search
-// (Salomon has no dedicated brand page, so it falls through to /sneakers/salomon
-// which follows the /sneakers/<brand> pattern confirmed for Balenciaga; treat
-// as best-effort).
+// Slugs are verified against Flight Club via `site:flightclub.com` Google
+// search (FC blocks direct curl/fetch with 403). Brands not present in their
+// catalog (e.g. HOKA, On) are intentionally omitted — the function falls
+// through to the FC homepage rather than a guessed 404.
 
 const FC_BASE = "https://www.flightclub.com";
 
@@ -67,20 +74,20 @@ const BRAND_ROOTS: Array<[phrase: string, slug: string]> = [
   ["air jordan", "/air-jordans"],
   ["jordan", "/air-jordans"],
   ["travis scott", "/collections/travis-scott"],
-  ["balenciaga", "/sneakers/balenciaga"],
-  ["salomon", "/sneakers/salomon"],
+  // Flagship brands: /<brand>
   ["nike", "/nike"],
   ["adidas", "/adidas"],
   ["new balance", "/new-balance"],
-  ["converse", "/converse"],
-  ["asics", "/asics"],
-  ["vans", "/vans"],
-  ["puma", "/puma"],
-  ["reebok", "/reebok"],
-  ["hoka", "/hoka-one-one"],
-  // "on" alone is too generic; match only when paired with a known suffix.
-  ["on cloud", "/sneakers"],
-  ["on running", "/sneakers"],
+  // Non-flagship brands: /sneakers/<brand>
+  ["balenciaga", "/sneakers/balenciaga"],
+  ["salomon", "/sneakers/salomon"],
+  ["asics", "/sneakers/asics"],
+  ["converse", "/sneakers/converse"],
+  ["vans", "/sneakers/vans"],
+  ["puma", "/sneakers/puma"],
+  ["reebok", "/sneakers/reebok"],
+  // HOKA, On, and other running brands aren't carried by Flight Club —
+  // intentionally omitted so the function falls through to the homepage.
 ];
 
 function compile(entries: Array<[string, string]>): Array<[RegExp, string]> {
