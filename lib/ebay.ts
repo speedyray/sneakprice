@@ -2,6 +2,12 @@
 // every request (a) wastes DNS lookups against api.ebay.com (which has been
 // failing intermittently with ENOTFOUND on Vercel), and (b) burns rate limit.
 // Cache the token until 60s before its real expiry.
+//
+// 2026-04-26 incident: eBay's CDN target global-api.ebaycdn.net dropped its
+// A records for ~2h, so api.ebay.com was unresolvable. Node's process-level
+// DNS cache on warm Vercel containers held the negative result even after
+// eBay's DNS recovered, so a redeploy was needed to evict warm containers.
+// Long-term, we should consider an undici dispatcher with disabled DNS cache.
 let cached: { value: string; expiresAt: number } | null = null;
 
 async function fetchTokenWithRetry(url: string, init: RequestInit, attempt = 0): Promise<Response> {
