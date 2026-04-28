@@ -3,10 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Twitter,
-  Instagram,
-  Youtube,
-  Facebook,
   Upload,
   Camera,
   Loader2,
@@ -20,6 +16,7 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { type ArbDeal } from "@/components/ArbitrageDealCard";
 import SneakPriceResaleTerminal from "@/components/SneakPriceResaleTerminal";
 import HowItWorks from "@/components/HowItWorks";
+import HeroDemoVideo from "@/components/HeroDemoVideo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { flightClubUrl } from "@/lib/flight-club-url";
 
@@ -566,7 +563,7 @@ export default function DiscoverPage() {
         {t.page.free_plan}
       </p>
 
-      <HowItWorks />
+      <HeroDemoVideo />
 
       <div className="mt-16 max-w-6xl w-full">
         <h2 className="text-3xl font-bold text-center mb-2">
@@ -840,6 +837,14 @@ export default function DiscoverPage() {
                       >
                         Flight Club
                       </a>
+                      <a
+                        href={`https://www.amazon.com/s?k=${encodeURIComponent(identifiedSneaker)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#FF9900] px-3 py-1.5 text-sm font-semibold text-black hover:bg-[#ffad33] transition"
+                      >
+                        Amazon
+                      </a>
                     </div>
                   </div>
                 )}
@@ -939,15 +944,7 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <div className="flex justify-center mb-8">
-        <Image
-          src="/AirJordanOne.png"
-          alt="Air Jordan 1"
-          width={400}
-          height={400}
-          className="opacity-90"
-        />
-      </div>
+      <HowItWorks />
 
       <div className="mt-24 max-w-5xl w-full">
         <h2 className="text-3xl font-bold mb-12 text-center">
@@ -1105,17 +1102,28 @@ export default function DiscoverPage() {
         </div>
 
         <div className="flex justify-center gap-6 mb-6">
-          <a href="https://twitter.com/sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
-            <Twitter size={20} />
+          <a href="https://twitter.com/sneakprice" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)" className="text-neutral-500 transition hover:text-black">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
           </a>
-          <a href="https://instagram.com/sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
-            <Instagram size={20} />
+          <a href="https://instagram.com/sneakprice" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-neutral-500 transition hover:text-black">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect width="20" height="20" x="2" y="2" rx="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+            </svg>
           </a>
-          <a href="https://youtube.com/@sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
-            <Youtube size={20} />
+          <a href="https://youtube.com/@sneakprice" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-neutral-500 transition hover:text-black">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+              <path d="m10 15 5-3-5-3z" />
+            </svg>
           </a>
-          <a href="https://facebook.com/sneakprice" target="_blank" rel="noopener noreferrer" className="text-neutral-500 transition hover:text-black">
-            <Facebook size={22} />
+          <a href="https://facebook.com/sneakprice" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-neutral-500 transition hover:text-black">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+            </svg>
           </a>
         </div>
 

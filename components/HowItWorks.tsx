@@ -304,16 +304,21 @@ export default function HowItWorks() {
                 {/* Marketplace row */}
                 <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "7px 10px" }}>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'JetBrains Mono',monospace", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 5 }}>Listed on</div>
-                  <div style={{ display: "flex", gap: 5 }}>
-                    {["eBay", "StockX", "GOAT"].map((mkt, i) => (
-                      <span key={mkt} style={{
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {[
+                      { name: "eBay", bg: "rgba(255,193,7,0.15)", border: "rgba(255,193,7,0.3)", color: "#fbbf24" },
+                      { name: "Amazon", bg: "rgba(255,153,0,0.15)", border: "rgba(255,153,0,0.3)", color: "#ff9900" },
+                      { name: "StockX", bg: "rgba(34,197,94,0.15)", border: "rgba(34,197,94,0.3)", color: "#22c55e" },
+                      { name: "GOAT", bg: "rgba(255,255,255,0.08)", border: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" },
+                    ].map(mkt => (
+                      <span key={mkt.name} style={{
                         flex: 1, textAlign: "center",
-                        background: i === 0 ? "rgba(255,193,7,0.15)" : i === 1 ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.08)",
-                        border: `1px solid ${i === 0 ? "rgba(255,193,7,0.3)" : i === 1 ? "rgba(34,197,94,0.3)" : "rgba(255,255,255,0.1)"}`,
+                        background: mkt.bg,
+                        border: `1px solid ${mkt.border}`,
                         borderRadius: 5, padding: "3px 0",
-                        color: i === 0 ? "#fbbf24" : i === 1 ? "#22c55e" : "rgba(255,255,255,0.6)",
-                        fontFamily: "'JetBrains Mono',monospace", fontSize: 7.5, fontWeight: 600,
-                      }}>{mkt}</span>
+                        color: mkt.color,
+                        fontFamily: "'JetBrains Mono',monospace", fontSize: 7, fontWeight: 600,
+                      }}>{mkt.name}</span>
                     ))}
                   </div>
                 </div>
