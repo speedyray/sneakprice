@@ -26,6 +26,15 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/newsletter",
+        destination: "/#sneakprice-plus",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

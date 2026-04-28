@@ -41,7 +41,7 @@ export default function NewsletterTeaser() {
   }
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 mb-16">
+    <section id="sneakprice-plus" className="w-full max-w-6xl mx-auto px-4 mb-16 scroll-mt-24">
       <div
         style={{
           background: "#fdfcf3",
