@@ -41,18 +41,32 @@ export async function POST(req: Request) {
     // address. So we route every signup to that inbox as a "new signup" ping
     // instead of a subscriber welcome. Once `sneakpriceapp.com` is verified in
     // Resend → switch `to: email` and rewrite the body as a real welcome.
-    await resend.emails.send({
-      from: "SneakPrice <onboarding@resend.dev>",
-      to: "zoomzoom@gmx.com",
-      subject: `New SneakPrice signup: ${email}`,
-      html: `
-        <div style="font-family: Arial; padding: 20px;">
-          <h2>New waitlist signup 👟</h2>
-          <p><strong>${email}</strong> just joined the SneakPrice waitlist.</p>
-          <p>Full list lives in Supabase → <code>waitlist</code> table.</p>
-        </div>
-      `,
-    });
+    //
+    // Note: the Supabase insert above is the source of truth. Email delivery
+    // is best-effort — we log Resend failures (including silent rejections
+    // the SDK returns instead of throwing) but still return success so a
+    // dropped notification doesn't block the user from joining.
+    if (!process.env.RESEND_API_KEY) {
+      console.error("[waitlist] RESEND_API_KEY missing — skipping admin notification for", email);
+    } else {
+      const sendResult = await resend.emails.send({
+        from: "SneakPrice <onboarding@resend.dev>",
+        to: "zoomzoom@gmx.com",
+        subject: `New SneakPrice signup: ${email}`,
+        html: `
+          <div style="font-family: Arial; padding: 20px;">
+            <h2>New waitlist signup 👟</h2>
+            <p><strong>${email}</strong> just joined the SneakPrice waitlist.</p>
+            <p>Full list lives in Supabase → <code>waitlist</code> table.</p>
+          </div>
+        `,
+      });
+      if (sendResult.error) {
+        console.error("[waitlist] Resend send failed for", email, sendResult.error);
+      } else {
+        console.log("[waitlist] Resend admin ping sent for", email, "id:", sendResult.data?.id);
+      }
+    }
 
     return NextResponse.json({ success: true });
 
