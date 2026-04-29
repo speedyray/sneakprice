@@ -17,7 +17,6 @@ import { type ArbDeal } from "@/components/ArbitrageDealCard";
 import SneakPriceResaleTerminal from "@/components/SneakPriceResaleTerminal";
 import HowItWorks from "@/components/HowItWorks";
 import HeroDemoVideo from "@/components/HeroDemoVideo";
-import NewsletterTeaser from "@/components/NewsletterTeaser";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { flightClubUrl } from "@/lib/flight-club-url";
 
@@ -565,8 +564,6 @@ export default function DiscoverPage() {
       </p>
 
       <HeroDemoVideo />
-
-      <NewsletterTeaser />
 
       <div className="mt-16 max-w-6xl w-full">
         <h2 className="text-3xl font-bold text-center mb-2">
