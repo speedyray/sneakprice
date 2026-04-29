@@ -16,7 +16,6 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { type ArbDeal } from "@/components/ArbitrageDealCard";
 import SneakPriceResaleTerminal from "@/components/SneakPriceResaleTerminal";
 import HowItWorks from "@/components/HowItWorks";
-import HeroDemoVideo from "@/components/HeroDemoVideo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { flightClubUrl } from "@/lib/flight-club-url";
 
@@ -563,7 +562,7 @@ export default function DiscoverPage() {
         {t.page.free_plan}
       </p>
 
-      <HeroDemoVideo />
+      <HowItWorks />
 
       <div className="mt-16 max-w-6xl w-full">
         <h2 className="text-3xl font-bold text-center mb-2">
@@ -944,7 +943,15 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <HowItWorks />
+      <div className="flex justify-center mb-8">
+        <Image
+          src="/AirJordanOne.png"
+          alt="Air Jordan 1"
+          width={400}
+          height={400}
+          className="opacity-90"
+        />
+      </div>
 
       <div className="mt-24 max-w-5xl w-full">
         <h2 className="text-3xl font-bold mb-12 text-center">
