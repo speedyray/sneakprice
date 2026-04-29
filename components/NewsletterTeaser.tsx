@@ -1,11 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const FALLBACK_AI_FLIPS_ROI = 58.64;
+// Marketing reference for the broader sneaker resale market. We don't have a
+// live feed for this, so it stays static — flag if you find a better source.
+const SNEAKER_MARKET_ROI = 4.2;
 
 export default function NewsletterTeaser() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "dup" | "err">("idle");
   const [message, setMessage] = useState("");
+  const [aiFlipsRoi, setAiFlipsRoi] = useState<number>(FALLBACK_AI_FLIPS_ROI);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const res = await fetch("/api/newsletter-stats", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        if (typeof data.aiFlipsRoi === "number" && Number.isFinite(data.aiFlipsRoi)) {
+          setAiFlipsRoi(data.aiFlipsRoi);
+        }
+      } catch {
+        // Fallback already applied via initial state
+      }
+    }
+    load();
+    const id = setInterval(load, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -108,8 +137,8 @@ export default function NewsletterTeaser() {
             color: "#0a0a0a",
           }}
         >
-          Our AI flips: <span style={{ color: "#22c55e" }}>+35.4%</span> avg ROI.
-          The sneaker market: <span style={{ color: "#6b6a5e" }}>+4.2%</span>.
+          Our AI flips: <span style={{ color: "#22c55e" }}>+{aiFlipsRoi.toFixed(2)}%</span> avg ROI.
+          The sneaker market: <span style={{ color: "#6b6a5e" }}>+{SNEAKER_MARKET_ROI}%</span>.
           Only insiders get the picks.
         </h2>
         <p style={{ color: "#6b6a5e", fontSize: 15, lineHeight: 1.55, margin: "0 0 24px", maxWidth: 640 }}>
@@ -160,11 +189,11 @@ export default function NewsletterTeaser() {
           <div style={{ display: "flex", gap: 24, marginTop: 6, flexWrap: "wrap" }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#0a0a0a" }}>
               <span style={{ width: 10, height: 2, background: "#22c55e", display: "inline-block" }} />
-              SneakPrice picks <strong style={{ color: "#22c55e", marginLeft: 4 }}>+35.4%</strong>
+              SneakPrice picks <strong style={{ color: "#22c55e", marginLeft: 4 }}>+{aiFlipsRoi.toFixed(2)}%</strong>
             </span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#0a0a0a" }}>
               <span style={{ width: 10, height: 2, background: "#9ca3af", display: "inline-block" }} />
-              Sneaker market <strong style={{ color: "#0a0a0a", marginLeft: 4 }}>+4.2%</strong>
+              Sneaker market <strong style={{ color: "#0a0a0a", marginLeft: 4 }}>+{SNEAKER_MARKET_ROI}%</strong>
             </span>
           </div>
         </div>
