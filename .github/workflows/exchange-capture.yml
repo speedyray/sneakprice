@@ -1,13 +1,12 @@
 name: Exchange Capture
 
-# Captures a MarketSnapshot per catalog symbol every hour. Disabled by default
-# (workflow_dispatch only) until `npx prisma db push` materializes the new
-# tables on Supabase — once that's done, uncomment the `schedule:` block below
-# and the hourly cron starts populating the SPX exchange.
+# Captures a MarketSnapshot per catalog symbol every hour and aggregates
+# into IndexSnapshot rows in the same tick. Verified live 2026-04-29 with
+# all 25 symbols capturing successfully against the prod Supabase tables.
 
 on:
-  # schedule:
-  #   - cron: "0 * * * *"  # every hour at :00 UTC
+  schedule:
+    - cron: "0 * * * *" # every hour at :00 UTC
   workflow_dispatch:
 
 jobs:
