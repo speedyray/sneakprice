@@ -2,11 +2,6 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  createSeedDeals,
-  getFeedState,
-  tickArbitrageFeed,
-} from "@/lib/simulation/arbitrageEngine";
-import {
   Activity,
   ArrowRight,
   Bell,
@@ -38,19 +33,38 @@ type LiveIndex = {
 };
 
 type ExchangeDeal = {
-  id: number;
-  marketId: string;
+  id: string;
   title: string;
   status: DealStatus;
   buySource: string;
   sellSource: string;
   buyPrice: number;
   sellPrice: number;
+  buyUrl: string | null;
+  sellUrl: string | null;
   profit: number;
   margin: number;
   detectedAt: string;
   lastScanAt: string;
   watchers: number;
+};
+
+type LiveDealRow = {
+  id: string;
+  title: string;
+  brand: string | null;
+  buyPlatform: string | null;
+  buyPrice: number | null;
+  buyUrl: string | null;
+  sellPlatform: string | null;
+  sellPrice: number | null;
+  sellUrl: string | null;
+  netProfit: number | null;
+  profitMargin: number | null;
+  dealScore: number | null;
+  dealLabel: string | null;
+  detectedAt: string;
+  updatedAt: string;
 };
 
 type ScannerStats = {
@@ -65,16 +79,6 @@ type ScannerResult = {
   capturedAt: string;
   stats: ScannerStats;
   listingCount: number;
-};
-
-// SPX-* index → which simulated deals belong on its execution feed.
-// Temporary while step 6 (live Deal feed) is pending.
-const INDEX_TO_DEAL_REGEX: Record<string, RegExp> = {
-  "SPX-JORDAN": /AJ\d|Jordan/i,
-  "SPX-YEEZY": /Yeezy/i,
-  "SPX-NIKE": /Air Force|Air Max|Dunk|Nike/i,
-  "SPX-DUNK": /Dunk/i,
-  "SPX-LUX": /Travis|Off-?White|Balenciaga/i,
 };
 
 function trendFromChange(dayChangePct: number | null): Trend {
@@ -190,24 +194,42 @@ function MiniChart({ values }: { values: number[] }) {
   );
 }
 
-function remapDeals(
-  deals: ReturnType<typeof createSeedDeals>
-): ExchangeDeal[] {
-  return deals.map((deal) => ({
-    id: deal.id,
-    marketId: deal.name,
-    title: deal.name,
-    status: deal.category,
-    buySource: "eBay",
-    sellSource: /Travis|Jordan|Yeezy|AJ4/i.test(deal.name) ? "StockX" : "GOAT",
-    buyPrice: deal.buyPrice,
-    sellPrice: deal.sellPrice,
-    profit: deal.netProfit,
-    margin: deal.margin,
-    detectedAt: deal.timeAgo,
-    lastScanAt: "just now",
-    watchers: Math.max(2, Math.round(Math.abs(deal.margin) / 4)),
-  }));
+function dealStatusFromLabel(label: string | null): DealStatus {
+  if (label === "hot" || label === "good" || label === "watch") return label;
+  return "watch";
+}
+
+function platformLabel(p: string | null | undefined): string {
+  if (!p) return "—";
+  if (p === "ebay") return "eBay";
+  if (p === "stockx") return "StockX";
+  if (p === "goat") return "GOAT";
+  if (p === "nike") return "Nike";
+  if (p === "footlocker") return "Foot Locker";
+  return p.charAt(0).toUpperCase() + p.slice(1);
+}
+
+function mapLiveDeal(row: LiveDealRow): ExchangeDeal {
+  const buyPrice = row.buyPrice ?? 0;
+  const sellPrice = row.sellPrice ?? 0;
+  const profit = row.netProfit ?? sellPrice - buyPrice;
+  const margin = row.profitMargin ?? (buyPrice > 0 ? (profit / buyPrice) * 100 : 0);
+  return {
+    id: row.id,
+    title: row.title,
+    status: dealStatusFromLabel(row.dealLabel),
+    buySource: platformLabel(row.buyPlatform),
+    sellSource: platformLabel(row.sellPlatform),
+    buyPrice,
+    sellPrice,
+    buyUrl: row.buyUrl,
+    sellUrl: row.sellUrl,
+    profit,
+    margin: Math.round(margin * 10) / 10,
+    detectedAt: timeAgo(row.detectedAt),
+    lastScanAt: timeAgo(row.updatedAt),
+    watchers: Math.max(2, Math.round(Math.abs(margin) / 4)),
+  };
 }
 
 export default function SneakerExchange() {
@@ -216,9 +238,10 @@ export default function SneakerExchange() {
   const [indexesError, setIndexesError] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("SPX-JORDAN");
 
-  const [dealFeed, setDealFeed] = useState(() =>
-    getFeedState(createSeedDeals(), 10)
-  );
+  const [deals, setDeals] = useState<ExchangeDeal[]>([]);
+  const [dealsLoading, setDealsLoading] = useState(true);
+  const [dealsError, setDealsError] = useState<string | null>(null);
+  const [dealsLastUpdated, setDealsLastUpdated] = useState<string | null>(null);
 
   const [isPro] = useState<boolean>(false);
   const [scannerQuery, setScannerQuery] = useState<string>("Air Jordan 1");
@@ -259,20 +282,36 @@ export default function SneakerExchange() {
     };
   }, []);
 
-  // Arbitrage feed — still simulated until step 6.
+  // Live arbitrage feed — refetch on index change and every 30s.
   useEffect(() => {
-    const dealTimer = setInterval(() => {
-      setDealFeed((prev) =>
-        tickArbitrageFeed(prev.deals, {
-          addProbability: 0.28,
-          removeProbability: 0.08,
-          maxDeals: 14,
-          minDeals: 8,
-        })
-      );
-    }, 13000);
-    return () => clearInterval(dealTimer);
-  }, []);
+    let cancelled = false;
+
+    async function loadDeals() {
+      try {
+        const url = `/api/exchange/deals?index=${encodeURIComponent(selectedSymbol)}&take=30`;
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = (await res.json()) as { deals: LiveDealRow[] };
+        if (cancelled) return;
+        setDeals(json.deals.map(mapLiveDeal));
+        setDealsError(null);
+        setDealsLastUpdated(new Date().toISOString());
+      } catch (err) {
+        if (cancelled) return;
+        setDealsError(err instanceof Error ? err.message : "fetch failed");
+      } finally {
+        if (!cancelled) setDealsLoading(false);
+      }
+    }
+
+    setDealsLoading(true);
+    loadDeals();
+    const t = setInterval(loadDeals, 30_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [selectedSymbol]);
 
   // Scanner — debounced fetch against /api/market.
   useEffect(() => {
@@ -313,31 +352,19 @@ export default function SneakerExchange() {
     return () => clearTimeout(t);
   }, [scannerQuery]);
 
-  const exchangeDeals = useMemo(
-    () => remapDeals(dealFeed.deals),
-    [dealFeed.deals]
-  );
-
   const selectedIndex = useMemo(
     () =>
       indexes.find((i) => i.symbol === selectedSymbol) ?? indexes[0] ?? null,
     [indexes, selectedSymbol]
   );
 
-  const filteredDeals = useMemo(() => {
-    if (!selectedIndex) return [];
-    const re = INDEX_TO_DEAL_REGEX[selectedIndex.symbol];
-    if (!re) return exchangeDeals;
-    return exchangeDeals.filter((d) => re.test(d.title));
-  }, [exchangeDeals, selectedIndex]);
-
   const bestDeal = useMemo(() => {
-    if (!filteredDeals.length) return null;
-    return [...filteredDeals].sort((a, b) => b.profit - a.profit)[0];
-  }, [filteredDeals]);
+    if (!deals.length) return null;
+    return [...deals].sort((a, b) => b.profit - a.profit)[0];
+  }, [deals]);
 
-  const visibleDeals = isPro ? filteredDeals : filteredDeals.slice(0, 2);
-  const hiddenCount = Math.max(filteredDeals.length - visibleDeals.length, 0);
+  const visibleDeals = isPro ? deals : deals.slice(0, 2);
+  const hiddenCount = Math.max(deals.length - visibleDeals.length, 0);
 
   const totalLiquidity = indexes.reduce(
     (acc, i) => acc + (i.liquidityCount ?? 0),
@@ -373,7 +400,7 @@ export default function SneakerExchange() {
               <StatCard label="Indexes" value={indexes.length.toString()} />
               <StatCard
                 label="Active deals"
-                value={dealFeed.activeDealsCount.toString()}
+                value={deals.length.toString()}
               />
               <StatCard
                 label="Liquidity"
@@ -644,8 +671,17 @@ export default function SneakerExchange() {
                 Showing deals linked to{" "}
                 <span className="font-medium text-slate-200">
                   {selectedIndex?.name ?? "—"}
-                </span>{" "}
-                · live feed {dealFeed.lastScanTime}
+                </span>
+                {dealsLastUpdated && (
+                  <>
+                    {" "}
+                    · live feed updated {timeAgo(dealsLastUpdated)}
+                  </>
+                )}
+                {dealsLoading && deals.length === 0 && " · loading…"}
+                {dealsError && deals.length === 0 && (
+                  <> · <span className="text-rose-300">feed error</span></>
+                )}
               </div>
             </div>
 
@@ -713,10 +749,21 @@ export default function SneakerExchange() {
                 </div>
 
                 <div className="mt-5 flex flex-wrap gap-3">
-                  <button className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm text-sky-300">
-                    View listing
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
+                  {deal.buyUrl ? (
+                    <a
+                      href={deal.buyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm text-sky-300"
+                    >
+                      View listing
+                      <ArrowRight className="h-4 w-4" />
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-500">
+                      No listing URL
+                    </span>
+                  )}
                   <button className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-300">
                     <Bell className="h-4 w-4" />
                     Set alert
