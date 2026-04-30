@@ -303,6 +303,22 @@ model Scan {
   created_at DateTime @default(now())
 }
 
+// Per-day scan-usage counter for the rate limiter (3/day per user+IP).
+// Created via Supabase SQL editor (with an atomic RPC), not Prisma — this
+// model exists only to teach Prisma about the live table so `db push` won't
+// try to drop it. Keeps snake_case and explicit `map:` names so the
+// constraint/index identifiers match what's in the database.
+model scan_usage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id   String
+  ip        String   @default("unknown")
+  scan_date DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+  count     Int      @default(1)
+
+  @@unique([user_id, scan_date], map: "scan_usage_user_date_unique")
+  @@index([ip, scan_date], map: "scan_usage_ip_date_idx")
+}
+
 enum HoldStatus {
   ACTIVE
   CANCELLED
