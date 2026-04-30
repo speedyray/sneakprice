@@ -1,0 +1,35 @@
+name: Exchange Capture
+
+# Captures a MarketSnapshot per catalog symbol every hour. Disabled by default
+# (workflow_dispatch only) until `npx prisma db push` materializes the new
+# tables on Supabase — once that's done, uncomment the `schedule:` block below
+# and the hourly cron starts populating the SPX exchange.
+
+on:
+  # schedule:
+  #   - cron: "0 * * * *"  # every hour at :00 UTC
+  workflow_dispatch:
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger SPX exchange snapshot capture
+        continue-on-error: true
+        run: |
+          RESPONSE=$(curl -s --max-time 320 \
+            -w "\nHTTP_STATUS:%{http_code}" \
+            -X GET "https://sneakpriceapp.com/api/cron/exchange-capture" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+          BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS:")
+
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_STATUS" = "401" ]; then
+            echo "ERROR: Unauthorized — check CRON_SECRET in GitHub repository secrets"
+            exit 1
+          fi
