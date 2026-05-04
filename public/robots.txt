@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Don't crawl auth/admin/API surfaces
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /dashboard/
+Disallow: /inventory/
+Disallow: /api/
+Disallow: /sign-in
+Disallow: /sign-up
+
+Sitemap: https://sneakpriceapp.com/sitemap.xml
