@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger SPX exchange snapshot capture
-        continue-on-error: true
         run: |
           RESPONSE=$(curl -s --max-time 320 \
             -w "\nHTTP_STATUS:%{http_code}" \
@@ -28,7 +27,9 @@ jobs:
           echo "HTTP Status: $HTTP_STATUS"
           echo "Response: $BODY"
 
-          if [ "$HTTP_STATUS" = "401" ]; then
-            echo "ERROR: Unauthorized — check CRON_SECRET in GitHub repository secrets"
+          # Fail loudly on any non-2xx so silent drift (e.g. CRON_SECRET
+          # rotation on either side) can't masquerade as success for days.
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "ERROR: capture returned non-200 status $HTTP_STATUS"
             exit 1
           fi
