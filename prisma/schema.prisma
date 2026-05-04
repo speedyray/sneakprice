@@ -75,6 +75,8 @@ model User {
   listings       MarketplaceListing[] @relation("SellerListings")
   buyerOrders    Order[]              @relation("BuyerOrders")
   sellerOrders   Order[]              @relation("SellerOrders")
+
+  alertRules AlertRule[]
 }
 
 model SellerProfile {
@@ -438,4 +440,51 @@ model IndexSnapshot {
   liquidityCount Int
 
   @@index([indexSymbol, capturedAt])
+}
+
+enum AlertKind {
+  PRICE_BELOW
+  PRICE_ABOVE
+  DEAL_MARGIN_OVER
+  INDEX_MOVE_OVER
+}
+
+// User-configured trigger. `target` interpretation depends on `kind`:
+//   PRICE_BELOW / PRICE_ABOVE → catalog symbol matching MarketSnapshot.symbol
+//   INDEX_MOVE_OVER           → index slug matching IndexSnapshot.indexSymbol
+//   DEAL_MARGIN_OVER          → "*" for any deal, or a substring matched against Deal.sneaker
+// `threshold` is dollars for PRICE_*, percent for *_OVER kinds.
+model AlertRule {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind            AlertKind
+  target          String
+  threshold       Float
+  label           String?
+  active          Boolean   @default(true)
+  lastTriggeredAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  events AlertEvent[]
+
+  @@index([userId, active])
+  @@index([kind, active])
+}
+
+// Append-only firing log. `notifiedAt` is set when the email goes out so we
+// can dedupe re-sends and surface a "recent alerts" feed in the UI.
+model AlertEvent {
+  id            String    @id @default(cuid())
+  ruleId        String
+  rule          AlertRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  triggeredAt   DateTime  @default(now())
+  observedValue Float
+  payload       Json
+  notifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([ruleId, triggeredAt])
+  @@index([triggeredAt])
 }

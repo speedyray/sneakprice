@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { captureSnapshots } from "@/lib/exchange/capture";
 import { aggregateIndexes } from "@/lib/exchange/aggregate";
+import { evaluateAlerts } from "@/lib/exchange/alerts";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -27,7 +28,8 @@ export async function GET(req: Request) {
   try {
     const capture = await captureSnapshots();
     const aggregate = await aggregateIndexes();
-    return NextResponse.json({ capture, aggregate });
+    const alerts = await evaluateAlerts();
+    return NextResponse.json({ capture, aggregate, alerts });
   } catch (err) {
     console.error("[/api/cron/exchange-capture] failed:", err);
     return NextResponse.json(

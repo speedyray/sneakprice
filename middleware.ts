@@ -8,6 +8,7 @@ const isProtectedRoute = createRouteMatcher([
   "/inventory(.*)",
   "/marketplace/my-listings(.*)",
   "/marketplace/create-listing(.*)",
+  "/exchange/alerts(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
