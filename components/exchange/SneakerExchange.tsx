@@ -147,6 +147,46 @@ function formatLevel(value: number | null): string {
   return value.toFixed(2);
 }
 
+// Tweens between successive `value` props over ~600ms with an ease-out curve.
+// When the value first becomes non-null we just snap (no fade-in from 0).
+function AnimatedLevel({ value }: { value: number | null }) {
+  const [displayed, setDisplayed] = useState<number | null>(value);
+  const fromRef = useRef<number | null>(value);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (value == null) {
+      setDisplayed(null);
+      fromRef.current = null;
+      return;
+    }
+    const from = fromRef.current;
+    if (from == null || from === value) {
+      setDisplayed(value);
+      fromRef.current = value;
+      return;
+    }
+    const startedAt = performance.now();
+    const duration = 600;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplayed(from + (value - from) * eased);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = value;
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [value]);
+
+  return <>{formatLevel(displayed)}</>;
+}
+
 function timeAgo(iso: string | null): string {
   if (!iso) return "—";
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -484,8 +524,8 @@ export default function SneakerExchange() {
                           </div>
                           <div className="text-right text-sm text-slate-400">
                             <div>Level</div>
-                            <div className="mt-1 text-lg font-semibold text-white">
-                              {formatLevel(idx.level)}
+                            <div className="mt-1 text-lg font-semibold text-white tabular-nums">
+                              <AnimatedLevel value={idx.level} />
                             </div>
                             {idx.dayChangePct == null ? (
                               <div className="mt-1 text-[10px] uppercase tracking-wider text-slate-500">
@@ -502,6 +542,11 @@ export default function SneakerExchange() {
                                 }`}
                               >
                                 {formatPct(idx.dayChangePct)}
+                              </div>
+                            )}
+                            {idx.capturedAt && (
+                              <div className="mt-1 text-[10px] text-slate-500">
+                                Updated {timeAgo(idx.capturedAt)}
                               </div>
                             )}
                           </div>
