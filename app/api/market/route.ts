@@ -1,5 +1,8 @@
 import { fetchEbayMarket, type EbayMarketItem } from "@/lib/ebay";
 import { summarize, type Stats } from "@/lib/exchange/stats";
+import { getCurrentDbUser } from "@/lib/current-user";
+import { isPaid } from "@/lib/subscription";
+import { checkAndIncrementScanLimit } from "@/lib/scan-rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,6 +24,27 @@ const TTL_MS = 60_000;
 const cache = new Map<string, { value: MarketResponse; expiresAt: number }>();
 
 export async function GET(req: Request) {
+  const user = await getCurrentDbUser();
+  if (!user) {
+    return Response.json({ error: "auth_required" }, { status: 401 });
+  }
+
+  if (!isPaid(user.subscriptionTier)) {
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+    const { allowed } = await checkAndIncrementScanLimit(user.clerkUserId, ip);
+    if (!allowed) {
+      return Response.json(
+        {
+          error: "rate_limit",
+          message:
+            "Daily scan limit reached. Upgrade to Pro for unlimited scans.",
+        },
+        { status: 429 }
+      );
+    }
+  }
+
   const { searchParams } = new URL(req.url);
   const query = (searchParams.get("q") ?? "").trim();
 
