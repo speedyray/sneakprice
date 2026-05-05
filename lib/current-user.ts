@@ -1,5 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { normalizeTier } from "@/lib/subscription";
 
 type ClerkUser = Awaited<ReturnType<typeof currentUser>>;
 
@@ -149,13 +150,21 @@ export async function getCurrentDbUser() {
         currentUserId: existingUser.id,
       }));
 
-    if (shouldBeAdmin && existingUser.role !== "ADMIN") {
+    const clerkTier = normalizeTier(
+      (clerkUser?.publicMetadata as Record<string, unknown> | undefined)
+        ?.subscriptionTier
+    );
+
+    const adminMismatch = shouldBeAdmin && existingUser.role !== "ADMIN";
+    const tierMismatch =
+      clerkTier !== null && existingUser.subscriptionTier !== clerkTier;
+
+    if (adminMismatch || tierMismatch) {
       return prisma.user.update({
-        where: {
-          id: existingUser.id,
-        },
+        where: { id: existingUser.id },
         data: {
-          role: "ADMIN",
+          ...(adminMismatch ? { role: "ADMIN" as const } : {}),
+          ...(tierMismatch ? { subscriptionTier: clerkTier! } : {}),
         },
         include: {
           sellerProfile: true,
@@ -192,6 +201,11 @@ export async function getCurrentDbUser() {
         currentUserId: existingUserByEmail.id,
       }));
 
+    const clerkTier = normalizeTier(
+      (clerkUser?.publicMetadata as Record<string, unknown> | undefined)
+        ?.subscriptionTier
+    );
+
     return prisma.user.update({
       where: {
         id: existingUserByEmail.id,
@@ -204,6 +218,7 @@ export async function getCurrentDbUser() {
         isSeller: true,
         isBuyer: true,
         role: shouldBeAdmin ? "ADMIN" : "SELLER",
+        ...(clerkTier ? { subscriptionTier: clerkTier } : {}),
         sellerProfile: existingUserByEmail.sellerProfile
           ? undefined
           : {
