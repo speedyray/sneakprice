@@ -54,6 +54,13 @@ enum SneakerCondition {
   USED
 }
 
+enum SubscriptionTier {
+  FREE
+  PRO
+  PREMIUM
+  POWER_SELLER
+}
+
 model User {
   id          String   @id @default(cuid())
   clerkUserId String   @unique
@@ -63,6 +70,7 @@ model User {
   lastName    String?
   imageUrl    String?
   role        UserRole @default(BUYER)
+  subscriptionTier SubscriptionTier @default(FREE)
   isSeller    Boolean  @default(false)
   isBuyer     Boolean  @default(true)
   createdAt   DateTime @default(now())
