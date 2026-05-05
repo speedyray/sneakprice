@@ -7,6 +7,8 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentDbUser } from "@/lib/current-user";
+import { isPaid } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,14 +23,22 @@ const INDEX_PATTERNS: Record<string, RegExp> = {
 
 const TAKE_DEFAULT = 30;
 const TAKE_MAX = 100;
+const FREE_DEAL_CAP = 3;
 
 export async function GET(req: Request) {
+  const user = await getCurrentDbUser();
+  if (!user) {
+    return NextResponse.json({ error: "auth_required" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const indexSymbol = searchParams.get("index");
   const takeParam = searchParams.get("take");
   const take = takeParam
     ? Math.min(TAKE_MAX, Math.max(1, parseInt(takeParam, 10) || TAKE_DEFAULT))
     : TAKE_DEFAULT;
+  const tier = user.subscriptionTier;
+  const userCap = isPaid(tier) ? take : Math.min(take, FREE_DEAL_CAP);
 
   const pattern = indexSymbol ? INDEX_PATTERNS[indexSymbol] : null;
 
@@ -42,7 +52,7 @@ export async function GET(req: Request) {
       buyPrice: { not: null },
     },
     orderBy: [{ dealScore: "desc" }, { created_at: "desc" }],
-    take: pattern ? TAKE_MAX : take,
+    take: pattern ? TAKE_MAX : userCap,
     select: {
       id: true,
       sneaker: true,
@@ -66,7 +76,7 @@ export async function GET(req: Request) {
     ? rows.filter((r) => (r.sneaker ? pattern.test(r.sneaker) : false))
     : rows;
 
-  const items = filtered.slice(0, take).map((r) => ({
+  const items = filtered.slice(0, userCap).map((r) => ({
     id: r.id,
     title: r.sneaker ?? "Unknown",
     brand: r.brand,
@@ -85,6 +95,7 @@ export async function GET(req: Request) {
   }));
 
   return NextResponse.json({
+    tier,
     index: indexSymbol ?? null,
     count: items.length,
     deals: items,
