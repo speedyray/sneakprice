@@ -6,7 +6,8 @@ export default function AboutPage() {
       <p className="text-gray-600 mb-6">
         SneakPrice is a sneaker market intelligence platform that helps
         collectors, resellers, and enthusiasts instantly understand the
-        real market value of sneakers.
+        real market value of sneakers. Our vision is to create a unified,
+         real-time, intelligent trading layer.
       </p>
 
       <p className="text-gray-600 mb-6">
