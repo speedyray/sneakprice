@@ -291,6 +291,10 @@ export default function SneakerExchange({ tier, isSignedIn }: Props) {
   const [dealsError, setDealsError] = useState<string | null>(null);
   const [dealsLastUpdated, setDealsLastUpdated] = useState<string | null>(null);
 
+  // `tier` is "FREE" for both anonymous and signed-in-but-free users — the
+  // `getCurrentTier()` helper falls back to FREE for unauthenticated callers.
+  // Use `isAnonymous` (not `tier`) to distinguish "show sign-in" from "show
+  // upgrade" CTAs.
   const isPro = isPaid(tier);
   const isAnonymous = !isSignedIn;
   const [scannerQuery, setScannerQuery] = useState<string>("Air Jordan 1");
@@ -370,6 +374,12 @@ export default function SneakerExchange({ tier, isSignedIn }: Props) {
 
   // Scanner — debounced fetch against /api/market.
   useEffect(() => {
+    if (isAnonymous) {
+      setScannerResult(null);
+      setScannerError(null);
+      setScannerLoading(false);
+      return;
+    }
     const trimmed = scannerQuery.trim();
     if (trimmed.length < 3) {
       setScannerResult(null);
@@ -409,7 +419,7 @@ export default function SneakerExchange({ tier, isSignedIn }: Props) {
       }
     }, 500);
     return () => clearTimeout(t);
-  }, [scannerQuery]);
+  }, [scannerQuery, isAnonymous]);
 
   const selectedIndex = useMemo(
     () =>
