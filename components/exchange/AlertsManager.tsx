@@ -37,6 +37,7 @@ type Props = {
   initialEvents: AlertEventRow[];
   symbolOptions: Option[];
   indexOptions: Option[];
+  /** Active-rule cap for this user; `null` means unlimited (paid tier). Computed server-side. */
   ruleCap: number | null;
 };
 

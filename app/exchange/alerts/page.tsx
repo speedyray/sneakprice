@@ -3,10 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentDbUser } from "@/lib/current-user";
 import { SYMBOLS } from "@/lib/exchange/catalog";
 import { INDEXES } from "@/lib/exchange/indexes";
-import { isPaid } from "@/lib/subscription";
+import { isPaid, FREE_TIER_RULE_CAP } from "@/lib/subscription";
 import AlertsManager from "@/components/exchange/AlertsManager";
-
-const FREE_TIER_RULE_CAP = 3;
 
 export const metadata = {
   title: "Alerts | SneakPrice Exchange",

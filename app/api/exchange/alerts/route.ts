@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { AlertKind } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentDbUser } from "@/lib/current-user";
-import { isPaid } from "@/lib/subscription";
-
-const FREE_TIER_RULE_CAP = 3;
+import { isPaid, FREE_TIER_RULE_CAP } from "@/lib/subscription";
 
 const ALLOWED_KINDS: AlertKind[] = [
   "PRICE_BELOW",
@@ -66,17 +64,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid threshold" }, { status: 400 });
   }
 
-  const activeCount = await prisma.alertRule.count({
-    where: { userId: user.id, active: true },
-  });
-  if (!isPaid(user.subscriptionTier) && activeCount >= FREE_TIER_RULE_CAP) {
-    return NextResponse.json(
-      {
-        error: "rule-cap-reached",
-        message: `Free tier supports ${FREE_TIER_RULE_CAP} active alerts. Upgrade to Pro for unlimited alerts.`,
-      },
-      { status: 402 }
-    );
+  if (!isPaid(user.subscriptionTier)) {
+    const activeCount = await prisma.alertRule.count({
+      where: { userId: user.id, active: true },
+    });
+    if (activeCount >= FREE_TIER_RULE_CAP) {
+      return NextResponse.json(
+        {
+          error: "rule-cap-reached",
+          message: `Free tier supports ${FREE_TIER_RULE_CAP} active alerts. Upgrade to Pro for unlimited alerts.`,
+        },
+        { status: 402 }
+      );
+    }
   }
 
   const rule = await prisma.alertRule.create({

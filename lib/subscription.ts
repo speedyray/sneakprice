@@ -5,6 +5,8 @@ export type SubscriptionTier = "FREE" | "PRO" | "PREMIUM" | "POWER_SELLER";
 
 export const PAID_TIERS: SubscriptionTier[] = ["PRO", "PREMIUM", "POWER_SELLER"];
 
+export const FREE_TIER_RULE_CAP = 3;
+
 export function isPaid(tier: SubscriptionTier | null | undefined): boolean {
   return tier ? PAID_TIERS.includes(tier) : false;
 }
