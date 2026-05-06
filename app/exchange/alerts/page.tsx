@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentDbUser } from "@/lib/current-user";
 import { SYMBOLS } from "@/lib/exchange/catalog";
 import { INDEXES } from "@/lib/exchange/indexes";
+import { isPaid } from "@/lib/subscription";
 import AlertsManager from "@/components/exchange/AlertsManager";
 
 const FREE_TIER_RULE_CAP = 3;
@@ -59,7 +60,7 @@ export default async function AlertsPage() {
       }))}
       symbolOptions={symbolOptions}
       indexOptions={indexOptions}
-      ruleCap={FREE_TIER_RULE_CAP}
+      ruleCap={isPaid(user.subscriptionTier) ? null : FREE_TIER_RULE_CAP}
     />
   );
 }

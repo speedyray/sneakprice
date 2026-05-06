@@ -37,7 +37,7 @@ type Props = {
   initialEvents: AlertEventRow[];
   symbolOptions: Option[];
   indexOptions: Option[];
-  ruleCap: number;
+  ruleCap: number | null;
 };
 
 const KIND_LABELS: Record<AlertKind, string> = {
@@ -91,7 +91,7 @@ export default function AlertsManager({
   const [submitting, setSubmitting] = useState(false);
 
   const activeCount = rules.filter((r) => r.active).length;
-  const atCap = activeCount >= ruleCap;
+  const atCap = ruleCap !== null && activeCount >= ruleCap;
 
   function targetOptionsForKind(k: AlertKind): Option[] {
     if (k === "INDEX_MOVE_OVER") return indexOptions;
@@ -189,8 +189,11 @@ export default function AlertsManager({
           <h2 className="mb-4 text-lg font-semibold">New alert</h2>
           {atCap ? (
             <p className="rounded-md border border-amber-700/40 bg-amber-950/30 p-3 text-sm text-amber-200">
-              Free tier limit reached ({ruleCap} active alerts). Pause or delete
-              an existing rule, or upgrade for more.
+              Free tier limit reached ({ruleCap} active alerts). Pause or delete an
+              existing rule, or{" "}
+              <a href="/pricing#pro" className="font-medium underline hover:text-amber-100">
+                upgrade to Pro for unlimited alerts →
+              </a>
             </p>
           ) : (
             <form onSubmit={createRule} className="grid gap-4 md:grid-cols-2">
@@ -266,7 +269,9 @@ export default function AlertsManager({
                   Create alert
                 </button>
                 <span className="ml-3 text-xs text-zinc-500">
-                  {activeCount}/{ruleCap} active rules
+                  {ruleCap === null
+                    ? `${activeCount} active (unlimited)`
+                    : `${activeCount}/${ruleCap} active rules`}
                 </span>
               </div>
             </form>
