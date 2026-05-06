@@ -18,6 +18,12 @@ import {
 type Trend = "bullish" | "cooling" | "watch";
 type DealStatus = "hot" | "good" | "watch";
 
+type SubscriptionTier = "FREE" | "PRO" | "PREMIUM" | "POWER_SELLER";
+const PAID_TIERS: SubscriptionTier[] = ["PRO", "PREMIUM", "POWER_SELLER"];
+function isPaid(tier: SubscriptionTier): boolean {
+  return PAID_TIERS.includes(tier);
+}
+
 type LiveIndex = {
   symbol: string;
   name: string;
@@ -272,7 +278,9 @@ function mapLiveDeal(row: LiveDealRow): ExchangeDeal {
   };
 }
 
-export default function SneakerExchange() {
+type Props = { tier: SubscriptionTier; isSignedIn: boolean };
+
+export default function SneakerExchange({ tier, isSignedIn }: Props) {
   const [indexes, setIndexes] = useState<LiveIndex[]>([]);
   const [indexesLoading, setIndexesLoading] = useState(true);
   const [indexesError, setIndexesError] = useState<string | null>(null);
@@ -283,7 +291,8 @@ export default function SneakerExchange() {
   const [dealsError, setDealsError] = useState<string | null>(null);
   const [dealsLastUpdated, setDealsLastUpdated] = useState<string | null>(null);
 
-  const [isPro] = useState<boolean>(false);
+  const isPro = isPaid(tier);
+  const isAnonymous = !isSignedIn;
   const [scannerQuery, setScannerQuery] = useState<string>("Air Jordan 1");
   const [scannerResult, setScannerResult] = useState<ScannerResult | null>(
     null
@@ -327,6 +336,12 @@ export default function SneakerExchange() {
     let cancelled = false;
 
     async function loadDeals() {
+      if (isAnonymous) {
+        setDeals([]);
+        setDealsLoading(false);
+        setDealsError(null);
+        return;
+      }
       try {
         const url = `/api/exchange/deals?index=${encodeURIComponent(selectedSymbol)}&take=30`;
         const res = await fetch(url, { cache: "no-store" });
@@ -351,7 +366,7 @@ export default function SneakerExchange() {
       cancelled = true;
       clearInterval(t);
     };
-  }, [selectedSymbol]);
+  }, [selectedSymbol, isAnonymous]);
 
   // Scanner — debounced fetch against /api/market.
   useEffect(() => {
@@ -372,7 +387,11 @@ export default function SneakerExchange() {
           `/api/market?q=${encodeURIComponent(trimmed)}`,
           { signal: ctrl.signal, cache: "no-store" }
         );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          const msg = body?.message ?? body?.error ?? `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
         const json = await res.json();
         setScannerResult({
           query: json.query,
@@ -403,7 +422,7 @@ export default function SneakerExchange() {
     return [...deals].sort((a, b) => b.profit - a.profit)[0];
   }, [deals]);
 
-  const visibleDeals = isPro ? deals : deals.slice(0, 2);
+  const visibleDeals = isPro ? deals : deals.slice(0, 3);
   const hiddenCount = Math.max(deals.length - visibleDeals.length, 0);
 
   const totalLiquidity = indexes.reduce(
@@ -613,52 +632,64 @@ export default function SneakerExchange() {
               </Panel>
 
               <Panel title="Scanner">
-                <div className="rounded-2xl border border-indigo-400/30 bg-indigo-500/10 p-4">
-                  <div className="mb-2 text-xs uppercase tracking-[0.22em] text-indigo-200">
-                    Live eBay scanner
+                {isAnonymous ? (
+                  <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/60 p-6 text-center text-sm text-slate-400">
+                    <p className="mb-3">Sign in to scan the live market.</p>
+                    <a
+                      href="/sign-in?redirect_url=/exchange"
+                      className="inline-block rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+                    >
+                      Sign in
+                    </a>
                   </div>
-                  <div className="flex items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3">
-                    <Search className="h-4 w-4 text-slate-400" />
-                    <input
-                      value={scannerQuery}
-                      onChange={(e) => setScannerQuery(e.target.value)}
-                      className="w-full bg-transparent text-white outline-none placeholder:text-slate-500"
-                      placeholder="Search a sneaker (e.g. AJ1 Chicago)"
-                    />
-                    {scannerLoading && (
-                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                ) : (
+                  <div className="rounded-2xl border border-indigo-400/30 bg-indigo-500/10 p-4">
+                    <div className="mb-2 text-xs uppercase tracking-[0.22em] text-indigo-200">
+                      Live eBay scanner
+                    </div>
+                    <div className="flex items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3">
+                      <Search className="h-4 w-4 text-slate-400" />
+                      <input
+                        value={scannerQuery}
+                        onChange={(e) => setScannerQuery(e.target.value)}
+                        className="w-full bg-transparent text-white outline-none placeholder:text-slate-500"
+                        placeholder="Search a sneaker (e.g. AJ1 Chicago)"
+                      />
+                      {scannerLoading && (
+                        <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                      )}
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
+                      <SmallMetric
+                        label="Listings"
+                        value={
+                          scannerResult ? `${scannerResult.listingCount}` : "—"
+                        }
+                      />
+                      <SmallMetric
+                        label="Median"
+                        value={
+                          scannerResult?.stats
+                            ? formatCurrency(scannerResult.stats.median)
+                            : "—"
+                        }
+                      />
+                      <SmallMetric
+                        label="Range"
+                        value={
+                          scannerResult?.stats
+                            ? `${formatCurrency(scannerResult.stats.min)}–${formatCurrency(scannerResult.stats.max)}`
+                            : "—"
+                        }
+                      />
+                    </div>
+                    {scannerError && (
+                      <div className="mt-3 text-xs text-rose-300">
+                        {scannerError}
+                      </div>
                     )}
                   </div>
-                  <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
-                    <SmallMetric
-                      label="Listings"
-                      value={
-                        scannerResult ? `${scannerResult.listingCount}` : "—"
-                      }
-                    />
-                    <SmallMetric
-                      label="Median"
-                      value={
-                        scannerResult?.stats
-                          ? formatCurrency(scannerResult.stats.median)
-                          : "—"
-                      }
-                    />
-                    <SmallMetric
-                      label="Range"
-                      value={
-                        scannerResult?.stats
-                          ? `${formatCurrency(scannerResult.stats.min)}–${formatCurrency(scannerResult.stats.max)}`
-                          : "—"
-                      }
-                    />
-                  </div>
-                  {scannerError && (
-                    <div className="mt-3 text-xs text-rose-300">
-                      {scannerError}
-                    </div>
-                  )}
-                </div>
+                )}
               </Panel>
 
               <Panel title="Best trade now">
@@ -687,7 +718,16 @@ export default function SneakerExchange() {
                           Projected net
                         </div>
                         <div className="mt-1 text-2xl font-semibold text-emerald-300">
-                          {isPro ? formatCurrency(bestDeal.profit) : "🔒 Unlock"}
+                          {isPro ? (
+                            formatCurrency(bestDeal.profit)
+                          ) : (
+                            <a
+                              href="/pricing#pro"
+                              className="text-emerald-400 hover:underline"
+                            >
+                              🔒 Unlock
+                            </a>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -695,7 +735,16 @@ export default function SneakerExchange() {
                           Margin
                         </div>
                         <div className="mt-1 text-lg font-semibold text-white">
-                          {isPro ? `${bestDeal.margin}%` : "Premium"}
+                          {isPro ? (
+                            `${bestDeal.margin}%`
+                          ) : (
+                            <a
+                              href="/pricing#pro"
+                              className="text-emerald-400 hover:underline"
+                            >
+                              Premium
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -737,13 +786,24 @@ export default function SneakerExchange() {
               </div>
             </div>
 
-            {!isPro && (
+            {!isAnonymous && !isPro && (
               <div className="rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-300">
-                Free view: partial profits shown, top 2 deals only
+                Free view: partial profits shown, top 3 deals only
               </div>
             )}
           </div>
 
+          {isAnonymous ? (
+            <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-950/60 p-8 text-center text-sm text-slate-400">
+              <p className="mb-3">Sign in to view live arbitrage deals.</p>
+              <a
+                href="/sign-in?redirect_url=/exchange"
+                className="inline-block rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+              >
+                Sign in
+              </a>
+            </div>
+          ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {visibleDeals.map((deal) => (
               <article
@@ -823,6 +883,15 @@ export default function SneakerExchange() {
                     <Bell className="h-4 w-4" />
                     Set alert
                   </a>
+                  {!isPro && (
+                    <a
+                      href="/pricing#pro"
+                      className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300 hover:border-emerald-400 hover:text-emerald-200"
+                    >
+                      Unlock all stats
+                      <ArrowRight className="h-4 w-4" />
+                    </a>
+                  )}
                 </div>
               </article>
             ))}
@@ -833,8 +902,9 @@ export default function SneakerExchange() {
               </div>
             )}
           </div>
+          )}
 
-          {hiddenCount > 0 && (
+          {!isAnonymous && hiddenCount > 0 && (
             <div className="mt-5 rounded-3xl border border-slate-800 bg-slate-950/60 p-5 text-center">
               <div className="text-lg font-semibold text-white">
                 {hiddenCount} more deals available in{" "}
@@ -844,10 +914,13 @@ export default function SneakerExchange() {
                 Upgrade subscribers to unlock the full execution feed and
                 real-time profit breakdowns.
               </div>
-              <button className="mt-4 inline-flex items-center gap-2 rounded-full border border-indigo-400/40 bg-indigo-500/10 px-5 py-2.5 text-sm font-medium text-indigo-200">
+              <a
+                href="/pricing#pro"
+                className="mt-4 inline-flex items-center gap-2 rounded-full border border-indigo-400/40 bg-indigo-500/10 px-5 py-2.5 text-sm font-medium text-indigo-200 hover:border-indigo-300 hover:text-indigo-100"
+              >
                 Unlock full feed
                 <ChevronRight className="h-4 w-4" />
-              </button>
+              </a>
             </div>
           )}
         </section>
