@@ -29,22 +29,6 @@ export async function GET(req: Request) {
     return Response.json({ error: "auth_required" }, { status: 401 });
   }
 
-  if (!isPaid(user.subscriptionTier)) {
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
-    const { allowed } = await checkAndIncrementScanLimit(user.clerkUserId, ip);
-    if (!allowed) {
-      return Response.json(
-        {
-          error: "rate_limit",
-          message:
-            "Daily scan limit reached. Upgrade to Pro for unlimited scans.",
-        },
-        { status: 429 }
-      );
-    }
-  }
-
   const { searchParams } = new URL(req.url);
   const query = (searchParams.get("q") ?? "").trim();
 
@@ -62,6 +46,22 @@ export async function GET(req: Request) {
     return Response.json(hit.value, {
       headers: { "X-Cache": "HIT" },
     });
+  }
+
+  if (!isPaid(user.subscriptionTier)) {
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+    const { allowed } = await checkAndIncrementScanLimit(user.clerkUserId, ip);
+    if (!allowed) {
+      return Response.json(
+        {
+          error: "rate_limit",
+          message:
+            "Daily scan limit reached. Upgrade to Pro for unlimited scans.",
+        },
+        { status: 429 }
+      );
+    }
   }
 
   const listings = await fetchEbayMarket(query, { limit: 50 });
