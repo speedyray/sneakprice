@@ -39,7 +39,7 @@ const TIERS: readonly Tier[] = [
       "Index cards (live)",
       "Top 3 arbitrage deals",
     ],
-    cta: { label: "Sign up free", href: "/sign-in" },
+    cta: { label: "Sign up free", href: "/login" },
   },
   {
     id: "pro",

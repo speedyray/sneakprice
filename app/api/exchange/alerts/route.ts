@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { AlertKind } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentDbUser } from "@/lib/current-user";
-import { isPaid, FREE_TIER_RULE_CAP } from "@/lib/subscription";
+import { isPaid } from "@/lib/subscription";
 
 const ALLOWED_KINDS: AlertKind[] = [
   "PRICE_BELOW",
@@ -15,6 +15,15 @@ export async function GET() {
   const user = await getCurrentDbUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!isPaid(user.subscriptionTier)) {
+    return NextResponse.json(
+      {
+        error: "upgrade-required",
+        message: "Alerts are a Pro feature. Upgrade to set price, margin, and index alerts.",
+      },
+      { status: 402 }
+    );
   }
 
   const [rules, recentEvents] = await Promise.all([
@@ -32,8 +41,7 @@ export async function GET() {
     }),
   ]);
 
-  const effectiveCap = isPaid(user.subscriptionTier) ? null : FREE_TIER_RULE_CAP;
-  return NextResponse.json({ rules, recentEvents, ruleCap: effectiveCap });
+  return NextResponse.json({ rules, recentEvents, ruleCap: null });
 }
 
 export async function POST(req: Request) {
@@ -65,18 +73,13 @@ export async function POST(req: Request) {
   }
 
   if (!isPaid(user.subscriptionTier)) {
-    const activeCount = await prisma.alertRule.count({
-      where: { userId: user.id, active: true },
-    });
-    if (activeCount >= FREE_TIER_RULE_CAP) {
-      return NextResponse.json(
-        {
-          error: "rule-cap-reached",
-          message: `Free tier supports ${FREE_TIER_RULE_CAP} active alerts. Upgrade to Pro for unlimited alerts.`,
-        },
-        { status: 402 }
-      );
-    }
+    return NextResponse.json(
+      {
+        error: "upgrade-required",
+        message: "Alerts are a Pro feature. Upgrade to set price, margin, and index alerts.",
+      },
+      { status: 402 }
+    );
   }
 
   const rule = await prisma.alertRule.create({

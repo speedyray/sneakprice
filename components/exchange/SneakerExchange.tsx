@@ -457,13 +457,15 @@ export default function SneakerExchange({ tier, isSignedIn }: Props) {
                 <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-cyan-300">
                   Hourly market data · eBay-derived
                 </span>
-                <a
-                  href="/exchange/alerts"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900/40 px-3 py-1 text-slate-300 hover:border-slate-500 hover:text-white"
-                >
-                  <Bell className="h-3.5 w-3.5" />
-                  Manage alerts
-                </a>
+                {isPro && (
+                  <a
+                    href="/exchange/alerts"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900/40 px-3 py-1 text-slate-300 hover:border-slate-500 hover:text-white"
+                  >
+                    <Bell className="h-3.5 w-3.5" />
+                    Manage alerts
+                  </a>
+                )}
                 {selectedIndex?.capturedAt && (
                   <span className="text-xs text-slate-500">
                     Last update: {timeAgo(selectedIndex.capturedAt)}
@@ -646,7 +648,7 @@ export default function SneakerExchange({ tier, isSignedIn }: Props) {
                   <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/60 p-6 text-center text-sm text-slate-400">
                     <p className="mb-3">Sign in to scan the live market.</p>
                     <a
-                      href="/sign-in?redirect_url=/exchange"
+                      href="/login?redirect_url=/exchange"
                       className="inline-block rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
                     >
                       Sign in
@@ -807,7 +809,7 @@ export default function SneakerExchange({ tier, isSignedIn }: Props) {
             <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-950/60 p-8 text-center text-sm text-slate-400">
               <p className="mb-3">Sign in to view live arbitrage deals.</p>
               <a
-                href="/sign-in?redirect_url=/exchange"
+                href="/login?redirect_url=/exchange"
                 className="inline-block rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
               >
                 Sign in
@@ -886,13 +888,15 @@ export default function SneakerExchange({ tier, isSignedIn }: Props) {
                       No listing URL
                     </span>
                   )}
-                  <a
-                    href="/exchange/alerts"
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:border-slate-500 hover:text-white"
-                  >
-                    <Bell className="h-4 w-4" />
-                    Set alert
-                  </a>
+                  {isPro && (
+                    <a
+                      href="/exchange/alerts"
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:border-slate-500 hover:text-white"
+                    >
+                      <Bell className="h-4 w-4" />
+                      Set alert
+                    </a>
+                  )}
                   {!isPro && (
                     <a
                       href="/pricing#pro"

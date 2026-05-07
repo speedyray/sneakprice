@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentDbUser } from "@/lib/current-user";
 import { SYMBOLS } from "@/lib/exchange/catalog";
 import { INDEXES } from "@/lib/exchange/indexes";
-import { isPaid, FREE_TIER_RULE_CAP } from "@/lib/subscription";
+import { isPaid } from "@/lib/subscription";
 import AlertsManager from "@/components/exchange/AlertsManager";
 
 export const metadata = {
@@ -15,7 +15,8 @@ export const dynamic = "force-dynamic";
 
 export default async function AlertsPage() {
   const user = await getCurrentDbUser();
-  if (!user) redirect("/sign-in?redirect_url=/exchange/alerts");
+  if (!user) redirect("/login?redirect_url=/exchange/alerts");
+  if (!isPaid(user.subscriptionTier)) redirect("/pricing#pro");
 
   const [rules, recentEvents] = await Promise.all([
     prisma.alertRule.findMany({
@@ -58,7 +59,7 @@ export default async function AlertsPage() {
       }))}
       symbolOptions={symbolOptions}
       indexOptions={indexOptions}
-      ruleCap={isPaid(user.subscriptionTier) ? null : FREE_TIER_RULE_CAP}
+      ruleCap={null}
     />
   );
 }
